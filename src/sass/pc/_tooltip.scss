@@ -1,0 +1,68 @@
+/*继承样式*/
+%wh{
+	width: 0;
+	height: 0;
+}
+/*公共样式*/
+.tooltip {
+    position: fixed;
+    z-index: $iui-z-index+30;
+    display: block;
+    font-size: 12px;
+
+}
+.tooltip-body{
+	background-color: #3f403b;
+	color:#eee;
+	padding: 10px;
+	max-width: 200px;
+	line-height: 1.6;
+	word-break:break-all;
+	border-radius: 5px;
+	letter-spacing: 1px;
+}
+
+.tooltip-arrow{
+	position: absolute;
+}
+
+/*上边提示样式*/
+.tooltip.top .tooltip-arrow{
+	left: $tooltip-trbl-1;
+	bottom: $tooltip-trbl-2;
+	@extend %wh;
+	border-top:$tooltip-border-1;
+	border-left: $tooltip-border-2;
+	border-right: $tooltip-border-2;
+	margin-left: $tooltip-margin;
+}
+/*右边提示样式*/
+.tooltip.right .tooltip-arrow{
+	top:$tooltip-trbl-1;
+	left: $tooltip-trbl-2;
+	@extend %wh;
+	border-right:$tooltip-border-1;
+	border-top: $tooltip-border-2;
+	border-bottom: $tooltip-border-2;
+	margin-top: $tooltip-margin;
+}
+/*下边提示样式*/
+.tooltip.bottom .tooltip-arrow{
+	left:$tooltip-trbl-1;
+	top: $tooltip-trbl-2;
+	@extend %wh;
+	border-bottom:$tooltip-border-1;
+	border-left: $tooltip-border-2;
+	border-right: $tooltip-border-2;
+	margin-left: $tooltip-margin;
+}
+/*左边提示样式*/
+.tooltip.left .tooltip-arrow{
+	top: $tooltip-trbl-1;
+	right: $tooltip-trbl-2;
+	@extend %wh;
+	border-left:$tooltip-border-1;
+	border-top: $tooltip-border-2;
+	border-bottom: $tooltip-border-2;
+	margin-top: $tooltip-margin;
+}

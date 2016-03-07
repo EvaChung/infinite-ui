@@ -1,0 +1,22 @@
+.IUI-loading-backdrop {
+    @extend %backdrop;
+}
+
+.IUI-loading-backdrop {
+    z-index: $iui-z-index-loading-backdrop;
+}
+
+.IUI-loading {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    margin-left: -30px;
+    margin-top: -30px;
+    background-color: #000;
+    opacity: 0.8;
+    width: 60px;
+    padding: 12px 0;
+    border-radius: 5px;
+    text-align: center;
+    z-index: $iui-z-index-loading;
+}

@@ -1,0 +1,53 @@
+/**
+ * mixin : gradient
+ * @param   $bgColor     [background color]
+ * @param   $bgOpacity   [opacity]
+ * @param   $supportIE   [compact IE]
+ */
+
+@mixin gradient($bgColor, $bgOpacity, $supportIE:true) {
+    background-color: rgba($bgColor, $bgOpacity);
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#{ie-hex-str(rgba($bgColor,$bgOpacity))}, endColorstr=#{ie-hex-str(rgba($bgColor,$bgOpacity))});
+    @if $supportIE {
+        :root & {
+            filter: none;
+        }
+    }
+}
+
+$iui-z-index:1000;
+
+$iui-z-index-layer-backdrop:$iui-z-index;
+$iui-z-index-layer:$iui-z-index + 1;
+
+$iui-z-index-loading-backdrop : $iui-z-index + 100;
+$iui-z-index-loading : $iui-z-index + 101;
+
+$iui-z-index-alert-backdrop : $iui-z-index + 10;
+$iui-z-index-alert : $iui-z-index + 11;
+
+$alert-color:#333 #666;
+$alert-header-font:bold 16px/1.2 "微软雅黑";
+$alert-content-font:normal 14px/1.8 "微软雅黑";
+$alert-footer-font:normal 18px/1.2 "微软雅黑";
+$alert-width:400px;
+
+$tooltip-trbl-1:50%;
+$tooltip-trbl-2:-10px;
+$tooltip-margin:-5px;
+$tooltip-border-1:10px solid #3f403b;
+$tooltip-border-2:5px solid transparen-2;
+
+
+%backdrop {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    @include gradient(#000, .35);
+}
+
+.hide {
+    display: none;
+}

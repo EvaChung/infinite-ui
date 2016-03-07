@@ -1,0 +1,57 @@
+$iui-z-index:1000;
+
+// layer z-index
+$layer-z-index-layer-backdrop: $iui-z-index;
+$layer-z-index-layer: $iui-z-index + 10;
+
+
+// loading z-index
+$iui-z-index-loading-backdrop:$iui-z-index;
+$iui-z-index-loading:$iui-z-index + 10;
+
+// alert z-index
+$iui-z-index-alert-backdrop:$iui-z-index;
+$iui-z-index-alert: $iui-z-index + 10;
+
+// panel z-index
+$panel-viewport-zIndex: $iui-z-index;
+$panel-overlay-zIndex:$iui-z-index + 100;
+$panel-zIndex: $iui-z-index - 100;
+
+// navbar z0index
+$navbar-zIndex: $iui-z-index + 10;
+
+// alert variables
+$iui-alert-bg-color:#e8e8e8;
+$iui-alert-frist-color:#333;
+$iui-alert-second-color:#333;
+$iui-alert-header-font:bold 16px/1.2 "微软雅黑";
+$iui-alert-content-font:normal 1.6rem/1.8 "微软雅黑";
+$iui-alert-footer-font:normal 18px/1.2 "微软雅黑";
+$iui-alert-width:270px;
+
+
+.hide {
+    display: none;
+}
+
+%backdrop {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(#000, .35);
+}
+
+
+
+
+
+
+
+
+
+
+
+

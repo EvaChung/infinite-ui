@@ -1,0 +1,31 @@
+.email-list {
+    border-top: none;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    width: 100%;
+    background-color: #fff;
+    color: #888;
+    border:1px #ccc solid;
+    box-sizing:border-box;
+    border-top:none;
+    font-family: "Microsoft Yahei"
+}
+
+.email-item {
+    padding: 8px 10px;
+    border-bottom: 1px #ccc solid;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.email-item:hover,
+.email-item.checked {
+    background-color: #eee;
+    border-radius: 5px;
+}
+
+.email-item:last-child {
+    border: none;
+}
