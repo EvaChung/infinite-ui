@@ -1,6 +1,17 @@
 # infinite-ui
 A lightweight jQuery UI library
 
+##支持
+* Internet Explorer 8+
+
+* Chrome 4+
+
+* Firefox 5+
+
+* IOS 6+
+
+* Android 4.4.0+
+
 ## Installation
 
 
