@@ -77,11 +77,13 @@ $.fn.IUI({
                 $this.after($backdrop);
                 this.resize();
                 $content.addClass(config.animateClass);
+                $this.trigger('layer.show',[this]);
             },
             hideLayer: function() {
                 $this.addClass('hide');
                 $content.removeClass(config.animateClass);
                 $body.removeClass('layer-open').find('.layer-backdrop').remove();
+                $this.trigger('layer.hide',[this]);
             },
             resize: function() {
                 var $content = $this.find('.layer-content');

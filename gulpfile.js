@@ -55,7 +55,8 @@ var commonComponents = [
     './src/js/returnTop.js',
     './src/js/tab.js',
     './src/js/ajaxForm.js',
-    './src/js/validate.js'
+    './src/js/validate.js',
+    './src/js/tokenize.js'
 ];
 
 /**
@@ -73,8 +74,8 @@ var components = coreUtil.concat(globWidgets, commonComponents, argv.pc ? pcComp
 
 
 /**
- * gulp --pc        编译pc
- * gulp --mobi      编译mobile
+ * gulp build --pc        编译pc
+ * gulp build --mobi      编译mobile
  */
 gulp.task('build', function() {
     gulp.src(components)

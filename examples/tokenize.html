@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<title>Document</title>
+	<link rel="stylesheet" href="../dist/style-pc.css">
+	<script src="../src/jquery.js"></script>
+	<script type="text/javascript" src="../dist/iui.js"></script>
+</head>
+<body>
+	<h2>示例一（默认）</h2>
+	<p>data-showAll="true" data-create="true" data-limitCount="Infinity"</p>
+	<p>
+		input 为空显示选项，自动创建没有的选项，不限制选择个数，提示存在
+	</p>
+	<div class="tokenize">
+		<select multiple name="tokenize-demo" id="" class="hide">
+			<option selected="selected" value="a b c">a b c</option>
+			<option value="d d d">d d d</option>
+			<option value="u s a">u s a</option>
+		</select>
+	</div>
+
+
+	<h2>示例二</h2>
+	<p>data-showAll="false" data-create="false" data-limitCount="2"</p>
+	<p>
+		input 为空不显示选项，不自动创建没有的选项，限制选择个数
+	</p>
+	<div class="tokenize" data-showAll="false" data-create="false" data-limitCount="2">
+		<select multiple name="tokenize-demo" id="" class="hide">
+			<option value="css">css</option>
+			<option value="html">html</option>
+			<option value="javascript">javascript</option>
+			<option value="svg">svg</option>
+			<option value="canvas">canvas</option>
+			<option value="react">react</option>
+			<option value="a b c">a b c</option>
+			<option value="d d d">d d d</option>
+			<option value="u s a">u s a</option>
+		</select>
+	</div>
+	<script>
+		$('.tokenize').IUI('tokenize',{
+			overLimitCount: function($err){
+				alert('只能选择' + $err.data('limitCount') + '个token')
+			},
+			existToken: function($err){
+				var value = $err.find('input').val();
+				alert(value + '已经存在')
+			}
+		});
+
+	</script>
+</body>
+</html>

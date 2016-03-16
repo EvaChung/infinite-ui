@@ -1,0 +1,64 @@
+
+.tokenize{
+	position: relative;
+
+	.hide,.hidden{
+		display: none;
+	}
+
+	.token{
+		min-height: 80px;
+		word-break: break-all;
+		padding: 5px;
+		border: 1px solid #ddd;
+		box-sizing: border-box;
+		position: relative;
+		z-index: 1;
+
+		.token-item{
+			display: inline-block;
+			margin: 5px 0 0 5px;
+			padding: 0 5px;
+			line-height: 18px;
+			background-color: #eff2f7;
+			border: 1px solid #ccd5e3;
+			font-size: 12px;
+		}
+
+		input{
+			outline: none;
+			width: 60px;
+			border: none;
+		}
+
+		.token-close{
+			padding-left: 5px;
+			text-decoration: none;
+			cursor: pointer;
+			color: #a6b4ce;
+		}
+	}
+
+	ul{
+		position: absolute;
+		top: 100%;
+		left: 0;
+		width: 100%;
+		text-indent: 15px;
+		line-height: 28px;
+		font-size: 14px;
+		border: 1px solid #ddd;
+		border-top: none;
+		box-sizing: border-box;
+		background-color: #fff;
+		z-index: 2;
+		margin: 0;
+		padding: 0;
+
+		li.current{
+			background-color: #0081c2;
+			color: white;
+		}
+	}
+}
+
