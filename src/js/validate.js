@@ -167,14 +167,14 @@ $.fn.IUI({
          * init方法     初始化
          */
         Validate.prototype.init = function() {
-            var _this = this;
-            var collections = _this.options.collections;
+            var self = this;
+            var collections = self.options.collections;
             var statusArr = ['info','success','error'];
             for (var i = 0; i < collections.length; i++) {
-                _this.add(collections[i]);
+                self.add(collections[i]);
             }
-            _this.behavior();
-            $.each(_this.cache,function(name,fields) {
+            self.behavior();
+            $.each(self.cache,function(name,fields) {
                 var contextClassName = /validate-context-(info|success|error)/.exec(fields.context[0].className);
                 var initStatus;
                 if(contextClassName){
@@ -209,25 +209,25 @@ $.fn.IUI({
          * behavior     行为方法，如：focus、blur、change
          */
         Validate.prototype.behavior = function() {
-            var _this = this;
-            var _handle = handler(this.options.collections);
+            var self = this;
+            var handle = handler(this.options.collections);
 
-            this.$selector.on('focus', _handle, function(event) {
+            this.$selector.on('focus', handle, function(event) {
                 var $this = $(this);
                 var _name = $this.data('required');
-                var collections = _this.cache[_name];
-                if (_this.options.infoClass) {
-                    _this.message(0, collections);
+                var collections = self.cache[_name];
+                if (self.options.infoClass) {
+                    self.message(0, collections);
                 }
                 $this.trigger('validate.focus', collections);
             });
 
-            this.$selector.on('blur', _handle, function(event) {
-                _this.verify.call(this, _this, 'blur');
+            this.$selector.on('blur', handle, function(event) {
+                self.verify.call(this, self, 'blur');
             });
 
             this.$selector.on('change', 'input[type=radio][data-required],input[type=checkbox][data-required]', function(event) {
-                _this.verify.call(this, _this, 'change');
+                self.verify.call(this, self, 'change');
             });
 
         };
@@ -271,52 +271,55 @@ $.fn.IUI({
          */
         Validate.prototype.message = function(status, options, matchesName) {
 
-            var _className, _status, _contextClass, _msg, $target, $msg;
+            var className, status, contextClass, msg, $target, $msgEl;
 
-            _contextClass = ['info', 'success', 'error'];
+            contextClass = ['info', 'success', 'error'];
 
-            $msg = this.options.globalMessage ? $(this.options.globalMessage) : options.context;
+            $msgEl = this.options.globalMessage ? $(this.options.globalMessage) : options.context;
 
 
             if (status === 0) {
-                _className = this.options.infoClass;
-                _msg = options.infoMsg;
+                className = this.options.infoClass;
+                msg = options.infoMsg;
             } else if (status === 1) {
-                _className = this.options.successClass;
-                _msg = '';
+                className = this.options.successClass;
+                msg = '';
             } else if (status === 2) {
-                _className = this.options.errorClass;
-                _msg = options.matches[matchesName].errMsg;
+                className = this.options.errorClass;
+                msg = options.matches[matchesName].errMsg;
             } else {
                 // 后期再考虑 status === anything ...
             }
 
-            _className = _className.replace(/\./g, ' ').slice(1);
-            $msg.removeClass('validate-context-info validate-context-success validate-context-error')
-                .addClass('validate-context-' + _contextClass[status]).find('.validate-message').remove();
-            $target = $('<div class="validate-message ' + _className + '" >' + _msg + '</div>');
-            $msg.append($target);
+            className = className.replace(/\./g, ' ').slice(1);
+            $msgEl.removeClass('validate-context-info validate-context-success validate-context-error')
+                .addClass('validate-context-' + contextClass[status]).find('.validate-message').remove();
+            $target = $('<div class="validate-message ' + className + '" >' + msg + '</div>');
+            $msgEl.append($target);
 
         };
 
         /**
          * batch    批量验证
          * @param  {Boolean}            circulation       强制循环，true：将全部验证，false：其中一个验证不通过将返回false并中断循环
-         * @return {Number,Boolean}                       若circulation为true，将返回boolean，否则返回状态码 1 或 2 。
+         * @return {Boolean}
          *
          */
         Validate.prototype.batch = function(circulation) {
-            var _this = this;
+            var self = this;
+            var status = [];
             $.each(this.cache, function(name, target) {
                 var initStatus = target.self.data('validateStatus');
-                var _result = initStatus === void(0) ? _this.verify.call(target.self, _this, 'batch') : initStatus;
+                var result = initStatus === void(0) ? self.verify.call(target.self, self, 'batch') : initStatus;
 
-                if (circulation) {
-                    return _result === 2 ? false : true;
+                if(circulation && result ===2){
+                    status.push(result);
+                    return false;
                 }
 
-                return _result;
+                status.push(result);
             });
+            return $.inArray(2,status) === -1 ? true : false;
         };
         /**
          * handler 生成事件代理对象
@@ -324,14 +327,14 @@ $.fn.IUI({
          * @return {String}     事件委托目标
          */
         function handler(collections) {
-            var _str = '';
+            var str = '';
             for (var i = 0; i < collections.length; i++) {
                 if (/checkbox|radio/.test(collections[i].type)) {
                     continue;
                 }
-                _str += '[data-required=' + collections[i].required + '],';
+                str += '[data-required=' + collections[i].required + '],';
             }
-            return _str.slice(0, _str.length - 1);
+            return str.slice(0, str.length - 1);
 
         }
 

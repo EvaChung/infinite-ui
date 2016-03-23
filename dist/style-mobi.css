@@ -348,3 +348,125 @@
   background-color: #0081c2;
   color: white;
 }
+
+.mPicker-hide {
+  visibility: hidden;
+}
+
+.slide-wapper {
+  overflow-y: scroll;
+}
+
+.slide-item {
+  background: #EAC8AE;
+}
+
+.mPicker-pr {
+  position: relative;
+}
+
+/*遮罩*/
+.mPicker-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9998;
+  background: #000;
+  opacity: .7;
+}
+
+/*选中的线*/
+.mPicker-active-box {
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  z-index: 998;
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+}
+
+.mPicker-main {
+  box-sizing: border-box;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 9999;
+  -webkit-transition: all .2s ease-out;
+  transition: all .2s ease-out;
+}
+
+.mPicker-main.down {
+  transform: translateY(100%);
+  -webkit-transform: translateY(100%);
+}
+
+.mPicker-header {
+  position: relative;
+  height: 60px;
+  line-height: 60px;
+  text-align: center;
+  background: #fff;
+}
+
+.mPicker-content {
+  overflow: hidden;
+  z-index: 999;
+  background: #FFF;
+  position: relative;
+}
+.mPicker-content ul {
+  width: 100%;
+  float: left;
+  text-align: center;
+  position: relative;
+  z-index: 999;
+  overflow-x: hidden;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.mPicker-content li {
+  padding-left: 3%;
+  padding-right: 3%;
+  height: 40px;
+  line-height: 40px;
+  color: #999;
+  -webkit-transition: all .2s ease-out;
+  transition: all .2s ease-out;
+}
+.mPicker-content li.active {
+  color: #333;
+  -webkit-transform: scale(1.2);
+  transform: scale(1.2);
+}
+.mPicker-content.level-2 ul {
+  width: 50%;
+}
+
+/*按钮*/
+.mPicker-confirm, .mPicker-cancel {
+  position: absolute;
+  top: 0;
+  color: #333;
+  padding: 0 20px;
+  display: block;
+  text-decoration: none;
+}
+
+.mPicker-cancel {
+  left: 5%;
+}
+
+.mPicker-confirm {
+  right: 5%;
+}
+
+.mPicker-input-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+}

@@ -83,3 +83,5 @@ $ gulp build:mobi			//编译mobile组件及css
 * 2016年03月01日 取消`animated`库的依赖
 
 * 2016年03月05日 新增`validate`组件
+
+* 2016年03月21日 新增`mpicker`组件

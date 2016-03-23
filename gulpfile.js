@@ -42,7 +42,8 @@ var pcComponents = [
 var mobileComponents = [
     './src/js/hideNavbar.js',
     './src/js/fresh.js',
-    './src/js/panel.js'
+    './src/js/panel.js',
+    './src/js/mpicker.js'
 ];
 
 
