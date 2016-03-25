@@ -1,6 +1,8 @@
-# infinite-ui
+# Infinite-ui
 A lightweight jQuery UI library
 
+##Version
+`1.1.1`
 ##Support
 * Internet Explorer 8+
 
@@ -87,4 +89,6 @@ $ gulp build:mobi			//编译mobile组件及css
 * 2016年03月21日 新增`mpicker`组件
 
 * 2016年03月21日 重构`layer`组件，降低耦合度
+
+
 
