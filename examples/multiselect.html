@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>select</title>
+    <link rel="stylesheet" href="../dist/style-pc.css">
+</head>
+
+<body>
+    <div class="main">
+        <div class="multiselect-main clearfix">
+            <select name="multi[]" id="" multiple="multiple"></select>
+            <div class="multiselect-box">
+                <ul class="multiselect">
+                </ul>
+            </div>
+
+            <div class="multiselect-toolBox" style="">
+                <button class="mutiselect-undo">撤销</button>
+                <button class="mutiselect-rightAll">>></button>
+                <button class="mutiselect-right">></button>
+                <button class="mutiselect-leftAll"><<</button>
+                <button class="mutiselect-left"><</button>
+                <button class="mutiselect-redo">取消撤销</button>
+                <button class="mutiselect-render">重新渲染</button>
+            </div>
+            <div class="multiselect-box">
+                <ul class="multiselect-to">
+                </ul>
+            </div>
+        </div>
+
+        <div class="multiselect-main-2 clearfix">
+            <select name="multi[]" id="" multiple="multiple"></select>
+            <div class="multiselect-box">
+                <ul class="multiselect">
+                </ul>
+            </div>
+
+            <div class="multiselect-toolBox" style="">
+                <button class="mutiselect-undo">撤销</button>
+                <button class="mutiselect-rightAll">>></button>
+                <button class="mutiselect-right">></button>
+                <button class="mutiselect-leftAll"><<</button>
+                <button class="mutiselect-left"><</button>
+                <button class="mutiselect-redo">取消撤销</button>
+            </div>
+            <div class="multiselect-box">
+                <ul class="multiselect-to">
+                </ul>
+            </div>
+        </div>
+
+        <div class="multiselect-main-3 clearfix">
+            <select name="multi[]" id="" multiple="multiple"></select>
+            <div class="multiselect-box">
+                <ul class="multiselect">
+                </ul>
+            </div>
+
+            <div class="multiselect-toolBox" style="">
+                <button class="mutiselect-undo">撤销</button>
+                <button class="mutiselect-rightAll">>></button>
+                <button class="mutiselect-right">></button>
+                <button class="mutiselect-leftAll"><<</button>
+                <button class="mutiselect-left"><</button>
+                <button class="mutiselect-redo">取消撤销</button>
+            </div>
+            <div class="multiselect-box">
+                <ul class="multiselect-to">
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    <script src="../src/jquery.js"></script>
+    <script src="../dist/iui.js"></script>
+    <!-- <script src="../src/js/multiselect.js"></script> -->
+<script>
+$(function(){
+    var json=[{
+        name:'111',
+        value:'yi',
+        child:[{
+            value:'yi',
+            name:'yi'
+        },{
+            value:'two',
+            name:'two'
+        },{
+            value:'three',
+            name:'three'
+        }]
+    },{
+        name:'222',
+        value:'yi',
+        child:[{
+            value:'2yi',
+            name:'2yi'
+        },{
+            value:'2two',
+            name:'2two'
+        },{
+            value:'2three',
+            name:'2three'
+        }]
+    },{
+        name:'333',
+        value:'yi',
+        child:[{
+            value:'3yi',
+            name:'3yi'
+        },{
+            value:'3two',
+            name:'3two'
+        },{
+            value:'3three',
+            name:'3three'
+        }]
+    }];
+
+    var jsonUpdate=[{
+        name:'111',
+        value:'yi',
+        child:[{
+            value:'yi',
+            name:'yi'
+        },{
+            value:'two',
+            name:'two'
+        },{
+            value:'three',
+            name:'three'
+        }]
+    },{
+            value:'2yi',
+            name:'2yi'
+        },{
+            value:'2two',
+            name:'2two'
+        },{
+            value:'2three',
+            name:'2three'
+        }];
+
+    var objectExamples=$('.multiselect-main').IUI('multiselect',{
+        level:2,
+        dataJson:json,
+        afterMoveLeft:function(val){
+            // console.info('移到左边');
+            // console.info($('.multiselect-main').find('select').val());
+            // $('.tag-select').tokenize().clear();
+        },
+        afterMoveRight:function(val){
+            // console.info($('.multiselect-main').find('select').val())
+            // console.info('移到右边');
+        }
+    });
+
+    $('.mutiselect-render').on('click', function(event) {
+        event.preventDefault();
+        objectExamples.updateJson(jsonUpdate,1);
+    });
+
+    //objectExamples.moveRightAll();
+    // var $ele=$('.multiselect li[data-id="11"]');
+    // objectExamples.moveRight($ele);
+    //objectExamples.moveLeftAll();
+
+    var objectExamples2=$('.multiselect-main-2').IUI('multiselect',{
+        level:2,
+        dataJson:json,
+        afterMoveLeft:function(val){
+            console.info('移到左边');
+            // $('.tag-select').tokenize().clear();
+        },
+        afterMoveRight:function(val){
+            console.info('移到右边');
+        }
+    });
+    var objectExample3=$('.multiselect-main-3').IUI('multiselect',{
+        dataJson:json,
+        afterMoveLeft:function(val){
+            console.info('移到左边');
+            // $('.tag-select').tokenize().clear();
+        },
+        afterMoveRight:function(val){
+            console.info('移到右边');
+        }
+    });
+})
+
+</script>
+</body>
+
+</html>

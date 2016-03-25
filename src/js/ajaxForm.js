@@ -22,37 +22,37 @@ $.fn.IUI({
 
             };
 
-            var $this = $(this);
-            var $fields = $this.find('input');
+            var $selector = $(this);
+            var $fields = $selector.find('input');
             var config = $.extend({}, defaults, options);
 
-            $this.data('deferred', config);
+            $selector.data('deferred', config);
 
-            $this.on('submit', function(event) {
+            $selector.on('submit', function(event) {
                 event.preventDefault();
-                if ($this.hasClass('disabled')) {
+                if ($selector.hasClass('disabled')) {
 
-                    config.pending.call($this, config);
+                    config.pending.call($selector, config);
 
                     return false;
                 }
 
-                var beforeResult = config.before.call($this, event, config);
+                var beforeResult = config.before.call($selector, event, config);
 
                 if (beforeResult === false) {
                     return false;
                 }
-                $this.addClass('disabled').prop('disabled',true);
+                $selector.addClass('disabled').prop('disabled',true);
                 $.ajax({
                     url: config.url,
                     type: config.method,
-                    data: $this.serialize()
+                    data: $selector.serialize()
                 }).then(function(res) {
-                    $this.removeClass('disabled').prop('disabled',false);
-                    config.success.call($this, res, config);
+                    $selector.removeClass('disabled').prop('disabled',false);
+                    config.success.call($selector, res, config);
                 }, function(err) {
-                    $this.removeClass('disabled').prop('disabled',false);
-                    config.error.call($this, err, config);
+                    $selector.removeClass('disabled').prop('disabled',false);
+                    config.error.call($selector, err, config);
                 });
             });
 

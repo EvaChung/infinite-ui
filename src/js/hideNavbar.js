@@ -58,10 +58,8 @@ $.fn.IUI({
         }
 
         function behavior(direction) {
-            var _direction = direction;
-
-            //_direction => hide
-            if (_direction) {
+            //direction => hide
+            if (direction) {
                 if ($navbar.hasClass('navbar-hidden')) {
                     return false;
                 }

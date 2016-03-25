@@ -27,8 +27,8 @@ $.extend({
         var id = new Date().getTime();
         var objWidth = obj.outerWidth();
         var objHeight = obj.outerHeight();
-        var _x = obj.offset().left;
-        var _y = obj.offset().top;
+        var x = obj.offset().left;
+        var y = obj.offset().top;
         var tip;
 
         clearTimeout(obj.data('count'));
@@ -36,7 +36,7 @@ $.extend({
         if (param.position) {
             if (typeof obj.attr('data-tip') === 'undefined') {
 
-                $('<div class="tips" id="tip_' + id + '" style="left:' + (_x + param.offset[0]) + 'px;top:' + (_y + objHeight + param.offset[1]) + 'px"></div>').appendTo('body');
+                $('<div class="tips" id="tip_' + id + '" style="left:' + (x + param.offset[0]) + 'px;top:' + (y + objHeight + param.offset[1]) + 'px"></div>').appendTo('body');
                 obj.attr('data-tip', id);
 
             }

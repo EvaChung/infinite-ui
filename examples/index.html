@@ -1,12 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>Document</title>
-	<script src="../src/jquery.js"></script>
-	<script type="text/javascript" src="../dist/iui.js"></script>
-</head>
-<body>
 
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/dist/style-pc.css">
+    <script src="../src/jquery.js"></script>
+    <script type="text/javascript" src="../dist/iui.js"></script>
+</head>
+
+<body>
+    <script type="text/html" id="demoOne-template">
+        <div style="padding:20px;">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Username</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td rowspan="2">1</td>
+                        <td>Mark</td>
+                        <td>Otto</td>
+                        <td>@mdo</td>
+                    </tr>
+                    <tr>
+                        <td>Mark</td>
+                        <td>Otto</td>
+                        <td>@TwBootstrap</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Jacob</td>
+                        <td>Thornton</td>
+                        <td>@fat</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td colspan="2">Larry the Bird</td>
+                        <td>@twitter</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </script>
+    <div class="container">
+        <br>
+        <a href="javascript:;" class="btn btn-primary">click me</a>
+        <script type="text/javascript">
+        var staticLayer = $('#demoOne').IUI('layer', {
+            offsetWidth: 500,
+            content: $('#demoOne-template').html()
+        });
+
+        var staticModals = $('#demoTwo').IUI('layer',{
+            offsetWidth: 500,
+            content: $('#demoOne-template').html()
+        });
+        //staticModals.showLayer();
+        // setInterval(function(){
+        // 	$('#demoTwo').find('.layer-content').append('<p>123123</p>');
+        // 	staticModals.resize();
+        // 	staticModals.showLayer().hideLayer();
+        // }, 500);
+
+        var ajaxLayer = $('#demoThree').IUI('layer',{
+        	url:'./ext/layer-ajaxPage.html',
+            offsetWidth:600,
+        	successCall:function(res,ajax,deferred){
+        		deferred.$content.html(res);
+        	}
+        });
+        ajaxLayer.ajaxLoad();
+        </script>
+    </div>
 </body>
+
 </html>

@@ -85,3 +85,6 @@ $ gulp build:mobi			//编译mobile组件及css
 * 2016年03月05日 新增`validate`组件
 
 * 2016年03月21日 新增`mpicker`组件
+
+* 2016年03月21日 重构`layer`组件，降低耦合度
+

@@ -396,8 +396,8 @@
             var id = new Date().getTime();
             var objWidth = obj.outerWidth();
             var objHeight = obj.outerHeight();
-            var _x = obj.offset().left;
-            var _y = obj.offset().top;
+            var x = obj.offset().left;
+            var y = obj.offset().top;
             var tip;
 
             clearTimeout(obj.data('count'));
@@ -405,7 +405,7 @@
             if (param.position) {
                 if (typeof obj.attr('data-tip') === 'undefined') {
 
-                    $('<div class="tips" id="tip_' + id + '" style="left:' + (_x + param.offset[0]) + 'px;top:' + (_y + objHeight + param.offset[1]) + 'px"></div>').appendTo('body');
+                    $('<div class="tips" id="tip_' + id + '" style="left:' + (x + param.offset[0]) + 'px;top:' + (y + objHeight + param.offset[1]) + 'px"></div>').appendTo('body');
                     obj.attr('data-tip', id);
 
                 }
@@ -466,8 +466,15 @@
      *
      *
      */
-    $.fn.IUI({
-        layer: function(options) {
+    ;
+    (function($, window) {
+
+        var $backdrop = $('<div class="layer-backdrop"></div>');
+        var screenH = document.documentElement.clientHeight;
+        var $body = $('body');
+
+
+        function Layer(config, selector) {
             var defaults = {
                 container: 'body',
                 vertical: true,
@@ -486,130 +493,165 @@
                 confirmCall: function() {},
                 cancelCall: function() {}
             };
+            this.$selector = selector;
+            this.config = $.extend(defaults, config);
+            this.$backdrop = $backdrop;
 
-            var config = $.extend({}, defaults, options);
+            this.init();
+            this.event();
+        }
+
+        Layer.prototype.init = function() {
+            var self = this;
+            var config = self.config;
             var template = '<div class="layer-box hide" id="{layerName}"><div class="layer-content">' + config.content + '</div></div>';
-            var $this = this.length ? this : $(template.replace('{layerName}', this.selector.replace('#', ''))).appendTo(config.container);
-            var $body = $('body');
+            var $selector = this.$selector = self.$selector.length ? self.$selector : $(template.replace('{layerName}', self.$selector.selector.replace('#', ''))).appendTo(config.container);
             var $container = config.container === 'body' ? $body : $(config.container);
-            var $content = $this.find('.layer-content');
-            var $backdrop = $('<div class="layer-backdrop"></div>');
             var closeHandle = config.closeHandle;
-            var screenH = document.documentElement.clientHeight;
-            var _width = Number($this.attr('data-width')) || config.offsetWidth;
-            var _height = Number($this.attr('data-height')) || config.offsetHeight;
+            var $content = this.$content = $selector.find('.layer-content');
+            var layerWidth = Number($selector.attr('data-width')) || config.offsetWidth;
+            var layerHeight = Number($selector.attr('data-height')) || config.offsetHeight;
 
-            var deferred = {
-                target: $this,
-                content: $content,
-                setting: config,
-                id: layerId++,
-                showLayer: function() {
-                    $this.removeClass('hide');
-                    $this.after($backdrop);
-                    this.resize();
-                    $content.addClass(config.animateClass);
-                    $this.trigger('layer.show', [this]);
-                },
-                hideLayer: function() {
-                    $this.addClass('hide');
-                    $content.removeClass(config.animateClass);
-                    $body.removeClass('layer-open').find('.layer-backdrop').remove();
-                    $this.trigger('layer.hide', [this]);
-                },
-                resize: function() {
-                    var $content = $this.find('.layer-content');
-                    var outerHeight = parseInt($content.css('margin-bottom')) * 2;
-                    var _contentHeight = $content.outerHeight() + outerHeight;
-                    if (config.vertical && _contentHeight < screenH) {
-                        $body.removeClass('layer-open');
-                        $content.css({
-                            'top': '50%',
-                            'margin-top': -(_contentHeight / 2)
-                        });
-                        return false;
-                    }
+            $content.data({
+                initWidth: layerWidth,
+                initHeight: layerHeight
+            }).css({
+                width: layerWidth,
+                height: layerHeight
+            });
+        };
 
-                    $body.addClass('layer-open');
-                    $content.removeAttr('style').css({
-                        'width': _width,
-                        'height': _height
-                    });
-                },
-                ajaxLoad: function() {
-                    var _url = config.url || '?';
-                    var _method = $this.attr('data-method') || 'GET';
-                    var _dataType = config.dataType;
-                    var _this = this;
+        Layer.prototype.ajaxLoad = function() {
+            var self = this;
+            var config = self.config;
+            var $selector = self.$selector;
+            var requestUrl = config.url || '?';
+            var method = $selector.attr('data-method') || 'GET';
+            var dataType = config.dataType;
 
-                    if (config.cache && $this.data('success')) {
-                        _this.showLayer();
-                        return false;
-                    }
+            if (config.cache && $selector.data('success')) {
+                self.showLayer();
+                return false;
+            }
 
-                    $.loading(true, true);
-                    $this.data('success', 1);
-                    $.ajax({
-                        url: _url,
-                        type: _method,
-                        dataType: config.dataType,
-                        data: config.data
-                    }).then(function(res) {
-                        $.loading(false);
-                        config.successCall.apply($this, [res, this, deferred]);
-                        _this.showLayer();
-                    }, function(err) {
-                        $.loading(false);
-                        _this.hideLayer();
-                        config.errorCall.apply($this, [err, this, deferred]);
-                    });
-                }
-            };
+            $.loading(true, true);
+            $selector.data('success', 1);
 
-
-            $content.css({
-                'width': _width,
-                'height': _height
-
+            $.ajax({
+                url: requestUrl,
+                type: method,
+                dataType: dataType,
+                data: config.data
+            }).then(function(res) {
+                $.loading(false);
+                config.successCall.apply($selector, [res, this, self]);
+                self.showLayer();
+            }, function(err) {
+                $.loading(false);
+                self.hideLayer();
+                config.errorCall.apply($selector, [err, this, self]);
             });
 
+            return self;
+        };
+
+        Layer.prototype.event = function() {
+            var self = this;
+            var config = self.config;
+            var $selector = self.$selector;
 
             //确认事件
-            $this.on('click.iui-layer', config.confirmHandle, function(event) {
+            $selector.on('click.iui-layer', config.confirmHandle, function(event) {
                 event.preventDefault();
-                config.confirmCall.apply($this, [event, this, deferred]);
+                config.confirmCall.apply($selector, [event, this]);
                 return false;
             });
 
             // 阴影层事件
-            $this.on('click.iui-layer', function(event) {
+            $selector.on('click.iui-layer', function(event) {
                 if (!config.shadow) {
                     return false;
                 }
                 if ($body.find('.layer-loading').length) {
                     return false;
                 }
-                deferred.hideLayer();
-                config.cancelCall.apply($this, [event, this, deferred]);
+                self.hideLayer();
+                config.cancelCall.apply($selector, [event, this]);
                 return false;
             });
 
             //阻止事件冒泡
-            $this.on('click.iui-layer', '.layer-content', function(event) {
+            $selector.on('click.iui-layer', '.layer-content', function(event) {
                 event.stopPropagation();
             });
 
             //绑定关闭事件
-            $this.on('click.iui-layer', config.close, function(event) {
-                deferred.hideLayer();
-                config.cancelCall.apply($this, [event, this, deferred]);
+            $selector.on('click.iui-layer', config.close, function(event) {
+                self.hideLayer();
+                config.cancelCall.apply($selector, [event, this]);
                 return false;
             });
+        };
 
-            return deferred;
-        }
-    });
+        Layer.prototype.showLayer = function() {
+            var self = this;
+            var config = self.config;
 
+            self.$selector.removeClass('hide');
+            self.$selector.after($backdrop);
+            self.resize();
+            self.$content.addClass(config.animateClass);
+            self.$selector.trigger('layer.show', [self]);
+
+            return self;
+        };
+
+
+        Layer.prototype.hideLayer = function() {
+            var self = this;
+            var config = self.config;
+
+            self.$selector.addClass('hide');
+            self.$content.removeClass(config.animateClass);
+            $body.removeClass('layer-open');
+            self.$backdrop.remove();
+            self.$selector.trigger('layer.hide', [this]);
+
+            return self;
+        };
+
+        Layer.prototype.resize = function() {
+            var self = this;
+            var config = self.config;
+            var $content = self.$content;
+            var outerHeight = parseInt($content.css('margin-bottom')) * 2;
+            var contentHeight = $content.outerHeight() + outerHeight;
+
+            if (config.vertical && contentHeight < screenH) {
+                $body.removeClass('layer-open');
+                $content.css({
+                    'top': '50%',
+                    'margin-top': -(contentHeight / 2)
+                });
+                return false;
+            }
+
+            $body.addClass('layer-open');
+
+            $content.removeAttr('style').css({
+                'width': $content.data('initWidth'),
+                'height': $content.data('initHeight')
+            });
+
+        };
+
+        $.fn.IUI({
+            layer: function(config) {
+                return new Layer(config, this);
+            }
+        });
+
+    }(jQuery, window));
     /**
      * returnTop 组件
      * @param {String}          target              需绑定点击事件的对象
@@ -625,10 +667,10 @@
                 bottom: 50,
                 delay: 300
             };
-            var $this = $(this);
+            var $selector = $(this);
             var $window = $(window);
             var config = $.extend({}, defaults, options);
-            var $target = $this.find(config.target);
+            var $target = $selector.find(config.target);
             var scrollPosition = function(obj, target) {
 
                 if (target > config.showTop && obj.hasClass('hide')) {
@@ -645,7 +687,7 @@
 
             scrollPosition($target, $window.scrollTop());
 
-            $this.css({
+            $selector.css({
                 'bottom': config.bottom
             });
 
@@ -653,7 +695,7 @@
                 scrollPosition($target, $(window).scrollTop());
             });
 
-            $this.on('click', config.target, function(event) {
+            $selector.on('click', config.target, function(event) {
                 $("body,html").stop().animate({
                     scrollTop: 0
                 }, config.delay);
@@ -684,13 +726,12 @@
                     beforeShow: function() {}
                 };
 
-                var $this = $(this);
+                var $selector = $(this);
                 var config = $.extend({}, defaults, options);
-                var $items = $this.find(config.item);
-                var $contents = $this.find(config.content);
+                var $items = $selector.find(config.item);
+                var $contents = $selector.find(config.content);
                 var time = null;
-                var _index = 0;
-                var _len = $items.length;
+                var index = 0;
                 if (!$items.length) {
                     return;
                 }
@@ -698,7 +739,7 @@
 
                 init($items.eq(0));
 
-                $this.on(config.handle, config.item, function(event) {
+                $selector.on(config.handle, config.item, function(event) {
                     event.preventDefault();
                     var _this = $(this);
                     config.beforeShow.apply(_this, [event, config]);
@@ -708,13 +749,13 @@
 
 
                 function init(current, isLoop) {
-                    _items = $this.find(config.item);
-                    _contents = $this.find(config.content);
-                    _index = _items.index(current);
+                    var _items = $selector.find(config.item);
+                    _contents = $selector.find(config.content);
+                    index = _items.index(current);
                     _items.removeClass(config.current);
                     _contents.removeClass(config.current);
-                    _items.eq(_index).addClass(config.current);
-                    _contents.eq(_index).addClass(config.current);
+                    _items.eq(index).addClass(config.current);
+                    _contents.eq(index).addClass(config.current);
 
                 }
 
@@ -746,37 +787,37 @@
 
                 };
 
-                var $this = $(this);
-                var $fields = $this.find('input');
+                var $selector = $(this);
+                var $fields = $selector.find('input');
                 var config = $.extend({}, defaults, options);
 
-                $this.data('deferred', config);
+                $selector.data('deferred', config);
 
-                $this.on('submit', function(event) {
+                $selector.on('submit', function(event) {
                     event.preventDefault();
-                    if ($this.hasClass('disabled')) {
+                    if ($selector.hasClass('disabled')) {
 
-                        config.pending.call($this, config);
+                        config.pending.call($selector, config);
 
                         return false;
                     }
 
-                    var beforeResult = config.before.call($this, event, config);
+                    var beforeResult = config.before.call($selector, event, config);
 
                     if (beforeResult === false) {
                         return false;
                     }
-                    $this.addClass('disabled').prop('disabled', true);
+                    $selector.addClass('disabled').prop('disabled', true);
                     $.ajax({
                         url: config.url,
                         type: config.method,
-                        data: $this.serialize()
+                        data: $selector.serialize()
                     }).then(function(res) {
-                        $this.removeClass('disabled').prop('disabled', false);
-                        config.success.call($this, res, config);
+                        $selector.removeClass('disabled').prop('disabled', false);
+                        config.success.call($selector, res, config);
                     }, function(err) {
-                        $this.removeClass('disabled').prop('disabled', false);
-                        config.error.call($this, err, config);
+                        $selector.removeClass('disabled').prop('disabled', false);
+                        config.error.call($selector, err, config);
                     });
                 });
 
@@ -1057,7 +1098,7 @@
              */
             Validate.prototype.message = function(status, options, matchesName) {
 
-                var className, status, contextClass, msg, $target, $msgEl;
+                var className, contextClass, msg, $target, $msgEl;
 
                 contextClass = ['info', 'success', 'error'];
 
@@ -1500,26 +1541,26 @@
                     offsetHeight: $(this).outerHeight(),
                     checkedCall: function() {}
                 };
-                var $this = $(this);
+                var $selector = $(this);
                 var config = $.extend({}, defaults, options);
                 var $list = $('<ul class="email-list hide"></ul>');
                 var $body = $(config.container);
                 var time = null;
                 var listHtml = function(arr, input) {
 
-                    var _str = '';
-                    var _val = input.value || null;
-                    var _prefix = _val ? _val.split('@')[0] : false;
-                    var _suffix = _val ? _val.split('@')[1] : false;
+                    var str = '';
+                    var val = input.value || null;
+                    var prefix = val ? val.split('@')[0] : false;
+                    var suffix = val ? val.split('@')[1] : false;
 
                     for (var i = 0, email; email < arr.length; i++) {
 
-                        if ((_prefix && !_suffix) || _suffix && email.indexOf(_suffix) !== -1) {
-                            _str += '<li class="' + config.item + '" data-value="' + _prefix + '@' + email + '">' + _prefix + '@' + email + '</li>';
+                        if ((prefix && !suffix) || suffix && email.indexOf(suffix) !== -1) {
+                            str += '<li class="' + config.item + '" data-value="' + prefix + '@' + email + '">' + prefix + '@' + email + '</li>';
                         }
 
                     }
-                    return _str;
+                    return str;
                 };
 
                 var keyEvent = function(keyCode, target, obj) {
@@ -1551,16 +1592,16 @@
 
                     obj.val($.trim($target.find('li.checked').text()));
 
-                    config.checkedCall.apply($this, [event, config]);
+                    config.checkedCall.apply($selector, [event, config]);
                 };
                 var resize = function() {
-                    var _left = config.offsetLeft;
-                    var _top = config.offsetTop;
-                    var _width = config.offsetWidth;
+                    var left = config.offsetLeft;
+                    var top = config.offsetTop;
+                    var width = config.offsetWidth;
                     $list.css({
-                        left: _left,
-                        top: _top + config.offsetHeight,
-                        width: _width
+                        left: left,
+                        top: top + config.offsetHeight,
+                        width: width
                     });
                 };
 
@@ -1570,34 +1611,34 @@
                     $body.append($list);
                     $(window).on('resize.emailSuffix', resize);
                 } else {
-                    $this.parent().append($list);
+                    $selector.parent().append($list);
                 }
 
-                $this.on('keyup.emailSuffix', function(event) {
-                    var _val = this.value;
-                    if (_val.charAt(0) !== '@' && _val.split('@').length === 2 && $.inArray(event.keyCode, [40, 38, 13]) === -1) {
-                        var _str = listHtml(config.emails, this);
+                $selector.on('keyup.emailSuffix', function(event) {
+                    var val = this.value;
+                    if (val.charAt(0) !== '@' && val.split('@').length === 2 && $.inArray(event.keyCode, [40, 38, 13]) === -1) {
+                        var str = listHtml(config.emails, this);
 
-                        $list.html(_str).removeClass('hide').find('li').eq(0).addClass('checked');
+                        $list.html(str).removeClass('hide').find('li').eq(0).addClass('checked');
 
                     } else if ($.inArray(event.keyCode, [40, 38, 13]) === -1) {
                         $list.html('').addClass('hide');
                     }
                 });
 
-                $this.on('keydown.emailSuffix', function(event) {
+                $selector.on('keydown.emailSuffix', function(event) {
                     var $selected = $list.find('li.checked');
-                    keyEvent(event.keyCode, $list, $this);
+                    keyEvent(event.keyCode, $list, $selector);
                     if (event.keyCode === 13) {
                         event.preventDefault();
                         if ($selected.length) {
-                            $this.val($.trim($selected.text()));
+                            $selector.val($.trim($selected.text()));
                         }
                         $list.addClass('hide');
                     }
                 });
 
-                $this.on('blur.emailSuffix', function(event) {
+                $selector.on('blur.emailSuffix', function(event) {
                     time = setTimeout(function() {
                         $list.addClass('hide');
                     }, config.delay);
@@ -1606,9 +1647,9 @@
                 $list.on('click', config.item, function(event) {
                     event.preventDefault();
                     clearTimeout(time);
-                    $this.val($(this).attr('data-value')).focus();
+                    $selector.val($(this).attr('data-value')).focus();
                     $list.addClass('hide');
-                    config.checkedCall.apply($this, [event, config]);
+                    config.checkedCall.apply($selector, [event, config]);
                     return false;
                 });
             });
@@ -1637,14 +1678,14 @@
                     target: '.form-control',
                     cloneClass: 'clone-password'
                 };
-                var $this = $(this);
+                var $selector = $(this);
                 var $window = $(window);
                 var config = $.extend({}, defaults, options);
 
 
 
-                $this.find(config.target).each(function(index, el) {
-                    var _placeholder = $(el).attr('placeholder');
+                $selector.find(config.target).each(function(index, el) {
+                    var placeholder = $(el).attr('placeholder');
                     var $el = $(el);
                     if (el.type === 'password') {
 
@@ -1654,14 +1695,14 @@
                             'display': 'none'
                         });
 
-                        $clone.addClass(config.cloneClass).val(_placeholder);
+                        $clone.addClass(config.cloneClass).val(placeholder);
                         $el.parent().append($clone);
                     } else {
-                        el.value = _placeholder;
+                        el.value = placeholder;
                     }
                 });
 
-                $this.find(config.target).on({
+                $selector.find(config.target).on({
                     focus: function(event) {
                         if ($(this).hasClass('clone-password')) {
                             $(this).css({
@@ -1888,6 +1929,550 @@
     });
 
     /**
+     * layer 组件
+     * @param  {String}            level               多选框级别
+     * @param  {Function}          afterMoveLeft       回调函数 - 移动到左边
+     * @param  {Function}          afterMoveRight      回调函数 - 移动到右边
+     *
+     *
+     * @example
+     *
+     * $('.multiselect-main')IUI('multiselect',function(options));
+
+     *
+     * html基本结构
+     * div.multiselect-box>ul.multiselect>li
+     *
+     * 二级
+     *div.multiselect-box>ul.multiselect>li>div.mul-title+li.level-2
+     */
+    $.fn.IUI({
+        multiselect: function(options) {
+            var defaults = {
+                level: 1,
+                dataJson: '',
+                afterMoveLeft: function() {},
+                afterMoveRight: function() {}
+            };
+            var self = this;
+            var multiObject;
+            /**
+             * 元素字典
+             */
+            var data = {
+                self: {
+                    ele: '.multiselect',
+                    contraryEle: '.multiselect-to'
+                },
+                to: {
+                    ele: '.multiselect-to',
+                    contraryEle: '.multiselect'
+                }
+            };
+            var data2 = {
+                self: {
+                    ele: '.multiselect .level-2',
+                    contraryEle: '.multiselect-to .level-2'
+                },
+                to: {
+                    ele: '.multiselect-to .level-2',
+                    contraryEle: '.multiselect .level-2'
+                }
+            };
+
+            self.$container = $(this);
+            self.$multi = self.$container.find('.multiselect');
+            self.$multiTo = self.$container.find('.multiselect-to');
+            self.config = $.extend({}, defaults, options);
+
+            /**
+             * 按下control||command键||shift键操作
+             */
+            $(window).on('keydown.win', function(e) {
+                e.preventDefault();
+                switch (e.which) {
+                    case 17:
+                    case 91:
+                        //control||command键
+                        self.$container.data('type', 'mul');
+                        break;
+                    case 16:
+                        //shift键
+                        self.$container.data('type', 'continu');
+                        break;
+                }
+            });
+            /**
+             * 松开键盘清除data
+             */
+            $(window).on('keyup.win', function(e) {
+                e.preventDefault();
+                self.$container.data('type', '');
+            });
+            /**
+             * 存储命令模式所需的：函数，值，方向
+             */
+            var Command = function(execute, value, dire) {
+                this.execute = execute;
+                this.value = value;
+                this.dire = dire;
+            };
+            /**
+             * 单例存储撤销，返回撤销，操作。
+             */
+            var Calculator = function() {
+                var commands = [];
+                var redoCommands = [];
+
+                return {
+                    execute: function(command) {
+                        command.execute();
+                        commands.push(command);
+                        multiObject.setValue(command.dire);
+                    },
+                    /**
+                     * 撤销操作。
+                     */
+                    undo: function() {
+                        //pop():删除并返回数组的最后一个元素
+                        if (!commands[0]) {
+                            return false;
+                        }
+                        var command = commands.pop();
+                        redoCommands.push(command);
+                        multiObject.undo(command.value, command.dire);
+                        multiObject.setValue(command.dire);
+                    },
+                    /**
+                     * 取消撤销。
+                     */
+                    redo: function() {
+                        if (!redoCommands[0]) {
+                            return false;
+                        }
+                        var redoCommand = redoCommands.pop();
+                        commands.push(redoCommand);
+                        multiObject.redo(redoCommand.value, redoCommand.dire);
+                        multiObject.setValue(redoCommand.dire);
+                    }
+                };
+            };
+
+            function Multiselect() {
+                this.calculator = new Calculator();
+                this.init();
+            }
+            Multiselect.prototype = {
+                init: function() {
+                    self.mulData = self.config.level >= 2 ? data2 : data;
+                    this.render(self.config.dataJson);
+                    this.setCommandFn();
+                    this.events();
+                    this.operateEvent();
+                },
+                /**
+                 * 初始化渲染html
+                 */
+                render: function(json) {
+                    var result = concatHtml(json);
+                    self.$multi.append(result.item);
+                    self.$container.find('select').css('display', 'none').append(result.option);
+                    /**
+                     * 有标题的情况
+                     */
+                    if (self.config.level >= 2) {
+                        self.mulData = data2;
+                        self.$multiTo.append(self.$multi.children().clone());
+                        self.$multiTo.find('.level-2 li').remove();
+                        self.$container.on('click', '.mul-title', function() {
+                            $(this).toggleClass('active').parent('li').find('.level-2').toggleClass('hide');
+                        });
+                    }
+                },
+                /**
+                 * 设置操作函数
+                 */
+                setCommandFn: function() {
+                    var _this = this;
+                    self.setCommand = function(ele, fn) {
+                        var id = _this.getId(ele);
+                        _this.calculator.execute(fn(id));
+                    };
+                    self.moveTo = function() {
+                        MoveItemAndSort('to');
+                    };
+                    self.move = function() {
+                        MoveItemAndSort('self');
+                    };
+                    self.moveToAll = function() {
+                        MoveItemAndSort('to', 'all');
+                    };
+                    self.moveAll = function() {
+                        MoveItemAndSort('self', 'all');
+                    };
+                    self.moveToTitle = function() {
+                        MoveItemAndSort('to', 'title');
+                    };
+
+                    self.moveTitle = function() {
+                        MoveItemAndSort('self', 'title');
+                    };
+
+                    //右到左
+                    self.toCommand = function(value) {
+                        /*****************(execute,id,dire)******/
+                        return new Command(self.moveTo, value, 'to');
+                    };
+                    //左到右
+                    self.selfCommand = function(value) {
+                        return new Command(self.move, value, 'self');
+                    };
+
+                    self.allToCommand = function(value) {
+                        return new Command(self.moveToAll, value, 'to');
+                    };
+
+                    self.allSelfCommand = function(value) {
+                        return new Command(self.moveAll, value, 'self');
+                    };
+                    self.titleToCommand = function(value) {
+                        return new Command(self.moveToTitle, value, 'to');
+                    };
+
+                    self.titleSelfCommand = function(value) {
+                        return new Command(self.moveTitle, value, 'self');
+                    };
+                },
+                /**
+                 * 设置item事件函数
+                 */
+                events: function() {
+                    var _this = this;
+                    var selfLi = self.mulData.self.ele + ' li';
+                    var toLi = self.mulData.to.ele + ' li';
+                    /**
+                     * 单击item
+                     */
+                    self.$container.on('click', selfLi, function(e) {
+                        _this.itemClick($(this), 'self');
+                    });
+
+                    self.$container.on('click', toLi, function(e) {
+                        _this.itemClick($(this), 'to');
+                    });
+                    /**
+                     * 双击item
+                     */
+                    self.$container.on('dblclick', selfLi, function(e) {
+                        var $ele = $(this);
+                        self.setCommand($ele, self.selfCommand);
+                    });
+                    self.$container.on('dblclick', toLi, function(e) {
+                        var $ele = $(this);
+                        self.setCommand($ele, self.toCommand);
+                    });
+                    /**
+                     * 双击标题移动
+                     */
+                    if (self.config.level >= 2) {
+                        self.$multi.on('dblclick', '.mul-title', function(e) {
+                            _this.moveTitle($(this));
+                        });
+                        self.$multiTo.on('dblclick', '.mul-title', function(e) {
+                            _this.moveToTitle($(this));
+                        });
+                    }
+                },
+                /**
+                 * 移动按钮点击事件函数
+                 */
+                operateEvent: function() {
+                    var _this = this;
+                    if (!self.$container.find('.mutiselect-right').length) {
+                        return;
+                    }
+                    self.$container.on('click', '.mutiselect-right', function() {
+                        _this.move();
+                    });
+                    self.$container.on('click', '.mutiselect-left', function() {
+                        _this.moveTo();
+                    });
+                    self.$container.on('click', '.mutiselect-rightAll', function() {
+                        _this.moveAll();
+                    });
+                    self.$container.on('click', '.mutiselect-leftAll', function() {
+                        _this.moveToAll();
+                    });
+                    self.$container.on('click', '.mutiselect-undo', function() {
+                        _this.calculator.undo();
+                    });
+                    self.$container.on('click', '.mutiselect-redo', function() {
+                        _this.calculator.redo();
+                    });
+                },
+                /**
+                 * 配合键盘control||command,shift按键点击事件函数
+                 */
+                itemClick: function(ele, dire) {
+                    var type = self.$container.data('type');
+                    var $list = ele.parent('ul');
+                    var $item = $list.find('li');
+                    var _item = self.mulData[dire].ele + ' li';
+                    /**
+                     * control||command
+                     */
+                    if (type == 'mul') {
+                        ele.toggleClass('current');
+                        return;
+                    }
+                    /**
+                     * shift
+                     */
+                    if (type == 'continu') {
+                        var $first = $list.find('li.current').eq(0);
+                        var firstIndex = $item.index($first);
+                        var index = $item.index(ele);
+                        var begin = index > firstIndex ? firstIndex : index;
+                        var end = index < firstIndex ? firstIndex : index;
+                        if (firstIndex < 0) {
+                            ele.addClass('current');
+                            return;
+                        }
+
+                        $item.removeClass('current');
+                        for (var i = begin; i <= end; i++) {
+                            $item.eq(i).addClass('current');
+                        }
+                        return;
+                    }
+                    self.$container.find(_item).removeClass('current');
+                    ele.addClass('current');
+                },
+                getId: function(ele) {
+                    var id = [];
+                    var $ele = ele;
+                    $.each($ele, function(index, ele) {
+                        id.push($(ele).data('id'));
+
+                    });
+                    id = id.join(',');
+                    return id;
+                },
+                /**
+                 * 从右到左
+                 */
+                moveTo: function() {
+                    var $ele = self.$multiTo.find('li.current');
+                    self.setCommand($ele, self.toCommand);
+                },
+                /**
+                 * 从左到右
+                 */
+                move: function() {
+                    var $ele = self.$multi.find('li.current');
+                    self.setCommand($ele, self.selfCommand);
+                },
+                moveToAll: function() {
+                    var $ele = self.$multiTo.find('li');
+                    self.setCommand($ele, self.allToCommand);
+                },
+                moveAll: function() {
+                    var $ele = self.$multi.find('li');
+                    self.setCommand($ele, self.allSelfCommand);
+                },
+                moveToTitle: function(obj) {
+                    var $ele = obj.parent('li').find('.level-2 li');
+                    obj.addClass('current');
+                    self.setCommand($ele, self.titleToCommand);
+                },
+
+                moveTitle: function(obj) {
+                    var $ele = obj.parent('li').find('.level-2 li');
+                    obj.addClass('current');
+                    self.setCommand($ele, self.titleSelfCommand);
+                },
+                undo: function(value, dire) {
+                    var $eleTo = self.$container.find(self.mulData[dire].contraryEle);
+                    var $ele = self.$container.find(self.mulData[dire].ele);
+                    var id = value.split(',');
+
+                    var html = [];
+                    for (var i = 0; i < id.length; i++) {
+                        var $obj = $eleTo.find('li[data-id="' + id[i] + '"]');
+                        html.push($obj);
+                    }
+                    if (self.config.level >= 2) {
+                        SortItemLevel2Helper(html, $ele);
+                        return;
+                    }
+                    $ele.append(html);
+                    SortItemHelper($ele);
+                },
+                redo: function(value, dire) {
+                    var $eleTo = self.$container.find(self.mulData[dire].ele);
+                    var $ele = self.$container.find(self.mulData[dire].contraryEle);
+                    var id = value.split(',');
+
+                    var html = [];
+                    for (var i = 0; i < id.length; i++) {
+                        var $obj = $eleTo.find('li[data-id="' + id[i] + '"]');
+                        html.push($obj);
+                    }
+                    if (self.config.level >= 2) {
+                        SortItemLevel2Helper(html, $ele);
+                        return;
+                    }
+                    $ele.append(html);
+                    SortItemHelper($ele);
+                },
+                /**
+                 * 设置select选中值
+                 */
+                setValue: function(dire) {
+                    var $ele = self.$container.find(self.mulData.to.ele + ' li');
+                    var value = [];
+                    self.$container.find('select option').prop("selected", false);
+                    $.each($ele, function(index, ele) {
+                        self.$container.find('select option[value="' + $(ele).data('value') + '"]').prop("selected", true);
+                    });
+                    switch (dire) {
+                        case "to":
+                            self.config.afterMoveLeft();
+                            break;
+                        case "self":
+                            self.config.afterMoveRight();
+                            break;
+                    }
+                }
+            };
+
+            multiObject = new Multiselect();
+
+            /**
+             * 拼接html
+             * option,li
+             */
+            function concatHtml(json) {
+                var htmlItem = '';
+                var htmlItem2 = '';
+                var htmlOption = '';
+                if (self.config.level === 1) {
+                    for (var i = 0; i < json.length; i++) {
+                        htmlItem += '<li data-id="' + (i + 1) + '" data-value="' + json[i].value + '">' + json[i].name + '</li>';
+                        htmlOption += '<option data-id="' + (i + 1) + '" value="' + json[i].value + '">' + json[i].name + '</option>';
+                    }
+                }
+                if (self.config.level === 2) {
+                    for (var k = 0; k < json.length; k++) {
+                        htmlItem2 = '';
+                        for (var j = 0; j < json[k].child.length; j++) {
+                            htmlItem2 += '<li data-id="' + ((k + 1) * 10 + (j + 1)) + '" data-value="' + json[k].child[j].value + '">' + json[k].child[j].name + '</li>';
+                            htmlOption += '<option data-id="' + ((k + 1) * 10 + (j + 1)) + '" value="' + json[k].child[j].value + '">' + json[k].child[j].name + '</option>';
+                        }
+                        htmlItem += '<li data-id="' + (k + 1) + '">' + '<div class="mul-title">' + json[k].name + '</div><ul class="level-2">' + htmlItem2 + '</ul></li>';
+                    }
+                }
+                return {
+                    option: htmlOption,
+                    item: htmlItem
+                };
+            }
+
+            /**
+             * 排序：1=》获取id 2=>从小到大排列 3=》拼接html
+             */
+            function SortItemHelper($ele) {
+                var $itemTo = $ele.find('li');
+                var _array = [];
+                var html = [];
+                var $obj;
+                for (var i = 0; i < $itemTo.length; i++) {
+                    var id = $itemTo.eq(i).data('id');
+                    _array.push(id);
+                }
+                Array.prototype.sort.call(_array, function(x, y) {
+                    return x - y;
+                });
+                for (var j = 0; j < _array.length; j++) {
+                    $obj = $ele.find('li[data-id="' + _array[j] + '"]');
+                    html.push($obj);
+                }
+                $ele.html('').append(html);
+            }
+            /**
+             * ele:原来所在多选框  eleTo：将要移过去的多选框
+             * 有二级时，移动和排序
+             */
+            function SortItemLevel2Helper(ele, eleto) {
+                $.each(ele, function(index, obj) {
+                    obj = obj instanceof $ ? obj : $(obj);
+                    var id = obj.data('id');
+                    var _index = Math.floor(id / 10) - 1;
+                    eleto.eq(_index).append(obj);
+                });
+                $.each(eleto, function(index, obj) {
+                    SortItemHelper($(obj));
+                });
+            }
+
+            /**
+             * dire:移动方向
+             * all:确定移动对象 全部||标题||li
+             * 有二级时，进行移动和排序
+             */
+            function MoveItemAndSort(dire, all) {
+                var $ele = self.$container.find(self.mulData[dire].ele + ' li.current');
+                var $eleAll = self.$container.find(self.mulData[dire].ele + ' li');
+                var $eleTo = self.$container.find(self.mulData[dire].contraryEle);
+                if (all === 'all') {
+                    $ele = $eleAll;
+                }
+                if (all === 'title') {
+                    $ele = $('.mul-title.current').parent('li').find('.level-2 li');
+                    $('.mul-title').removeClass('current');
+                }
+                if (self.config.level >= 2) {
+                    SortItemLevel2Helper($ele, $eleTo);
+                    return;
+                }
+                $eleTo.append($ele);
+                SortItemHelper($eleTo);
+            }
+
+            return {
+                moveRight: function(ele) {
+                    ele.addClass('current');
+                    self.setCommand(ele, self.selfCommand);
+                },
+                moveLeft: function(ele) {
+                    ele.addClass('current');
+                    self.setCommand(ele, self.toCommand);
+                },
+                moveRightAll: function() {
+                    var eleAll = self.$multi.find('li');
+                    self.setCommand(eleAll, self.allSelfCommand);
+                },
+                moveLeftAll: function() {
+                    var eleAll = self.$multiTo.find('li');
+                    self.setCommand(eleAll, self.allToCommand);
+                },
+                updateJson: function(json, level) {
+                    self.$multi.html('');
+                    self.$multiTo.html('');
+                    self.$container.find('select').html('');
+                    multiObject.calculator = new Calculator();
+                    if (level && level != self.config.level) {
+                        self.config.level = Math.min(2, level);
+                        self.mulData = self.config.level >= 2 ? data2 : data;
+                    }
+                    multiObject.render(json);
+                    multiObject.events();
+                }
+            };
+        }
+    });
+
+    /**
      * hideNavbar 组件
      * @description  滚动隐藏导航
      */
@@ -1947,10 +2532,8 @@
             }
 
             function behavior(direction) {
-                var _direction = direction;
-
-                //_direction => hide
-                if (_direction) {
+                //direction => hide
+                if (direction) {
                     if ($navbar.hasClass('navbar-hidden')) {
                         return false;
                     }
@@ -1974,10 +2557,10 @@
      */
     $.fn.IUI({
         panel: function(options) {
-            var $this = this;
+            var $selector = this;
             var $body = $('body');
             var $overlay = $('<div class="panel-overlay hide"></div>');
-            var $sidebar = $this.data('target') ? $($this.data('target')) : $('.panel').eq(0);
+            var $sidebar = $selector.data('target') ? $($selector.data('target')) : $('.panel').eq(0);
             var _direction, $target;
             var defaults = {
                 delay: 300
@@ -1985,29 +2568,29 @@
 
             var config = $.extend({}, defaults, options);
 
-            if ($this.find('.panel-overlay').length) {
+            if ($selector.find('.panel-overlay').length) {
                 $overlay = $('.panel-overlay');
             } else {
-                $this.append($overlay);
+                $selector.append($overlay);
             }
 
-            if (!$this.hasClass('panel-viewport')) {
-                $this = $('.panel-viewport');
+            if (!$selector.hasClass('panel-viewport')) {
+                $selector = $('.panel-viewport');
             }
 
-            $this.on('touchstart.IUI-panel click.IUI-panel', '.panel-open', function(event) {
+            $selector.on('touchstart.IUI-panel click.IUI-panel', '.panel-open', function(event) {
                 event.preventDefault();
                 openPanel($(this));
             });
 
-            $this.on('touchstart.IUI-panel click.IUI-panel', '.panel-overlay', function(event) {
+            $selector.on('touchstart.IUI-panel click.IUI-panel', '.panel-overlay', function(event) {
                 event.preventDefault();
                 closePanel();
             });
 
-            $this.on(transitionEnd, function(event) {
+            $selector.on(transitionEnd, function(event) {
                 event.preventDefault();
-                if (!$this.hasClass('panel-move')) {
+                if (!$selector.hasClass('panel-move')) {
                     $sidebar.addClass('hide');
                 }
             });
@@ -2017,12 +2600,12 @@
                 _direction = 'panel-' + $handle.attr('data-direction');
                 $target = $('.' + _direction);
                 $overlay.removeClass('hide');
-                $this.addClass(_direction + ' panel-move');
+                $selector.addClass(_direction + ' panel-move');
                 $sidebar.removeClass('hide');
             }
 
             function closePanel() {
-                $this.removeClass('panel-left panel-move');
+                $selector.removeClass('panel-left panel-move');
                 $overlay.addClass('hide');
 
             }

@@ -18,14 +18,14 @@ $.fn.IUI({
                 target: '.form-control',
                 cloneClass: 'clone-password'
             };
-            var $this = $(this);
+            var $selector = $(this);
             var $window = $(window);
             var config = $.extend({}, defaults, options);
 
 
 
-            $this.find(config.target).each(function(index, el) {
-                var _placeholder = $(el).attr('placeholder');
+            $selector.find(config.target).each(function(index, el) {
+                var placeholder = $(el).attr('placeholder');
                 var $el = $(el);
                 if (el.type === 'password') {
 
@@ -35,14 +35,14 @@ $.fn.IUI({
                         'display': 'none'
                     });
 
-                    $clone.addClass(config.cloneClass).val(_placeholder);
+                    $clone.addClass(config.cloneClass).val(placeholder);
                     $el.parent().append($clone);
                 } else {
-                    el.value = _placeholder;
+                    el.value = placeholder;
                 }
             });
 
-            $this.find(config.target).on({
+            $selector.find(config.target).on({
                 focus: function(event) {
                     if ($(this).hasClass('clone-password')) {
                         $(this).css({

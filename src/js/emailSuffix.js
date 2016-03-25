@@ -28,26 +28,26 @@ $.fn.IUI({
                 offsetHeight: $(this).outerHeight(),
                 checkedCall: function() {}
             };
-            var $this = $(this);
+            var $selector = $(this);
             var config = $.extend({}, defaults, options);
             var $list = $('<ul class="email-list hide"></ul>');
             var $body = $(config.container);
             var time = null;
             var listHtml = function(arr, input) {
 
-                var _str = '';
-                var _val = input.value || null;
-                var _prefix = _val ? _val.split('@')[0] : false;
-                var _suffix = _val ? _val.split('@')[1] : false;
+                var str = '';
+                var val = input.value || null;
+                var prefix = val ? val.split('@')[0] : false;
+                var suffix = val ? val.split('@')[1] : false;
 
                 for (var i = 0, email; email < arr.length; i++) {
 
-                    if ((_prefix && !_suffix) || _suffix && email.indexOf(_suffix) !== -1) {
-                        _str += '<li class="' + config.item + '" data-value="' + _prefix + '@' + email + '">' + _prefix + '@' + email + '</li>';
+                    if ((prefix && !suffix) || suffix && email.indexOf(suffix) !== -1) {
+                        str += '<li class="' + config.item + '" data-value="' + prefix + '@' + email + '">' + prefix + '@' + email + '</li>';
                     }
 
                 }
-                return _str;
+                return str;
             };
 
             var keyEvent = function(keyCode, target, obj) {
@@ -79,16 +79,16 @@ $.fn.IUI({
 
                 obj.val($.trim($target.find('li.checked').text()));
 
-                config.checkedCall.apply($this, [event, config]);
+                config.checkedCall.apply($selector, [event, config]);
             };
             var resize = function() {
-                var _left = config.offsetLeft;
-                var _top = config.offsetTop;
-                var _width = config.offsetWidth;
+                var left = config.offsetLeft;
+                var top = config.offsetTop;
+                var width = config.offsetWidth;
                 $list.css({
-                    left: _left,
-                    top: _top + config.offsetHeight,
-                    width: _width
+                    left: left,
+                    top: top + config.offsetHeight,
+                    width: width
                 });
             };
 
@@ -98,34 +98,34 @@ $.fn.IUI({
                 $body.append($list);
                 $(window).on('resize.emailSuffix', resize);
             } else {
-                $this.parent().append($list);
+                $selector.parent().append($list);
             }
 
-            $this.on('keyup.emailSuffix', function(event) {
-                var _val = this.value;
-                if (_val.charAt(0) !== '@' && _val.split('@').length === 2 && $.inArray(event.keyCode, [40, 38, 13]) === -1) {
-                    var _str = listHtml(config.emails, this);
+            $selector.on('keyup.emailSuffix', function(event) {
+                var val = this.value;
+                if (val.charAt(0) !== '@' && val.split('@').length === 2 && $.inArray(event.keyCode, [40, 38, 13]) === -1) {
+                    var str = listHtml(config.emails, this);
 
-                    $list.html(_str).removeClass('hide').find('li').eq(0).addClass('checked');
+                    $list.html(str).removeClass('hide').find('li').eq(0).addClass('checked');
 
                 } else if ($.inArray(event.keyCode, [40, 38, 13]) === -1) {
                     $list.html('').addClass('hide');
                 }
             });
 
-            $this.on('keydown.emailSuffix', function(event) {
+            $selector.on('keydown.emailSuffix', function(event) {
                 var $selected = $list.find('li.checked');
-                keyEvent(event.keyCode, $list, $this);
+                keyEvent(event.keyCode, $list, $selector);
                 if (event.keyCode === 13) {
                     event.preventDefault();
                     if ($selected.length) {
-                        $this.val($.trim($selected.text()));
+                        $selector.val($.trim($selected.text()));
                     }
                     $list.addClass('hide');
                 }
             });
 
-            $this.on('blur.emailSuffix', function(event) {
+            $selector.on('blur.emailSuffix', function(event) {
                 time = setTimeout(function() {
                     $list.addClass('hide');
                 }, config.delay);
@@ -134,9 +134,9 @@ $.fn.IUI({
             $list.on('click', config.item, function(event) {
                 event.preventDefault();
                 clearTimeout(time);
-                $this.val($(this).attr('data-value')).focus();
+                $selector.val($(this).attr('data-value')).focus();
                 $list.addClass('hide');
-                config.checkedCall.apply($this, [event, config]);
+                config.checkedCall.apply($selector, [event, config]);
                 return false;
             });
         });

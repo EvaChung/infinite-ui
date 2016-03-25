@@ -1,7 +1,7 @@
 /**
  * fresh 组件
- * @param {Function}		startTouch		回调函数
- * @param {Function}		endTouch		回调函数
+ * @param {Function}        startTouch      回调函数
+ * @param {Function}        endTouch        回调函数
  */
 $.fn.IUI({
     fresh: function(options) {
@@ -15,57 +15,58 @@ $.fn.IUI({
 
         }, defaults, options);
 
-        var $this = $(this);
+        var $selector = $(this);
 
         var $item = $('.slide-list');
 
         //touch事件的坐标值
-        var _startY;
-        var _curY;
-        var _moveY;
+        var startY;
+        var curY;
+        var moveY;
 
         //获取的translateY值
-        var _posBegin;
+        var posBegin;
 
         //锁
-        var _lock;
+        var lock;
 
         var fresh;
 
         //获取父元素的值
-        var _height = $this.outerHeight();
+        var height = $selector.outerHeight();
 
         //获取子元素的值
-        var _childHeight = $item.height();
+        var childHeight = $item.height();
+        var translate;
 
-        var u = navigator.userAgent,
-            app = navigator.appVersion;
+        var u = navigator.userAgent;
+        var app = navigator.appVersion;
         var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1; //android终端或者uc浏览器
         var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
 
 
         //上拉刷新是禁止页面滚动
         document.body.addEventListener('touchmove', function(event) {
-            if (_lock) {
+            if (lock) {
                 event.preventDefault();
                 event.stopPropagation();
             }
 
         }, false);
 
-        $this.on({
+        $selector.on({
 
             touchstart: function(e) {
 
                 fnTouches(e);
 
-                _startY = e.touches[0].pageY;
+                startY = e.touches[0].pageY;
 
                 changeTime(0);
 
                 config.startTouch();
 
-                _childHeight = $item.height();
+                childHeight = $item.height();
 
                 fresh = config.direction ? freshBottom : fresh;
 
@@ -74,9 +75,8 @@ $.fn.IUI({
 
                 fnTouches(e);
 
-                var _translate;
 
-                _curY = e.touches[0].pageY;
+                curY = e.touches[0].pageY;
 
                 fresh();
 
@@ -85,15 +85,15 @@ $.fn.IUI({
 
             touchend: function(e) {
 
-                if (_lock) {
+                if (lock) {
 
                     changeTime(300);
 
-                    _translateY($this, 0);
+                    translateY($selector, 0);
 
-                    _posBegin = 0;
+                    posBegin = 0;
 
-                    _lock = 0;
+                    lock = 0;
 
                     setTimeout(config.afertFresh, 200);
                 }
@@ -102,59 +102,59 @@ $.fn.IUI({
 
         function freshBottom() {
             //向上
-            if (_curY > _startY) {
+            if (curY > startY) {
 
-                _lock = 0;
+                lock = 0;
             }
 
             //向下且滚动到底部了
-            if (_curY < _startY && $this.scrollTop() + _height >= _childHeight) {
+            if (curY < startY && $selector.scrollTop() + height >= childHeight) {
 
-                if (!_lock) {
+                if (!lock) {
 
-                    _lock = 1;
+                    lock = 1;
                 }
 
-                _moveY = _curY - _startY;
+                moveY = curY - startY;
 
-                _translate = Math.round(_moveY * 0.5);
+                translate = Math.round(moveY * 0.5);
 
-                if (_moveY < -10) {
+                if (moveY < -10) {
 
-                    _translate = Math.round((_moveY * 0.5 + 10) * 0.3 - 10);
+                    translate = Math.round((moveY * 0.5 + 10) * 0.3 - 10);
 
                 }
 
-                _translateY($this, _translate);
+                translateY($selector, translate);
             }
         }
 
         function freshTop() {
             //向下
-            if (_curY < _startY) {
+            if (curY < startY) {
 
-                _lock = 0;
+                lock = 0;
             }
 
             //向上且到顶部
-            if (_curY > _startY && $this.scrollTop() <= 0) {
+            if (curY > startY && $selector.scrollTop() <= 0) {
 
-                if (!_lock) {
+                if (!lock) {
 
-                    _lock = 1;
+                    lock = 1;
                 }
 
-                _moveY = _curY - _startY;
+                moveY = curY - startY;
 
-                _translate = Math.round(_moveY * 0.5);
+                translate = Math.round(moveY * 0.5);
 
-                if (_moveY > 10) {
+                if (moveY > 10) {
 
-                    _translate = Math.round((_moveY * 0.5 + 10) * 0.3 - 10);
+                    translate = Math.round((moveY * 0.5 + 10) * 0.3 - 10);
 
                 }
 
-                _translateY($this, _translate);
+                translateY($selector, translate);
             }
         }
         // touches
@@ -165,7 +165,7 @@ $.fn.IUI({
             }
         };
 
-        function _translateY(obj, y) {
+        function translateY(obj, y) {
             obj.css({
                 "-webkit-transform": 'translateY(' + y + 'px)',
                 transform: 'translateY(' + y + 'px)'
@@ -184,7 +184,7 @@ $.fn.IUI({
         };
 
         function changeTime(times) {
-            $this.css({
+            $selector.css({
                 '-webkit-transition-duration': times + 'ms',
                 'transition-duration': times + 'ms'
             });

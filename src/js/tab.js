@@ -19,13 +19,12 @@ $.fn.IUI({
                 beforeShow: function() {}
             };
 
-            var $this = $(this);
+            var $selector = $(this);
             var config = $.extend({}, defaults, options);
-            var $items = $this.find(config.item);
-            var $contents = $this.find(config.content);
+            var $items = $selector.find(config.item);
+            var $contents = $selector.find(config.content);
             var time = null;
-            var _index = 0;
-            var _len = $items.length;
+            var index = 0;
             if (!$items.length) {
                 return;
             }
@@ -33,7 +32,7 @@ $.fn.IUI({
 
             init($items.eq(0));
 
-            $this.on(config.handle, config.item, function(event) {
+            $selector.on(config.handle, config.item, function(event) {
                 event.preventDefault();
                 var _this = $(this);
                 config.beforeShow.apply(_this, [event, config]);
@@ -43,13 +42,13 @@ $.fn.IUI({
 
 
             function init(current, isLoop) {
-                _items = $this.find(config.item);
-                _contents = $this.find(config.content);
-                _index = _items.index(current);
+                var _items = $selector.find(config.item);
+                _contents = $selector.find(config.content);
+                index = _items.index(current);
                 _items.removeClass(config.current);
                 _contents.removeClass(config.current);
-                _items.eq(_index).addClass(config.current);
-                _contents.eq(_index).addClass(config.current);
+                _items.eq(index).addClass(config.current);
+                _contents.eq(index).addClass(config.current);
 
             }
 

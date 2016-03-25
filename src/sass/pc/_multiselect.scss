@@ -1,0 +1,77 @@
+%layout-1{
+    height: 300px;
+    float:left;
+}
+//BEGIN multiselect
+.multiselect,.multiselect-to{
+    height: 100%;
+    overflow-y: auto;
+    .level-2 li{
+        padding: 0 10px;
+        line-height: 21px;
+    }
+}
+.multiselect-box{
+    width: 385px;
+    border:1px solid #ccc;
+    padding:10px;
+    overflow: hidden;
+    @extend %layout-1;
+    ul{
+        list-style: none;
+        margin:0;
+        padding:0;
+    }
+    li{
+        -moz-user-select:none;
+        -webkit-user-select:none;
+        &.current{
+            background:#ccc;
+        }
+    }
+}
+.mul-title{
+    position: relative;
+    background-color: #0081c2;
+    line-height: 28px;
+    border: 1px solid #97908D;
+    color: #fff;
+    padding-left: 5px;
+    &:before {
+        left: 95%;
+        top: 50%;
+        position: absolute;
+        content: "\f107";
+        color: #fff;
+        display: inline-block;
+        font: normal normal normal 14px/1 FontAwesome;
+        font-size: inherit;
+        text-rendering: auto;
+        -webkit-font-smoothing: antialiased;
+        font-size: 19px;
+        margin-top: -10px;
+    }
+    &.active:before{
+        content: "\f106";
+    }
+}
+.multiselect-toolBox{
+    @extend %layout-1;
+    width: 226px;
+    padding:0 20px;
+    button{
+        display: block;
+        width: 90%;
+        height: 30px;
+        margin: 5px auto;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        background: #C0C0C0;
+        font-weight: bold;
+        font-size: 16px;
+    }
+    .mutiselect-undo{
+        background:#FB7E27;
+    }
+}
+//END multiselect

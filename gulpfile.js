@@ -32,7 +32,8 @@ var pcComponents = [
     './src/js/emailSuffix.js',
     './src/js/placeholder.js',
     './src/js/fadeSlide.js',
-    './src/js/typeCount.js'
+    './src/js/typeCount.js',
+    './src/js/multiselect.js'
 ];
 
 /**

@@ -13,10 +13,10 @@ $.fn.IUI({
             bottom: 50,
             delay: 300
         };
-        var $this = $(this);
+        var $selector = $(this);
         var $window = $(window);
         var config = $.extend({}, defaults, options);
-        var $target = $this.find(config.target);
+        var $target = $selector.find(config.target);
         var scrollPosition = function(obj, target) {
 
             if (target > config.showTop && obj.hasClass('hide')) {
@@ -33,7 +33,7 @@ $.fn.IUI({
 
         scrollPosition($target, $window.scrollTop());
 
-        $this.css({
+        $selector.css({
             'bottom': config.bottom
         });
 
@@ -41,7 +41,7 @@ $.fn.IUI({
             scrollPosition($target, $(window).scrollTop());
         });
 
-        $this.on('click', config.target, function(event) {
+        $selector.on('click', config.target, function(event) {
             $("body,html").stop().animate({
                 scrollTop: 0
             }, config.delay);

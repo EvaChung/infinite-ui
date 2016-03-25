@@ -271,7 +271,7 @@ $.fn.IUI({
          */
         Validate.prototype.message = function(status, options, matchesName) {
 
-            var className, status, contextClass, msg, $target, $msgEl;
+            var className, contextClass, msg, $target, $msgEl;
 
             contextClass = ['info', 'success', 'error'];
 

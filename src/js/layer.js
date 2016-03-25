@@ -34,8 +34,15 @@
  *
  *
  */
-$.fn.IUI({
-    layer: function(options) {
+;
+(function($, window) {
+
+    var $backdrop = $('<div class="layer-backdrop"></div>');
+    var screenH = document.documentElement.clientHeight;
+    var $body = $('body');
+
+
+    function Layer(config, selector) {
         var defaults = {
             container: 'body',
             vertical: true,
@@ -54,126 +61,156 @@ $.fn.IUI({
             confirmCall: function() {},
             cancelCall: function() {}
         };
+        this.$selector = selector;
+        this.config = $.extend(defaults, config);
+        this.$backdrop = $backdrop;
 
-        var config = $.extend({}, defaults, options);
+        this.init();
+        this.event();
+    }
+
+    Layer.prototype.init = function() {
+        var self = this;
+        var config = self.config;
         var template = '<div class="layer-box hide" id="{layerName}"><div class="layer-content">' + config.content + '</div></div>';
-        var $this = this.length ? this : $(template.replace('{layerName}', this.selector.replace('#', ''))).appendTo(config.container);
-        var $body = $('body');
+        var $selector = this.$selector = self.$selector.length ? self.$selector : $(template.replace('{layerName}', self.$selector.selector.replace('#', ''))).appendTo(config.container);
         var $container = config.container === 'body' ? $body : $(config.container);
-        var $content = $this.find('.layer-content');
-        var $backdrop = $('<div class="layer-backdrop"></div>');
         var closeHandle = config.closeHandle;
-        var screenH = document.documentElement.clientHeight;
-        var _width = Number($this.attr('data-width')) || config.offsetWidth;
-        var _height = Number($this.attr('data-height')) || config.offsetHeight;
+        var $content = this.$content = $selector.find('.layer-content');
+        var layerWidth = Number($selector.attr('data-width')) || config.offsetWidth;
+        var layerHeight = Number($selector.attr('data-height')) || config.offsetHeight;
 
-        var deferred = {
-            target: $this,
-            content: $content,
-            setting: config,
-            id: layerId++,
-            showLayer: function() {
-                $this.removeClass('hide');
-                $this.after($backdrop);
-                this.resize();
-                $content.addClass(config.animateClass);
-                $this.trigger('layer.show',[this]);
-            },
-            hideLayer: function() {
-                $this.addClass('hide');
-                $content.removeClass(config.animateClass);
-                $body.removeClass('layer-open').find('.layer-backdrop').remove();
-                $this.trigger('layer.hide',[this]);
-            },
-            resize: function() {
-                var $content = $this.find('.layer-content');
-                var outerHeight = parseInt($content.css('margin-bottom')) * 2;
-                var _contentHeight = $content.outerHeight() + outerHeight;
-                if (config.vertical && _contentHeight < screenH) {
-                    $body.removeClass('layer-open');
-                    $content.css({
-                        'top': '50%',
-                        'margin-top': -(_contentHeight / 2)
-                    });
-                    return false;
-                }
+        $content.data({ initWidth: layerWidth, initHeight: layerHeight }).css({ width: layerWidth, height: layerHeight });
+    };
 
-                $body.addClass('layer-open');
-                $content.removeAttr('style').css({
-                    'width': _width,
-                    'height': _height
-                });
-            },
-            ajaxLoad: function() {
-                var _url = config.url || '?';
-                var _method = $this.attr('data-method') || 'GET';
-                var _dataType = config.dataType;
-                var _this = this;
+    Layer.prototype.ajaxLoad = function() {
+        var self = this;
+        var config = self.config;
+        var $selector = self.$selector;
+        var requestUrl = config.url || '?';
+        var method = $selector.attr('data-method') || 'GET';
+        var dataType = config.dataType;
 
-                if (config.cache && $this.data('success')) {
-                    _this.showLayer();
-                    return false;
-                }
+        if (config.cache && $selector.data('success')) {
+            self.showLayer();
+            return false;
+        }
 
-                $.loading(true, true);
-                $this.data('success', 1);
-                $.ajax({
-                    url: _url,
-                    type: _method,
-                    dataType: config.dataType,
-                    data: config.data
-                }).then(function(res) {
-                    $.loading(false);
-                    config.successCall.apply($this, [res, this, deferred]);
-                    _this.showLayer();
-                }, function(err) {
-                    $.loading(false);
-                    _this.hideLayer();
-                    config.errorCall.apply($this, [err, this, deferred]);
-                });
-            }
-        };
+        $.loading(true, true);
+        $selector.data('success', 1);
 
-
-        $content.css({
-            'width': _width,
-            'height': _height
-
+        $.ajax({
+            url: requestUrl,
+            type: method,
+            dataType: dataType,
+            data: config.data
+        }).then(function(res) {
+            $.loading(false);
+            config.successCall.apply($selector, [res, this, self]);
+            self.showLayer();
+        }, function(err) {
+            $.loading(false);
+            self.hideLayer();
+            config.errorCall.apply($selector, [err, this, self]);
         });
 
+        return self;
+    };
+
+    Layer.prototype.event = function() {
+        var self = this;
+        var config = self.config;
+        var $selector = self.$selector;
 
         //确认事件
-        $this.on('click.iui-layer', config.confirmHandle, function(event) {
+        $selector.on('click.iui-layer', config.confirmHandle, function(event) {
             event.preventDefault();
-            config.confirmCall.apply($this, [event, this, deferred]);
+            config.confirmCall.apply($selector, [event, this]);
             return false;
         });
 
         // 阴影层事件
-        $this.on('click.iui-layer', function(event) {
+        $selector.on('click.iui-layer', function(event) {
             if (!config.shadow) {
                 return false;
             }
             if ($body.find('.layer-loading').length) {
                 return false;
             }
-            deferred.hideLayer();
-            config.cancelCall.apply($this, [event, this, deferred]);
+            self.hideLayer();
+            config.cancelCall.apply($selector, [event, this]);
             return false;
         });
 
         //阻止事件冒泡
-        $this.on('click.iui-layer', '.layer-content', function(event) {
+        $selector.on('click.iui-layer', '.layer-content', function(event) {
             event.stopPropagation();
         });
 
         //绑定关闭事件
-        $this.on('click.iui-layer', config.close, function(event) {
-            deferred.hideLayer();
-            config.cancelCall.apply($this, [event, this, deferred]);
+        $selector.on('click.iui-layer', config.close, function(event) {
+            self.hideLayer();
+            config.cancelCall.apply($selector, [event, this]);
             return false;
         });
+    };
 
-        return deferred;
-    }
-});
+    Layer.prototype.showLayer = function() {
+        var self = this;
+        var config = self.config;
+
+        self.$selector.removeClass('hide');
+        self.$selector.after($backdrop);
+        self.resize();
+        self.$content.addClass(config.animateClass);
+        self.$selector.trigger('layer.show', [self]);
+
+        return self;
+    };
+
+
+    Layer.prototype.hideLayer = function() {
+        var self = this;
+        var config = self.config;
+
+        self.$selector.addClass('hide');
+        self.$content.removeClass(config.animateClass);
+        $body.removeClass('layer-open');
+        self.$backdrop.remove();
+        self.$selector.trigger('layer.hide', [this]);
+
+        return self;
+    };
+
+    Layer.prototype.resize = function() {
+        var self = this;
+        var config = self.config;
+        var $content = self.$content;
+        var outerHeight = parseInt($content.css('margin-bottom')) * 2;
+        var contentHeight = $content.outerHeight() + outerHeight;
+
+        if (config.vertical && contentHeight < screenH) {
+            $body.removeClass('layer-open');
+            $content.css({
+                'top': '50%',
+                'margin-top': -(contentHeight / 2)
+            });
+            return false;
+        }
+
+        $body.addClass('layer-open');
+
+        $content.removeAttr('style').css({
+            'width': $content.data('initWidth'),
+            'height': $content.data('initHeight')
+        });
+
+    };
+
+    $.fn.IUI({
+        layer: function(config) {
+            return new Layer(config, this);
+        }
+    });
+
+}(jQuery, window));
