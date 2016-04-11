@@ -7,7 +7,6 @@
     <link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/bootstrap/4.0.0-alpha.2/css/bootstrap.css">
     <script type="text/javascript" src="../src/jquery.js" chartset="UTF-8"></script>
     <script type="text/javascript" src="../dist/iui.js" chartset="UTF-8"></script>
-    <script type="text/javascript" src="../src/js/validate.js" chartset="UTF-8"></script>
     <script type="text/javascript">
 
     </script>
@@ -28,10 +27,9 @@
     <div class="container">
         <div id="global-tip"></div>
         <form>
-            <div class="form-group validate-context-error">
+            <div class="form-group">
                 <label for="exampleInputEmail1">Email address</label>
                 <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email" name="email" data-required="email">
-                <div class="validate-message validate-error">邮件不能为空</div>
             </div>
             <div class="form-group">
                 <label for="exampleInputPassword1">Password</label>
@@ -64,12 +62,25 @@
         <script type="text/javascript" chartset="UTF-8">
         $(function() {
             var validate = $('form').IUI('validate', {
+                globalMessage:'#global-tip',
                 strategy: {
                     checked_limit_3: function() {
 
                     }
                 },
-                collections: [
+                collections: [ {
+                        required: 'city',
+                        context: '.form-group',
+                        type: 'checkbox',
+                        matches: {
+                            isChecked: {
+                                errMsg: '请选择城市范围'
+                            },
+                            checked_limit_3: {
+                                errMsg: '至少选择两个'
+                            }
+                        }
+                    },
 
                     {
                         required: 'email',
@@ -109,23 +120,11 @@
                             }
                         }
 
-                    }, {
-                        required: 'city',
-                        context: '.form-group',
-                        type: 'checkbox',
-                        matches: {
-                            isChecked: {
-                                errMsg: '请选择城市范围'
-                            },
-                            checked_limit_3: {
-                                errMsg: '至少选择两个'
-                            }
-                        }
                     }
 
                 ]
             });
-           console.log( validate.batch())
+           console.log( validate.batch(true))
         });
         </script>
     </div>

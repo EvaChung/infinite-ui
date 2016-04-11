@@ -652,6 +652,7 @@
         });
 
     }(jQuery, window));
+
     /**
      * returnTop 组件
      * @param {String}          target              需绑定点击事件的对象
@@ -1173,13 +1174,17 @@
      * tokenize 组件
      * @param  {function} overLimitCount 选择超过个数
      * @return {function}   existToken 已经存在
+     * @param  {string} remove 如果为'no-remove'，表示不删除初始化的token
+     * @return {string}   contain 默认为'.tokenize'，共有上下文
      * .tokenize > select + ul + .token > .token-item
      */
     ;
     (function($) {
-        var defaults = {
+        var settings = {
             overLimitCount: function() {},
-            existToken: function() {}
+            existToken: function() {},
+            remove: '',
+            contain: '.tokenize'
         };
 
         var KEY_CODE = {
@@ -1192,7 +1197,6 @@
         };
 
         var htmlTemplate = {
-            parentStr: '.tokenize',
             spanTemplate: ['<span class="token-item">',
                 '<span>{text}</span><span data-value="{value}" class="token-close">x</span>',
                 '</span>'
@@ -1203,7 +1207,8 @@
         };
 
         var tokenize = $.fn.tokenize = function(options) {
-            $.extend(defaults, options);
+
+            var defaults = $.extend({}, settings, options);
 
             this.each(function(index, el) {
                 var $this = $(this);
@@ -1222,9 +1227,9 @@
                 //创建模拟下拉框
                 tokenize.renderSelect($this);
                 //设置各种事件
-                tokenize.setEvent($this);
+                tokenize.setEvent($this, defaults);
                 //创建默认token
-                $this.find('li[uled]').addClass('current').trigger('click');
+                $this.find('li[uled]').addClass('current ' + defaults.remove).trigger('click');
             });
         };
 
@@ -1237,25 +1242,28 @@
         };
 
         //创建token
-        tokenize.createToken = function(text, value) {
-            var $inp = $(this).parents(htmlTemplate.parentStr).find('input').val('');
+        tokenize.createToken = function(text, value, defaults) {
+            var $inp = $(this).parents(defaults.contain).find('input').val('');
             var $token = $inp.parent();
             var str = htmlTemplate.spanTemplate.replace('{text}', text).replace('{value}', value);
             $(str).insertBefore($token);
         };
 
         //设置事件
-        tokenize.setEvent = function($target) {
+        tokenize.setEvent = function($target, defaults) {
 
             //删除token
             $target.on('click', '.token-close', function(event) {
                 event.stopPropagation();
                 var $this = $(this);
-                var $tokenize = $this.parents(htmlTemplate.parentStr);
+                var $tokenize = $this.parents(defaults.contain);
                 var value = $this.attr('data-value');
-                var $tokens = tokenize.hideToken($tokenize);
+                var $li = $tokenize.find('li[data-value="' + value + '"]');
+                if ($li.hasClass('no-remove')) {
+                    return;
+                }
                 $tokenize.find('option[value="' + value + '"]').removeAttr('selected');
-                $tokens.filter('li[data-value="' + value + '"]').removeClass('hidden');
+                $li.removeClass('hidden');
                 $this.parent('.token-item').remove();
             });
             //聚焦输入
@@ -1263,26 +1271,25 @@
                 event.stopPropagation();
                 var $this = $(this);
                 $this.find('input').focus();
-                tokenize.searchToken.call($this.find('input')[0], event);
+                tokenize.searchToken.call($this.find('input')[0], defaults);
             });
             //点击li设置token
             $target.on('click', 'li', function(event) {
-                tokenize.setToken.call(this);
+                tokenize.setToken.call(this, defaults);
             });
 
             //输入搜索token
             $target.on('keyup', 'input', function(event) {
                 var keycode = event.keyCode;
                 var KC = KEY_CODE;
-
-                (keycode !== KC.enter && keycode !== KC.back && keycode !== KC.bottom && keycode !== KC.top) && tokenize.searchToken.call(this, event);
+                (keycode !== KC.enter && keycode !== KC.back && keycode !== KC.bottom && keycode !== KC.top) && tokenize.searchToken.call(this, defaults);
             });
 
             //按下enter键设置token
             $target.on('keyup', 'ul,input', function(event) {
                 var keycode = event.keyCode;
                 var KC = KEY_CODE;
-                (keycode === KC.enter || keycode === KC.back) && tokenize.setToken.call(this);
+                (keycode === KC.enter || keycode === KC.back) && tokenize.setToken.call(this, defaults);
             });
 
             //按下上下键切换token
@@ -1299,8 +1306,8 @@
         };
 
         //输入搜索token
-        tokenize.searchToken = function(event) {
-            var $parent = $(this).parents(htmlTemplate.parentStr);
+        tokenize.searchToken = function(defaults) {
+            var $parent = $(this).parents(defaults.contain);
             var $lis = $parent.find('ul').removeClass('hide').find('li').removeClass('current').not('.hidden');
             var showAll = $parent.data('showAll');
             var values = $.trim(this.value);
@@ -1322,8 +1329,8 @@
         };
 
         //按下enter键或者点击 li 设置token
-        tokenize.setToken = function() {
-            var $tokenize = $(this).parents(htmlTemplate.parentStr);
+        tokenize.setToken = function(defaults) {
+            var $tokenize = $(this).parents(defaults.contain);
             var $tokens = $tokenize.find('li');
             //var $visibleTokens = $tokens.filter(':visible');
             var $selectedTokens = $tokens.filter('.current');
@@ -1332,12 +1339,12 @@
             var $inp = $tokenize.find('.token input');
             var value = $.trim($inp.val());
 
-            if (!tokenize.testCount.call(this)) {
+            if (!tokenize.testCount.call(this, defaults)) {
                 defaults.overLimitCount($tokenize);
                 return;
             }
 
-            if (!tokenize.testExist.call(this)) {
+            if (!tokenize.testExist.call(this, defaults)) {
                 defaults.existToken($tokenize);
                 return;
             }
@@ -1347,7 +1354,7 @@
                 $selectedTokens.removeClass('current').addClass('hidden');
 
                 //创建 token
-                tokenize.createToken.call(this, $selectedTokens.text(), $selectedTokens.attr('data-value'));
+                tokenize.createToken.call(this, $selectedTokens.text(), $selectedTokens.attr('data-value'), defaults);
 
                 //改变select
                 index = $tokens.index($selectedTokens);
@@ -1357,7 +1364,7 @@
                 $tokenize.find('ul').append(htmlTemplate.liTemplate.replace(/\{value\}/g, value));
 
                 //创建 token
-                tokenize.createToken.call(this, value, value);
+                tokenize.createToken.call(this, value, value, defaults);
 
                 //修改 select
                 $tokenize.find('select').append(htmlTemplate.optionTemplate.replace(/\{value\}/g, value));
@@ -1382,7 +1389,7 @@
         //隐藏li
         tokenize.hideToken = function($ele) {
             $(document).click(function(event) {
-                tokenize.hideToken($(htmlTemplate.parentStr));
+                tokenize.hideToken($('.tokenize'));
             });
             return function($ele) {
                 return $ele.find('ul').addClass('hide').find('li').addClass('hide');
@@ -1390,8 +1397,8 @@
         }();
 
         //判断选择的个数
-        tokenize.testCount = function() {
-            var $tokenize = $(this).parents(htmlTemplate.parentStr);
+        tokenize.testCount = function(defaults) {
+            var $tokenize = $(this).parents(defaults.contain);
             var limitCount = $tokenize.data('limitCount');
             var length = $tokenize.find('.token-item').length;
             if (limitCount !== Infinity) {
@@ -1403,8 +1410,8 @@
         };
 
         //判断是否已经存在
-        tokenize.testExist = function() {
-            var $tokenize = $(this).parents(htmlTemplate.parentStr);
+        tokenize.testExist = function(defaults) {
+            var $tokenize = $(this).parents(defaults.contain);
             var text = $.trim($tokenize.find('.token input').val());
             var $tokenItem = $tokenize.find('.token-item');
             var result = true;
