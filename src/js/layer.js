@@ -1,6 +1,6 @@
 /**
  * layer 组件
- * @param  {String}            container                组件的执行上下文环境，默认是body
+ * @param  {String}            container           组件的执行上下文环境，默认是body
  * @param  {Boolean}           vertical            是否垂直居中，若 false ,则由 css 控制
  * @param  {Boolean}           cache               是否缓存 ajax 页面
  * @param  {Boolean}           shadow              是否开启阴影层关闭
@@ -20,6 +20,11 @@
  * @method [hideLayer]  隐藏层
  * @method [resize]     修正位置
  * @method [ajaxLoad]   ajax 弹层
+ *
+ * @event
+ *
+ * $('selector').on('layer.show',function(){});
+ * $('selector').on('layer.hide',function(){});
  *
  * @example
  *

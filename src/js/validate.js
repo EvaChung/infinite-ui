@@ -310,7 +310,7 @@ $.fn.IUI({
             var status = [];
             $.each(this.cache, function(name, target) {
                 var initStatus = target.self.data('validateStatus');
-                var result = initStatus === void(0) ? self.verify.call(target.self, self, 'batch') : initStatus;
+                var result = !initStatus  ? self.verify.call(target.self, self, 'batch') : initStatus;
 
                 if(circulation && result ===2){
                     status.push(result);
