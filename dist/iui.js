@@ -160,6 +160,7 @@
                 animateClass: 'fadeInDown',
                 type: 'confirm',
                 status: 'default',
+                keyboard: true,
                 before: function() {},
                 confirm: function() {},
                 cancel: function() {}
@@ -220,13 +221,26 @@
             });
 
             container.on('touchstart.iui-alert click.iui-alert', '.IUI-alert-cancel,.IUI-alert-close', function(event) {
-
                 if (config.cancel.call(this, deferred) === false) {
                     return false;
                 }
 
                 hide(container);
             });
+
+
+            if (config.keyboard) {
+                $(window).on('keyup.iui-alert', function(event) {
+                    // keyCode => esc
+                    if (event.keyCode === 27 || (event.keyCode === 13 && config.type === 'confirm')) {
+                        container.find('.IUI-alert-cancel,.IUI-alert-close').trigger('click.iui-alert');
+                    }
+                    // keyCode => enter
+                    if (event.keyCode === 13 && config.type === 'alert') {
+                        container.find('.IUI-alert-confirm').trigger('click.iui-alert');
+                    }
+                });
+            }
 
             /**
              * [show description]
@@ -591,7 +605,7 @@
             });
 
             //绑定关闭事件
-            $selector.on('click.iui-layer', config.close, function(event) {
+            $selector.on('click.iui-layer', config.closeHandle, function(event) {
                 self.hideLayer();
                 config.cancelCall.apply($selector, [event, this]);
                 return false;
@@ -891,7 +905,8 @@
             var GLOB_STRATEGY = {
                 isNonEmpty: function(params) {
                     var $target = this.self;
-                    if ($target[0].value.length === 0) {
+                    var value = $target[0].value;
+                    if ($.trim(value).length === 0) {
                         return false;
                     }
                 },
@@ -904,7 +919,7 @@
                 maxLength: function(params) {
                     //小于
                     if (this.self[0].value.length < params.maxLength) {
-                        return errorMsg;
+                        return false;
                     }
                 },
                 isMobile: function(params) {
@@ -1008,6 +1023,9 @@
                 }
                 self.behavior();
                 $.each(self.cache, function(name, fields) {
+                    if (fields.context.length === 0) {
+                        return;
+                    }
                     var contextClassName = /validate-context-(info|success|error)/.exec(fields.context[0].className);
                     var initStatus;
                     if (contextClassName) {
@@ -1043,8 +1061,7 @@
              */
             Validate.prototype.behavior = function() {
                 var self = this;
-                var handle = handler(this.options.collections);
-
+                var handle = handler.call(this);
                 this.$selector.on('focus', handle, function(event) {
                     var $this = $(this);
                     var _name = $this.data('required');
@@ -1059,7 +1076,7 @@
                     self.verify.call(this, self, 'blur');
                 });
 
-                this.$selector.on('change', 'input[type=radio][data-required],input[type=checkbox][data-required]', function(event) {
+                this.$selector.on('change', 'input[type=radio][data-required],input[type=checkbox][data-required],input[type="file"][data-required]', function(event) {
                     self.verify.call(this, self, 'change');
                 });
 
@@ -1156,13 +1173,15 @@
             };
             /**
              * handler 生成事件代理对象
-             * @param  {Array}      collections       验证集合
              * @return {String}     事件委托目标
              */
-            function handler(collections) {
+            function handler() {
                 var str = '';
+                var collections = this.options.collections;
+
                 for (var i = 0; i < collections.length; i++) {
-                    if (/checkbox|radio/.test(collections[i].type)) {
+                    var key = collections[i].required;
+                    if (/checkbox|radio|file/.test(this.cache[key].self[0].type)) {
                         continue;
                     }
                     str += '[data-required=' + collections[i].required + '],';
@@ -1179,8 +1198,9 @@
      * tokenize 组件
      * @param  {function} overLimitCount 选择超过个数
      * @return {function}   existToken 已经存在
-     * @param  {string} remove 如果为'no-remove'，表示不删除初始化的token
+     * @param  {string} remove 如果为'no-remove'，表示不删除初始化的token, 当readOnly为true的时候有效
      * @return {string}   contain 默认为'.tokenize'，共有上下文
+     * @return {boolean}  readOnly 默认为 false，当为true的时候，只能显示初始选项，没有其他功能
      * .tokenize > select + ul + .token > .token-item
      */
     ;
@@ -1189,7 +1209,8 @@
             overLimitCount: function() {},
             existToken: function() {},
             remove: '',
-            contain: '.tokenize'
+            contain: '.tokenize',
+            readOnly: false
         };
 
         var KEY_CODE = {
@@ -1234,7 +1255,9 @@
                 //设置各种事件
                 tokenize.setEvent($this, defaults);
                 //创建默认token
-                $this.find('li[uled]').addClass('current ' + defaults.remove).trigger('click');
+                $this.find('li[uled]').each(function(index, el) {
+                    $(el).addClass('current ' + defaults.remove).trigger('click');
+                });
             });
         };
 
@@ -1257,57 +1280,64 @@
         //设置事件
         tokenize.setEvent = function($target, defaults) {
 
-            //删除token
-            $target.on('click', '.token-close', function(event) {
-                event.stopPropagation();
-                var $this = $(this);
-                var $tokenize = $this.parents(defaults.contain);
-                var value = $this.attr('data-value');
-                var $li = $tokenize.find('li[data-value="' + value + '"]');
-                if ($li.hasClass('no-remove')) {
-                    return;
-                }
-                $tokenize.find('option[value="' + value + '"]').removeAttr('selected');
-                $li.removeClass('hidden');
-                $this.parent('.token-item').remove();
-            });
-            //聚焦输入
-            $target.on('click', '.token', function(event) {
-                event.stopPropagation();
-                var $this = $(this);
-                $this.find('input').focus();
-                tokenize.searchToken.call($this.find('input')[0], defaults);
-            });
+            if (defaults.readOnly === false) {
+                //删除token
+                $target.on('click', '.token-close', function(event) {
+                    event.stopPropagation();
+                    var $this = $(this);
+                    var $tokenize = $this.parents(defaults.contain);
+                    var value = $this.attr('data-value');
+                    var $li = $tokenize.find('li[data-value="' + value + '"]');
+                    if ($li.hasClass('no-remove')) {
+                        return;
+                    }
+                    $tokenize.find('option[value="' + value + '"]').removeAttr('selected');
+                    $li.removeClass('hidden');
+                    $this.parent('.token-item').remove();
+                });
+
+                //聚焦输入
+                $target.on('click', '.token', function(event) {
+                    event.stopPropagation();
+                    var $this = $(this);
+                    $this.find('input').focus();
+                    tokenize.searchToken.call($this.find('input')[0], defaults);
+                });
+
+                //输入搜索token
+                $target.on('keyup', 'input', function(event) {
+                    var keycode = event.keyCode;
+                    var KC = KEY_CODE;
+                    (keycode !== KC.enter && keycode !== KC.back && keycode !== KC.bottom && keycode !== KC.top) && tokenize.searchToken.call(this, defaults);
+                });
+
+                //按下enter键设置token
+                $target.on('keyup', 'ul,input', function(event) {
+                    var keycode = event.keyCode;
+                    var KC = KEY_CODE;
+                    (keycode === KC.enter || keycode === KC.back) && tokenize.setToken.call(this, defaults);
+                });
+
+                //按下上下键切换token
+                $target.on('keyup', function(event) {
+                    var keycode = event.keyCode;
+                    var KC = KEY_CODE;
+                    (keycode === KC.bottom || keycode === KC.top) && tokenize.turnToken.call(this, keycode);
+                });
+
+                //鼠标样式
+                $target.on('mouseenter', 'li', function(event) {
+                    $(this).siblings().removeClass('current').end().addClass('current');
+                });
+            }
+
+
+
             //点击li设置token
             $target.on('click', 'li', function(event) {
                 tokenize.setToken.call(this, defaults);
             });
 
-            //输入搜索token
-            $target.on('keyup', 'input', function(event) {
-                var keycode = event.keyCode;
-                var KC = KEY_CODE;
-                (keycode !== KC.enter && keycode !== KC.back && keycode !== KC.bottom && keycode !== KC.top) && tokenize.searchToken.call(this, defaults);
-            });
-
-            //按下enter键设置token
-            $target.on('keyup', 'ul,input', function(event) {
-                var keycode = event.keyCode;
-                var KC = KEY_CODE;
-                (keycode === KC.enter || keycode === KC.back) && tokenize.setToken.call(this, defaults);
-            });
-
-            //按下上下键切换token
-            $target.on('keyup', function(event) {
-                var keycode = event.keyCode;
-                var KC = KEY_CODE;
-                (keycode === KC.bottom || keycode === KC.top) && tokenize.turnToken.call(this, keycode);
-            });
-
-            //鼠标样式
-            $target.on('mouseenter', 'li', function(event) {
-                $(this).siblings().removeClass('current').end().addClass('current');
-            });
         };
 
         //输入搜索token
@@ -1435,8 +1465,6 @@
         });
 
     })(jQuery);
-
-
     /**
      * tooltip 组件
      * @param {String}  target          需要绑定的元素，支持css选择器语法
@@ -1681,7 +1709,7 @@
     $.fn.IUI({
         placeholder: function(options) {
             return this.each(function() {
-                var isSupport = common.isPlaceholder();
+                var isSupport = utils.isPlaceholder();
                 if (isSupport) {
                     return false;
                 }
@@ -2509,7 +2537,7 @@
 
             previousScroll = currentScroll = Math.abs($this.scrollTop());
 
-            wait = common.throttle(handleScroll, 100);
+            wait = utils.throttle(handleScroll, 100);
 
             $this.on('scroll', wait);
 

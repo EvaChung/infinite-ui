@@ -123,7 +123,18 @@
 
                 ]
             });
-        console.log(validate.batch())
+
+console.log(validate)
+            $('form').IUI('ajaxForm',{
+                before:function(){
+                    return validate.batch();
+                },
+                success:function(res){
+                    if(!res.status){
+
+                    }
+                }
+            })
         });
         </script>
     </div>

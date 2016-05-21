@@ -31,6 +31,7 @@ $.extend({
             animateClass: 'fadeInDown',
             type: 'confirm',
             status: 'default',
+            keyboard: true,
             before: function() {},
             confirm: function() {},
             cancel: function() {}
@@ -91,13 +92,26 @@ $.extend({
         });
 
         container.on('touchstart.iui-alert click.iui-alert', '.IUI-alert-cancel,.IUI-alert-close', function(event) {
-
             if (config.cancel.call(this, deferred) === false) {
                 return false;
             }
 
             hide(container);
         });
+
+
+        if (config.keyboard) {
+            $(window).on('keyup.iui-alert', function(event) {
+                // keyCode => esc
+                if (event.keyCode === 27 || (event.keyCode === 13 && config.type === 'confirm')) {
+                    container.find('.IUI-alert-cancel,.IUI-alert-close').trigger('click.iui-alert');
+                }
+                // keyCode => enter
+                if (event.keyCode === 13 && config.type === 'alert') {
+                    container.find('.IUI-alert-confirm').trigger('click.iui-alert');
+                }
+            });
+        }
 
         /**
          * [show description]

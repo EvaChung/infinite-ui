@@ -152,7 +152,7 @@
     });
 
     //绑定关闭事件
-    $selector.on('click.iui-layer', config.close, function(event) {
+    $selector.on('click.iui-layer', config.closeHandle, function(event) {
       self.hideLayer();
       config.cancelCall.apply($selector, [event, this]);
       return false;

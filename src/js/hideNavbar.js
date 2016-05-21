@@ -23,7 +23,7 @@ $.fn.IUI({
 
         previousScroll = currentScroll = Math.abs($this.scrollTop());
 
-        wait = common.throttle(handleScroll, 100);
+        wait = utils.throttle(handleScroll, 100);
 
         $this.on('scroll', wait);
 

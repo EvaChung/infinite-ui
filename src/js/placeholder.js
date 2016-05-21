@@ -9,7 +9,7 @@
 $.fn.IUI({
     placeholder: function(options) {
         return this.each(function() {
-            var isSupport = common.isPlaceholder();
+            var isSupport = utils.isPlaceholder();
             if (isSupport) {
                 return false;
             }
