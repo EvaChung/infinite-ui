@@ -346,14 +346,16 @@
   margin-top: -5px;
 }
 
+.hide, .hidden {
+  display: none;
+}
+
 .tokenize {
   position: relative;
 }
-.tokenize .hide, .tokenize .hidden {
-  display: none;
-}
+
 .tokenize .token {
-  min-height: 80px;
+  height: 80px;
   word-break: break-all;
   padding: 5px;
   border: 1px solid #ddd;
@@ -361,6 +363,7 @@
   position: relative;
   z-index: 1;
 }
+
 .tokenize .token .token-item {
   display: inline-block;
   margin: 5px 0 0 5px;
@@ -370,18 +373,21 @@
   border: 1px solid #ccd5e3;
   font-size: 12px;
 }
+
 .tokenize .token input {
   outline: none;
   width: 60px;
   border: none;
 }
+
 .tokenize .token .token-close {
   padding-left: 5px;
   text-decoration: none;
   cursor: pointer;
   color: #a6b4ce;
 }
-.tokenize ul {
+
+.tokenize > ul {
   position: absolute;
   top: 100%;
   left: 0;
@@ -397,9 +403,31 @@
   margin: 0;
   padding: 0;
 }
+
+.tokenize ul {
+  list-style: none;
+  font-size: 14px;
+  padding-left: 0;
+}
+
 .tokenize ul li.current {
   background-color: #0081c2;
   color: white;
+}
+
+.tokenize ul li.tokenize-disable {
+  background-color: #fff;
+  color: #000;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.tokenize ul li.tokenize-disable ul {
+  padding-left: 10px;
+}
+
+.tokenize ul li {
+  font-weight: normal;
 }
 
 .multiselect-box, .multiselect-toolBox {

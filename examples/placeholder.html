@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+<title>IUI placeholder</title>
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta charset="UTF-8">
+<style>
+	body{
+		font-family: '微软雅黑';
+		background: #eee;
+	}
+	h2{
+		color: #aaa;
+		font-size: 16px;
+	}
+	div{
+		width: 500px;
+		overflow: hidden;
+	}
+	div label{
+		line-height: 42px;
+	}
+	input{
+		float: right;
+		color: #333;
+		width: 200px;
+		height: 40px;
+		text-indent: 5px;
+		line-height: 42px;
+		border: 1px solid #999;
+		outline: none;
+		background: #fff;
+	}
+	#t4{
+		position: absolute;
+		left: 304px;
+	}
+	.not-text{
+		width: 30px;
+		height: 30px;
+		margin-left: 10px;
+	}
+</style>
+</head>
+<body>
+
+<h1>placeholder</h1>
+<h2>兼容性：IE7及以上</h2>
+<h2>调用方法：$('body').IUI('placeholder',{color:"",zIndex:""});</h2>
+<div>
+	<label for="">static,float,text</label>
+	<input type="text" value="" placeholder="static">
+</div>
+<hr />
+<div>
+	<label for="">原来就有value</label>
+	<input type="text" value="原来就有value" placeholder="原来就有value">
+</div>
+<hr />
+<div>
+	<label for="">static,float,溢出,text</label>
+	<input type="text" value="" placeholder="溢出溢出溢出溢出溢出溢出溢出">
+</div>
+<hr />
+<div>
+	<label for="">static,float,password</label>
+	<input type="password" value="" placeholder="password">
+</div>
+<hr />
+<div>
+	<label for="">absolute,text</label>
+	<input type="text" id="t4" value="" placeholder="absolute">
+</div>
+<hr />
+<div>
+	<label for="">checkbox,button,submit,radio</label>
+	<input type="checkbox" class="not-text" value="" placeholder="checkbox">
+	<input type="button" class="not-text" value="" placeholder="button">
+	<input type="submit" class="not-text" value="" placeholder="submit">
+	<input type="radio" class="not-text" value="" placeholder="radio">
+</div>
+<hr />
+
+<script type="text/javascript" src="../src/jquery.min.js" chartset="UTF-8"></script>
+<script type="text/javascript" src="../dist/iui.js" chartset="UTF-8"></script>
+<script>
+$(function(){
+	$('body').IUI('placeholder');
+});
+</script>
+</body>
+
+</html>

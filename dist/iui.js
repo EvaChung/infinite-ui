@@ -230,16 +230,18 @@
 
 
             if (config.keyboard) {
-                $(window).on('keyup.iui-alert', function(event) {
-                    // keyCode => esc
-                    if (event.keyCode === 27 || (event.keyCode === 13 && config.type === 'confirm')) {
-                        container.find('.IUI-alert-cancel,.IUI-alert-close').trigger('click.iui-alert');
-                    }
-                    // keyCode => enter
-                    if (event.keyCode === 13 && config.type === 'alert') {
-                        container.find('.IUI-alert-confirm').trigger('click.iui-alert');
-                    }
-                });
+                if (config.keyboard) {
+                    $(window).on('keyup.iui-alert', function(event) {
+                        // keyCode => esc
+                        if (event.keyCode === 27) {
+                            container.find('.IUI-alert-cancel,.IUI-alert-close').trigger('click.iui-alert');
+                        }
+                        // keyCode => enter
+                        if (event.keyCode === 13) {
+                            container.find('.IUI-alert-confirm').trigger('click.iui-alert');
+                        }
+                    });
+                }
             }
 
             /**
@@ -1229,7 +1231,9 @@
             ].join(''),
             optionTemplate: '<option selected="selected" value="{value}">{value}</option>',
             liTemplate: '<li class="hidden" data-value="{value}">{value}</li>',
-            inputTemplate: '<div class="token"> <span> <input type="text"> </span> </div>'
+            inputTemplate: '<div class="token"> <span> <input type="text"> </span> </div>',
+            optGroupBegin: '<li>aa</li><ul>',
+            optGroupEnd: '</ul>',
         };
 
         var tokenize = $.fn.tokenize = function(options) {
@@ -1265,7 +1269,10 @@
         //模拟下拉框
         tokenize.renderSelect = function($target) {
             var htmlStr = $target.find('select').prop('outerHTML');
-            htmlStr = (htmlStr + '').replace(/select/g, 'ul').replace(/option/g, 'li class="hide"').replace(/value/g, 'data-value');
+
+            htmlStr = (htmlStr + '').replace(/<optgroup\s+label="(.*)".*>/g, '<li class="tokenize-disable">$1<ul class="tokenize-disable">');
+            htmlStr = htmlStr.replace(/<\/optgroup>/g, '</ul></li>');
+            htmlStr = htmlStr.replace(/select/g, 'ul').replace(/option/g, 'li class="hide"').replace(/value/g, 'data-value');
             $target.append(htmlStr);
         };
 
@@ -1293,6 +1300,7 @@
                     }
                     $tokenize.find('option[value="' + value + '"]').removeAttr('selected');
                     $li.removeClass('hidden');
+                    $li.parents('li').eq(0).removeClass('hide');
                     $this.parent('.token-item').remove();
                 });
 
@@ -1308,26 +1316,36 @@
                 $target.on('keyup', 'input', function(event) {
                     var keycode = event.keyCode;
                     var KC = KEY_CODE;
-                    (keycode !== KC.enter && keycode !== KC.back && keycode !== KC.bottom && keycode !== KC.top) && tokenize.searchToken.call(this, defaults);
+                    if (keycode !== KC.enter && keycode !== KC.back && keycode !== KC.bottom && keycode !== KC.top) {
+                        tokenize.searchToken.call(this, defaults);
+                    }
                 });
 
                 //按下enter键设置token
                 $target.on('keyup', 'ul,input', function(event) {
                     var keycode = event.keyCode;
                     var KC = KEY_CODE;
-                    (keycode === KC.enter || keycode === KC.back) && tokenize.setToken.call(this, defaults);
+                    if (keycode === KC.enter || keycode === KC.back) {
+                        tokenize.setToken.call(this, defaults);
+                    }
                 });
 
                 //按下上下键切换token
                 $target.on('keyup', function(event) {
                     var keycode = event.keyCode;
                     var KC = KEY_CODE;
-                    (keycode === KC.bottom || keycode === KC.top) && tokenize.turnToken.call(this, keycode);
+                    if (keycode === KC.bottom || keycode === KC.top) {
+                        tokenize.turnToken.call(this, keycode);
+                    }
                 });
 
                 //鼠标样式
                 $target.on('mouseenter', 'li', function(event) {
-                    $(this).siblings().removeClass('current').end().addClass('current');
+                    if (!$(this).hasClass('tokenize-disable')) {
+                        var $this = $(this);
+                        $this.parents(defaults.contain).find('li').removeClass('current');
+                        $this.addClass('current');
+                    }
                 });
             }
 
@@ -1335,7 +1353,11 @@
 
             //点击li设置token
             $target.on('click', 'li', function(event) {
-                tokenize.setToken.call(this, defaults);
+                if (!$(this).hasClass('tokenize-disable')) {
+                    tokenize.setToken.call(this, defaults);
+                } else {
+                    event.stopPropagation();
+                }
             });
 
         };
@@ -1343,7 +1365,7 @@
         //输入搜索token
         tokenize.searchToken = function(defaults) {
             var $parent = $(this).parents(defaults.contain);
-            var $lis = $parent.find('ul').removeClass('hide').find('li').removeClass('current').not('.hidden');
+            var $lis = $parent.find('>ul').removeClass('hide').find('li').not('.tokenize-disable').removeClass('current').not('.hidden');
             var showAll = $parent.data('showAll');
             var values = $.trim(this.value);
             var count = 0;
@@ -1366,13 +1388,14 @@
         //按下enter键或者点击 li 设置token
         tokenize.setToken = function(defaults) {
             var $tokenize = $(this).parents(defaults.contain);
-            var $tokens = $tokenize.find('li');
+            var $tokens = $tokenize.find('li').not('.tokenize-disable');
             //var $visibleTokens = $tokens.filter(':visible');
             var $selectedTokens = $tokens.filter('.current');
             var str;
             var index;
             var $inp = $tokenize.find('.token input');
             var value = $.trim($inp.val());
+            var $pli = null;
 
             if (!tokenize.testCount.call(this, defaults)) {
                 defaults.overLimitCount($tokenize);
@@ -1394,6 +1417,12 @@
                 //改变select
                 index = $tokens.index($selectedTokens);
                 $tokenize.find('option').eq(index).attr('selected', 'selected');
+
+                // 隐藏父ul
+                $pli = $selectedTokens.parents('li').eq(0);
+                if ($pli.find('>ul>li:visible').length === 0) {
+                    $pli.addClass('hide');
+                }
             } else if ($tokenize.data('create') && value) {
                 //添加 li
                 $tokenize.find('ul').append(htmlTemplate.liTemplate.replace(/\{value\}/g, value));
@@ -1409,7 +1438,7 @@
 
         //按下上下键切换token
         tokenize.turnToken = function(keycode) {
-            var $tokens = $(this).find('li');
+            var $tokens = $(this).find('li').not('.tokenize-disable');
             var $visibleTokens = $tokens.filter(':visible');
             var $selectedTokens = $visibleTokens.filter('.current');
             var index = $visibleTokens.index($selectedTokens);
@@ -1427,7 +1456,9 @@
                 tokenize.hideToken($('.tokenize'));
             });
             return function($ele) {
-                return $ele.find('ul').addClass('hide').find('li').addClass('hide');
+                $ele.find('ul').not('.tokenize-disable').addClass('hide');
+                $ele.find('li').not('.tokenize-disable').addClass('hide');
+                //return $ele.find('ul').not('.tokenize-disable').addClass('hide').find('li').addClass('hide');
             };
         }();
 

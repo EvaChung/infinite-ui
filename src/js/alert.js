@@ -17,153 +17,155 @@
  * @param $.alert({options});
  */
 $.extend({
-    alert: function(options) {
+  alert: function(options) {
 
-        var $body = $('body');
+    var $body = $('body');
 
-        var defaults = {
-            title: '',
-            content: '',
-            confirmText: '确定',
-            cancelText: '取消',
-            closeBtn: false,
-            shadow: true,
-            animateClass: 'fadeInDown',
-            type: 'confirm',
-            status: 'default',
-            keyboard: true,
-            before: function() {},
-            confirm: function() {},
-            cancel: function() {}
-        };
+    var defaults = {
+      title: '',
+      content: '',
+      confirmText: '确定',
+      cancelText: '取消',
+      closeBtn: false,
+      shadow: true,
+      animateClass: 'fadeInDown',
+      type: 'confirm',
+      status: 'default',
+      keyboard: true,
+      before: function() {},
+      confirm: function() {},
+      cancel: function() {}
+    };
 
-        var config = $.extend({}, defaults, options);
+    var config = $.extend({}, defaults, options);
 
-        var container = create();
-        /**
-         * [deferred description]
-         * @type {Object}
-         * @description 在回调函数中使用
-         */
-        var deferred = {
-            showAlert: function() {
-                show(container);
-            },
-            hideAlert: function() {
-                hide(container);
-            },
-            target: container
-        };
-
-        if (!$.alertBackdrop) {
-            $.alertBackdrop = $('<div class="IUI-alert-backdrop hide"></div>');
-            $body.append($.alertBackdrop);
-        }
-
-
-        if (config.shadow) {
-            $body.on('touchstart.iui-alert click.iui-alert', '.IUI-alert-container', function(event) {
-                event.preventDefault();
-                hide(container);
-            });
-        }
-
-        $body.on('touchstart.iui-alert click.iui-alert', '.IUI-alert-main', function(event) {
-            event.stopPropagation();
-        });
-
-        container.on('touchstart.iui-alert click.iui-alert', '.IUI-alert-confirm', function(event) {
-
-            if (config.type === 'alert') {
-
-                if (config.cancel.call(this, deferred) === false) {
-                    return false;
-                }
-
-                hide(container);
-
-                return false;
-            }
-
-            if (config.confirm.call(this, deferred) === false) {
-                return false;
-            }
-
-        });
-
-        container.on('touchstart.iui-alert click.iui-alert', '.IUI-alert-cancel,.IUI-alert-close', function(event) {
-            if (config.cancel.call(this, deferred) === false) {
-                return false;
-            }
-
-            hide(container);
-        });
-
-
-        if (config.keyboard) {
-            $(window).on('keyup.iui-alert', function(event) {
-                // keyCode => esc
-                if (event.keyCode === 27 || (event.keyCode === 13 && config.type === 'confirm')) {
-                    container.find('.IUI-alert-cancel,.IUI-alert-close').trigger('click.iui-alert');
-                }
-                // keyCode => enter
-                if (event.keyCode === 13 && config.type === 'alert') {
-                    container.find('.IUI-alert-confirm').trigger('click.iui-alert');
-                }
-            });
-        }
-
-        /**
-         * [show description]
-         * @param  {jQuery object} target 需要显示的对象
-         */
-        function show(target) {
-            $.alertBackdrop.removeClass('hide');
-            target.removeClass('hide');
-            target.find('.IUI-alert-main').addClass(config.animateClass);
-        }
-        /**
-         * [hide description]
-         * @param  {jQuery object} target 需要隐藏的对象
-         */
-        function hide(target) {
-            $body.off('touchstart.iui-alert click.iui-alert');
-            target.off('touchstart.iui-alert click.iui-alert').remove();
-            $.alertBackdrop.addClass('hide');
-        }
-        /**
-         * [create description]
-         * @return {string} 拼接html
-         */
-        function create() {
-            var isConfirm = config.type === 'confirm';
-
-            var _closeBtn = '<span class="IUI-alert-close"></span>';
-
-            var _confirmBtn = '<a href="javascript:;" class="IUI-alert-confirm">' + config.confirmText + '</a>';
-
-            var _cancelBtn = '<a href="javascript:;" class="IUI-alert-cancel">' + config.cancelText + '</a>';
-
-            var _header = '<div class="IUI-alert-header">' + (config.title || '') + (config.closeBtn ? _closeBtn : '') + '</div>';
-
-            var _content = '<div class="IUI-alert-content">' + (config.content || '') + '</div>';
-
-            var _footer = '<div class="IUI-alert-footer">' + _confirmBtn + (isConfirm ? _cancelBtn : '') + '</div>';
-
-            var _main = _header + _content + _footer;
-
-            var $container = $('<div class="IUI-alert-container hide"><div class="IUI-alert-main ' + config.status + '">' + _main + '</div></div>');
-
-            $body[0].appendChild($container[0]);
-
-            return $container;
-        }
-
-        if (config.before.call(this, deferred) === false) {
-            return false;
-        }
-
+    var container = create();
+    /**
+     * [deferred description]
+     * @type {Object}
+     * @description 在回调函数中使用
+     */
+    var deferred = {
+      showAlert: function() {
         show(container);
+      },
+      hideAlert: function() {
+        hide(container);
+      },
+      target: container
+    };
 
+    if (!$.alertBackdrop) {
+      $.alertBackdrop = $('<div class="IUI-alert-backdrop hide"></div>');
+      $body.append($.alertBackdrop);
     }
+
+
+    if (config.shadow) {
+      $body.on('touchstart.iui-alert click.iui-alert', '.IUI-alert-container', function(event) {
+        event.preventDefault();
+        hide(container);
+      });
+    }
+
+    $body.on('touchstart.iui-alert click.iui-alert', '.IUI-alert-main', function(event) {
+      event.stopPropagation();
+    });
+
+    container.on('touchstart.iui-alert click.iui-alert', '.IUI-alert-confirm', function(event) {
+
+      if (config.type === 'alert') {
+
+        if (config.cancel.call(this, deferred) === false) {
+          return false;
+        }
+
+        hide(container);
+
+        return false;
+      }
+
+      if (config.confirm.call(this, deferred) === false) {
+        return false;
+      }
+
+    });
+
+    container.on('touchstart.iui-alert click.iui-alert', '.IUI-alert-cancel,.IUI-alert-close', function(event) {
+      if (config.cancel.call(this, deferred) === false) {
+        return false;
+      }
+
+      hide(container);
+    });
+
+
+    if (config.keyboard) {
+      if (config.keyboard) {
+        $(window).on('keyup.iui-alert', function(event) {
+          // keyCode => esc
+          if (event.keyCode === 27) {
+            container.find('.IUI-alert-cancel,.IUI-alert-close').trigger('click.iui-alert');
+          }
+          // keyCode => enter
+          if (event.keyCode === 13) {
+            container.find('.IUI-alert-confirm').trigger('click.iui-alert');
+          }
+        });
+      }
+    }
+
+    /**
+     * [show description]
+     * @param  {jQuery object} target 需要显示的对象
+     */
+    function show(target) {
+      $.alertBackdrop.removeClass('hide');
+      target.removeClass('hide');
+      target.find('.IUI-alert-main').addClass(config.animateClass);
+    }
+    /**
+     * [hide description]
+     * @param  {jQuery object} target 需要隐藏的对象
+     */
+    function hide(target) {
+      $body.off('touchstart.iui-alert click.iui-alert');
+      target.off('touchstart.iui-alert click.iui-alert').remove();
+      $.alertBackdrop.addClass('hide');
+    }
+    /**
+     * [create description]
+     * @return {string} 拼接html
+     */
+    function create() {
+      var isConfirm = config.type === 'confirm';
+
+      var _closeBtn = '<span class="IUI-alert-close"></span>';
+
+      var _confirmBtn = '<a href="javascript:;" class="IUI-alert-confirm">' + config.confirmText + '</a>';
+
+      var _cancelBtn = '<a href="javascript:;" class="IUI-alert-cancel">' + config.cancelText + '</a>';
+
+      var _header = '<div class="IUI-alert-header">' + (config.title || '') + (config.closeBtn ? _closeBtn : '') + '</div>';
+
+      var _content = '<div class="IUI-alert-content">' + (config.content || '') + '</div>';
+
+      var _footer = '<div class="IUI-alert-footer">' + _confirmBtn + (isConfirm ? _cancelBtn : '') + '</div>';
+
+      var _main = _header + _content + _footer;
+
+      var $container = $('<div class="IUI-alert-container hide"><div class="IUI-alert-main ' + config.status + '">' + _main + '</div></div>');
+
+      $body[0].appendChild($container[0]);
+
+      return $container;
+    }
+
+    if (config.before.call(this, deferred) === false) {
+      return false;
+    }
+
+    show(container);
+
+  }
 });

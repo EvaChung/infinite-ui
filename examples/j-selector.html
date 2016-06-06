@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="../dist/style-pc.css">
+  <link rel="stylesheet" type="text/css" href="../dist/iselector.css">
+  <style type="text/css">
+  a,
+  a:hover {
+    text-decoration: none;
+  }
+
+  ul,
+  li {
+    margin: 0;
+    padding: 0;
+  }
+  </style>
+</head>
+
+<body style="margin:100px;">
+  <div id="J-selector"></div>
+  <div class="selector-container clearfix city-container">
+  </div>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <div id="J-selector-2"></div>
+  <script src="../src/jquery.js"></script>
+  <script src="/src/js/citydata.js"></script>
+  <script type="text/javascript">
+  (function($) {
+
+
+
+    /**
+     * 名词解释：
+     * 列表   ： 一组为一列 ，例如： select是一个列
+     * 子项   ： 列里的每一个成员为项，例如： select > option
+     * 名字   ： 自定义标签时，需要一个展示用的名字，例如： div>a.name+ul>li
+     * 容器   ： 存放子项的容器
+     */
+
+
+    /**
+     * 关于 template
+     * data-caller={{caller}} ： 必填，用于呼出下来列表，select时是change事件，自定义标签是click
+     * data-item              ： 自定义标签时必填，因为【项】需要绑定click事件
+     * role="name"            ： 自定义标签时必填，用于声明【name】
+     * role="content"         ： 自定义标签时必填，用于声明【容器】
+     */
+
+    /**
+     * defaults
+     * @type {String}   pcode         预留接口，暂无用途
+     * @type {Number}   level         列表数
+     * @type {String}   template      渲染后的数据容器
+     * @type {Array}    placeholder
+     * @type {Function} jsonToUi      [data:JSON数据，pid:父节点id，level:级别，placeholder:初始文字]
+     */
+
+    var defaults = {
+      container: 'body',
+      pcode: 'parentId',
+      level: 3,
+      template: '<select role="content" data-caller="{{caller}}" class="form-control">{{content}}</select>',
+      placeholder: ['请选择省份','请选择城市','请选择区县'],
+      /**
+       * [jsonToUi description]
+       * @param  {[Json]}             data            [Json数据]
+       * @param  {[Number,String]}    pid             [预留接口，暂无用途]
+       * @param  {[Number]}           level           [列表数]
+       * @param  {[Array]}            placeholder     [列表初始化文字，数组长度与列表数对应]
+       * @return {[String]}                           [被转化后的HTML字符串]
+       */
+      jsonToUi: function(data, pid, level, placeholder) {
+        var _data = data;
+        var _len = data.length;
+        var _pid = pid || '100000';
+        var _html = '<option>' + placeholder + '</option>';
+
+        //level <0 的条件必写
+        if (level < 0) {
+          return _html;
+        }
+
+        for (var i = 0; i < _len; i++) {
+
+          if (_data[i].parentId == _pid) {
+
+            _html += '<option data-item="' + level + '" value="' + _data[i].id + '" >' + _data[i].name + '</option>';
+          }
+        }
+        return _html;
+      }
+    };
+
+
+    function Selector(options, selector) {
+      this.$selector = $(selector);
+      this.options = $.extend({}, defaults, options);
+      this.$container = $(this.options.container);
+      this.init();
+      this.event();
+    }
+
+    Selector.prototype.init = function() {
+      var options = this.options;
+      var html, placeholder;
+      var template = options.template;
+
+      for (var i = 0; i < options.level; i++) {
+
+        placeholder = options.placeholder[i] || '';
+
+        html = template.replace('{{caller}}', i);
+
+        // 初始化的时候，仅循环第一个列表
+        if (!i) {
+          html = html.replace('{{content}}', options.jsonToUi.call(this, options.data, null, i, placeholder));
+        } else {
+          html = html.replace('{{content}}', options.jsonToUi.call(this, options.data, null, -1, placeholder));
+        }
+
+        //由于自定义标签，会有[role="name"]元素存在，因此此处需要做一下替换
+        if (html.indexOf('{{name}}') !== -1) {
+          html = html.replace('{{name}}', placeholder);
+        }
+
+        this.$selector.append(html);
+      };
+    };
+
+    Selector.prototype.event = function() {
+      var self = this;
+      var options = self.options;
+      var $context = self.$selector;
+      var $caller = $context.find('[data-caller]')
+      var isSelect = $caller[0].nodeName === 'SELECT';
+      var handler = isSelect ? 'change.Selector' : 'click.Selector';
+
+
+      for (var i = 0; i < options.level; i++) {
+
+        (function(index) {
+          var $selector = self.$selector;
+
+
+          if (isSelect) {
+            // 是否为select标签
+            $selector.on(handler, '[data-caller="' + i + '"]', function(event) {
+              var $this = $(this);
+              var parentId = $this.val();
+              var nextIndex = index + 1;
+              var placeholder = options.placeholder[index] || '';
+
+              //给下一【列】增加一个parentId
+              $caller.eq(index).data('parentId', parentId);
+
+              //刷新下一【列】的【内容区】
+              $caller.eq(nextIndex).html(options.jsonToUi.call(this, options.data, parentId, nextIndex, placeholder));
+
+              //递归触发其后的每一【列】
+              $caller.eq(nextIndex).trigger('change');
+
+              //触发自定义事件
+              $selector.trigger('choose' + index, [self, $this, i]);
+            });
+
+          } else {
+            //其他自定义标签
+            $selector.on(handler, '[data-caller="' + i + '"]', function(event) {
+              var $content = $selector.find('[role="content"]');
+              $content.addClass('hide').eq(index).removeClass('hide');
+              return false;
+            });
+
+            $selector.on(handler, '[data-item="' + i + '"]', function(event) {
+              var $this = $(this);
+              var parentId = $this.data('id');
+              var $content = $selector.find('[role="content"]');
+              var $name = $selector.find('[role="name"]');
+              var nextIndex = index + 1;
+              var placeholder = options.placeholder[index] || '';
+
+              //给选中的【项】增加一个selected的class
+              $this.addClass('selected').siblings('.selected').removeClass('selected');
+
+              //给下一【列】增加一个parentId
+              $caller.eq(index).data('parentId', parentId);
+
+              //刷新下一【列】的【内容区】
+              $caller.eq(nextIndex).find('[role="content"]').html(options.jsonToUi.call(this, options.data, parentId, nextIndex, placeholder));
+
+              //选中后隐藏当前【内容区】
+              $content.addClass('hide');
+
+              //刷新当前【列】的【name】
+              $name.eq(index).text($this.text());
+
+              //递归触发其后的每一【列】
+              $caller.eq(nextIndex).find('[data-item]').eq(0).trigger('click');
+
+              //触发自定义事件
+              $selector.trigger('choose' + index, [self, $this, i]);
+
+              return false;
+            });
+
+
+          }
+
+        })(i);
+      };
+
+      Selector.prototype.serializeArray = function() {
+
+      };
+
+      if (!isSelect) {
+        self.$container.on('click.jselector', function(event) {
+          event.preventDefault();
+          self.$selector.find('[role="content"]').addClass('hide');
+        });
+      }
+
+    }
+
+
+    $.fn.jselector = function(options) {
+      return this.each(function() {
+        if (!$(this).data('jselector')) {
+          $(this).data('jselector', new Selector(options, this));
+        }
+      });
+    };
+
+
+  }(jQuery));
+
+  $('#J-selector').jselector({
+    data: cityData
+  });
+
+  $('#J-selector').on('choose0', function(event) {
+    event.preventDefault();
+    console.log(1111);
+  });
+
+  $('#J-selector').on('choose1', function(event) {
+    event.preventDefault();
+    console.log(2222);
+  });
+
+  $('#J-selector').on('choose2', function(event) {
+    event.preventDefault();
+    console.log(22222);
+  });
+
+  $('.selector-container').jselector({
+    template: '<div class="selector-level selector-level-1" data-caller="{{caller}}">' +
+      '<a href="javascript:;" role="name" class="selector-name ">{{name}}</a>' +
+      '<ul role="content" class="selector-list hide">{{content}}</ul>' +
+      '</div>',
+    data: cityData,
+    jsonToUi: function(data, pid, level, placeholder) {
+      var _data = data;
+      var _len = data.length;
+      var _pid = pid || '100000';
+      var _html = '';
+      if (level < 0) {
+        return _html;
+      }
+      for (var i = 0; i < _len; i++) {
+        if (_data[i].parentId == _pid) {
+          _html += '<li data-item="' + level + '" data-id="' + _data[i].id + '" >' + _data[i].name + '</li>';
+        }
+      }
+      return _html;
+    }
+  });
+
+  $('.selector-container').on('choose0', function(event) {
+    event.preventDefault();
+    console.log(arguments);
+  });
+
+
+  var tmpArr = [];
+
+  (function() {
+    for (var i = 0; i < 10; i++) {
+      var obj = {};
+      obj.value = 'one' + i;
+      obj.name = 'one' + i;
+      obj.id = 'one';
+      obj.parentId = '100000';
+      tmpArr.push(obj);
+    }
+  })();
+
+  (function() {
+    for (var i = 0; i < 10; i++) {
+      var obj = {};
+      obj.value = 'two' + i;
+      obj.name = 'two' + i;
+      obj.id = 'two';
+      obj.parentId = 'one';
+      tmpArr.push(obj);
+    }
+  })();
+  (function() {
+    for (var i = 0; i < 10; i++) {
+      var obj = {};
+      obj.value = 'three' + i;
+      obj.name = 'three' + i;
+      obj.id = 'three';
+      obj.parentId = 'two';
+      tmpArr.push(obj);
+    }
+  })();
+  (function() {
+    for (var i = 0; i < 10; i++) {
+      var obj = {};
+      obj.value = 'four' + i;
+      obj.name = 'four' + i;
+      obj.id = 'four';
+      obj.parentId = 'three';
+      tmpArr.push(obj);
+    }
+  })();
+  (function() {
+    for (var i = 0; i < 10; i++) {
+      var obj = {};
+      obj.value = 'five' + i;
+      obj.name = 'five' + i;
+      obj.id = 'five';
+      obj.parentId = 'four';
+      tmpArr.push(obj);
+    }
+  })();
+  (function() {
+    for (var i = 0; i < 10; i++) {
+      var obj = {};
+      obj.value = 'six' + i;
+      obj.name = 'six' + i;
+      obj.id = 'six';
+      obj.parentId = 'five';
+      tmpArr.push(obj);
+    }
+  })();
+    $('#J-selector-2').jselector({
+    data: tmpArr,
+    level:6,
+    placeholder:['aaaa','bbbb','ccccc','ddddd','eeeee','fffff']
+  });
+
+    $('#J-selector-2').on('choose0', function(event) {
+      event.preventDefault();
+      console.log(111);
+    });$('#J-selector-2').on('choose1', function(event) {
+      event.preventDefault();
+      console.log(222);
+    });$('#J-selector-2').on('choose2', function(event) {
+      event.preventDefault();
+      console.log(333);
+    });$('#J-selector-2').on('choose3', function(event) {
+      event.preventDefault();
+      console.log(444);
+    });$('#J-selector-2').on('choose4', function(event) {
+      event.preventDefault();
+      console.log(555);
+    });$('#J-selector-2').on('choose5', function(event) {
+      event.preventDefault();
+      console.log(666);
+    });
+
+  </script>
+</body>
+
+</html>

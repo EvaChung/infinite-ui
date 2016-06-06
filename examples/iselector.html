@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>下拉联动</title>
+	<link rel="stylesheet" type="text/css" href="../dist/iselector.css">
+</head>
+<body>
+	<h3>实例化自定义标签城市</h3>
+	<div class="selector-container clearfix city-container"></div><!-- end .city-container -->
+
+	<h3>实例化select</h3>
+	<div class="selector-container clearfix city-select"></div><!-- end .city-select -->
+
+	<script type="text/javascript" src="../src/jquery.js"></script>
+	<script type="text/javascript" src="../src/js/citydata.js"></script>
+	<script type="text/javascript" src="../src/js/jquery.iselector.js"></script>
+	<script type="text/javascript">
+	$(function(){
+		//实例化城市
+		$('.city-container').iselector({
+			dataJson: cityData,			//json数据
+			level: 3,					//多少级联动
+			startClick: function(self, target, config) {
+				console.log(self, target, config);
+			}
+		});
+
+		/**
+		 * [description]   自定义触发事件第一个列(级)所执行的事件
+		 * 省
+		 */
+		$('.city-container').on('choose-1', function(event, self, tagert, plusIndex, values) {
+			var self = self; 				//this
+			var tagert = tagert;			//选中的选项
+			var vals = values;    			//返回的值是倒过来的[省，市，区]
+			var index = plusIndex;      	//索引
+			console.log(self, tagert, plusIndex, vals);
+		});
+
+		/**
+		 * [description]   自定义触发事件第一个列(级)所执行的事件
+		 * 市
+		 */
+		$('.city-container').on('choose-2', function(event, self, tagert, plusIndex, values) {
+			var self = self; 				//this
+			var tagert = tagert;			//选中的选项
+			var vals = values;    			//返回的值是倒过来的[省，市，区]
+			var index = plusIndex;      	//索引
+			console.log(self, tagert, plusIndex, vals);
+		});
+
+		/**
+		 * [description]   自定义触发事件第一个列(级)所执行的事件
+		 * 区
+		 */
+		$('.city-container').on('choose-3', function(event, self, tagert, plusIndex, values) {
+			var self = self; 				//this
+			var tagert = tagert;			//选中的选项
+			var vals = values;    			//返回的值是倒过来的[省，市，区]
+			var index = plusIndex;      	//索引
+			console.log(self, tagert, plusIndex, vals);
+		});
+
+		//原生select实例化
+		$('.city-select').iselector({
+			dataJson: cityData,
+			level: 3,
+			template: '<select name="{{field}}" role="content" data-caller="{{caller}}" class="selector-control selector-control-{{level}}">{{content}}</select>',
+			iselect: true,
+			shorthand: true
+		});
+
+	});
+	</script>
+</body>
+</html>
