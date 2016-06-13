@@ -1772,82 +1772,86 @@
         }
     });
 
-    /**
+   /**
      * placeholder 组件
-     * @param {String}      target           被侦听的目标，className、ID ...
-     * @param {String}      cloneClass       针对 name=password 进行 css 微调
+     * @param {color}     color           placeholder color
+     * @param {String}    zIndex          placeholder z-index 需高于input
      *
      * @example
-     * $('form').IUI({target:'.form-control'});
+     * $('body').IUI('placeholder',{color:'#999',zIndex:2});
      */
     $.fn.IUI({
-        placeholder: function(options) {
-            return this.each(function() {
-                var isSupport = utils.isPlaceholder();
-                if (isSupport) {
-                    return false;
+        placeholder: function(option){
+            if('placeholder' in document.createElement('input')){
+                return;
+            }
+
+            var defaults = {
+                color: "#999",  //placeholder color
+                zIndex: 2  //针对position:absolute的input元素，label覆盖在input之上
+            };
+            var param = $.extend({},defaults,option || {});
+            var $eles = $(this).find('input[type="text"],input[type="password"],input[type="tel"],input[type="email"]');
+
+            return $eles.each(function(i,n){
+                var $ele = $(n),ele = n,//ele供原生事件onpropertychange调用
+                    placeholder = $ele.attr('placeholder'),
+                    $elel = $('<label></label>').css({
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        height: 0,
+                        lineHeight: $ele.css("height"),
+                        fontSize: $ele.css("fontSize"),
+                        paddingLeft: $ele.css("textIndent") ? $ele.css("textIndent") : $ele.css('paddingLeft'),
+                        background: "none",
+                        cursor: "text",
+                        color: param.color,
+                        zIndex: param.zIndex
+                    }).text(placeholder).insertBefore($ele);
+
+                $ele.parent().css({"position": "relative"});
+
+                if($ele.val()){
+                    $elel.hide();
                 }
 
-                var defaults = {
-                    target: '.form-control',
-                    cloneClass: 'clone-password'
-                };
-                var $selector = $(this);
-                var $window = $(window);
-                var config = $.extend({}, defaults, options);
-
-
-
-                $selector.find(config.target).each(function(index, el) {
-                    var placeholder = $(el).attr('placeholder');
-                    var $el = $(el);
-                    if (el.type === 'password') {
-
-                        var $clone = $('<input class="' + config.target.slice(1) + '" type="text">');
-
-                        $el.css({
-                            'display': 'none'
-                        });
-
-                        $clone.addClass(config.cloneClass).val(placeholder);
-                        $el.parent().append($clone);
-                    } else {
-                        el.value = placeholder;
+                //事件绑定
+                $elel.bind({
+                    "click": function(){
+                        $elel.hide();
+                        $ele.focus();
                     }
-                });
-
-                $selector.find(config.target).on({
-                    focus: function(event) {
-                        if ($(this).hasClass('clone-password')) {
-                            $(this).css({
-                                'display': 'none'
-                            });
-                            $(this).parent().find('input[type=password]').css({
-                                'display': 'block'
-                            }).focus();
-                            return false;
-                        }
-
-                        if (this.value === $(this).attr('placeholder')) {
-                            this.value = '';
+                })
+                $ele.bind({
+                    "focus": function(){
+                        $elel.hide();
+                    },
+                    "blur": function(){
+                        if(!$ele.val()){
+                            $elel.show();
                         }
                     },
-                    blur: function(event) {
-                        if ($(this).attr('type') === 'password' && !this.value) {
-                            $(this).css({
-                                'display': 'none'
-                            });
-                            $(this).parent().find('.clone-password').css({
-                                'display': 'block'
-                            });
-                            return false;
-                        }
-
-                        if (!this.value) {
-                            this.value = $(this).attr('placeholder');
+                    "input": function(){
+                        if($ele.val()){
+                            $elel.hide();
+                        }else{
+                            $elel.show();
                         }
                     }
                 });
+                //IE6-8不支持input事件，另行绑定
+                ele.onpropertychange = function(event) {
+                    event = event || window.event;
+                    if (event.propertyName == "value") {
+                        var $this = $(this);
+                        if($this.val()){
+                            $(this).prev('label').hide();
+                        }else{
+                            $(this).prev('label').show();
+                        }
+                    };  
+                }
             });
         }
     });

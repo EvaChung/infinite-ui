@@ -102,5 +102,7 @@ $ gulp build:mobi			//编译mobile组件及css
 
 * 2016年6月8日 `ajaxForm`增加always回调和对ajax2的支持
 
+* 2016年6月13日 重构`placeholder`组件，使用label模拟,避免提交出错
+
 
 
