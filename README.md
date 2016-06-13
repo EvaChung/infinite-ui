@@ -2,7 +2,7 @@
 A lightweight jQuery UI library
 
 ##Version
-`1.1.1`
+`1.2.0`
 ##Support
 * Internet Explorer 8+
 
@@ -37,7 +37,13 @@ $ gulp build:pc				//编译pc组件及css
 ```shell
 $ gulp build:mobi			//编译mobile组件及css
 ```
+```shell
+$ gulp watch				//开发及预览
 
+```
+```shell
+http://localhost:3000/examples/index.html
+```
 
 ##History
 
@@ -98,11 +104,16 @@ $ gulp build:mobi			//编译mobile组件及css
 
 * 2016年5月23日 `tokenize`增加多级列表选择
 
+* 2016年5月30日 新增`pagination`组件
+
+* 2016年6月3日 新增`dialog`组件
+
 * 2016年6月8日 `tokenize`优化js和css代码，增加搜索回调函数和可以限制输入搜索的字符的长度
 
 * 2016年6月8日 `ajaxForm`增加always回调和对ajax2的支持
 
+* 2016年6月12日 重构`layer`组件的居中方式及动画效果
+
 * 2016年6月13日 重构`placeholder`组件，使用label模拟,避免提交出错
 
-
-
+* 2016年06月13日 ** 适配`webpack`模块加载  `version 1.2` **
