@@ -2,8 +2,8 @@
     height: 300px;
     float:left;
 }
-//BEGIN multiselect
-.multiselect,.multiselect-to{
+//BEGIN lrselect
+.lrselect,.lrselect-to{
     height: 100%;
     overflow-y: auto;
     .level-2 li{
@@ -11,7 +11,7 @@
         line-height: 21px;
     }
 }
-.multiselect-box{
+.lrselect-box{
     width: 385px;
     border:1px solid #ccc;
     padding:10px;
@@ -55,7 +55,7 @@
         content: "\f106";
     }
 }
-.multiselect-toolBox{
+.lrselect-toolBox{
     @extend %layout-1;
     width: 226px;
     padding:0 20px;
@@ -74,4 +74,4 @@
         background:#FB7E27;
     }
 }
-//END multiselect
+//END lrselect

@@ -39,13 +39,13 @@
  *
  *
  */
-;(function($, window) {
 
-  var $backdrop = $('<div class="layer-backdrop"></div>');
+(function($, window) {
+
+  var $backdrop = $('<div class="layer-backdrop" style="display:none"></div>');
   var screenH = document.documentElement.clientHeight;
   var $body = $('body');
-
-
+  var animateTime = document.all && !window.atob ? 0 : 200;
   function Layer(config, selector) {
     var defaults = {
       container: 'body',
@@ -56,7 +56,6 @@
       closeHandle: '.btn-cancel,.btn-close',
       offsetWidth: 'auto',
       offsetHeight: 'auto',
-      animateClass: 'fadeInDown',
       url: $(this).attr('data-url') || false,
       dataType: $(this).attr('data-dataType') || 'html',
       content: '',
@@ -84,7 +83,10 @@
     var layerWidth = Number($selector.attr('data-width')) || config.offsetWidth;
     var layerHeight = Number($selector.attr('data-height')) || config.offsetHeight;
 
-    $content.data({ initWidth: layerWidth, initHeight: layerHeight }).css({ width: layerWidth, height: layerHeight });
+    $content.css({
+      width: layerWidth,
+      height: layerHeight
+    });
   };
 
   Layer.prototype.ajaxLoad = function() {
@@ -166,9 +168,11 @@
     self.$selector.removeClass('hide');
     self.$selector.after($backdrop);
     self.resize();
-    self.$content.addClass(config.animateClass);
+    self.$content.addClass('layer-opening');
+    $backdrop.fadeIn(animateTime, function() {
+      self.$content.removeClass('layer-opening');
+    });
     self.$selector.trigger('layer.show', [self]);
-
     return self;
   };
 
@@ -177,10 +181,12 @@
     var self = this;
     var config = self.config;
 
-    self.$selector.addClass('hide');
-    self.$content.removeClass(config.animateClass);
-    $body.removeClass('layer-open');
-    self.$backdrop.remove();
+    self.$content.addClass('layer-closing');
+    self.$backdrop.fadeOut(animateTime, function() {
+      self.$selector.addClass('hide');
+      self.$content.removeClass('layer-closing');
+      $(this).remove();
+    });
     self.$selector.trigger('layer.hide', [this]);
 
     return self;
@@ -193,21 +199,7 @@
     var outerHeight = parseInt($content.css('margin-bottom')) * 2;
     var contentHeight = $content.outerHeight() + outerHeight;
 
-    if (config.vertical && contentHeight < screenH) {
-      $body.removeClass('layer-open');
-      $content.css({
-        'top': '50%',
-        'margin-top': -(contentHeight / 2)
-      });
-      return false;
-    }
-
     $body.addClass('layer-open');
-
-    $content.removeAttr('style').css({
-      'width': $content.data('initWidth'),
-      'height': $content.data('initHeight')
-    });
 
   };
 

@@ -293,14 +293,12 @@
   color: #f3c901;
 }
 
-.hide, .hidden {
-  display: none;
-}
-
 .tokenize {
   position: relative;
 }
-
+.tokenize .hide, .tokenize .hidden {
+  display: none;
+}
 .tokenize .token {
   height: 80px;
   word-break: break-all;
@@ -310,7 +308,6 @@
   position: relative;
   z-index: 1;
 }
-
 .tokenize .token .token-item {
   display: inline-block;
   margin: 5px 0 0 5px;
@@ -320,20 +317,34 @@
   border: 1px solid #ccd5e3;
   font-size: 12px;
 }
-
 .tokenize .token input {
   outline: none;
   width: 60px;
   border: none;
+  text-indent: 5px;
+  padding: 0;
 }
-
 .tokenize .token .token-close {
   padding-left: 5px;
   text-decoration: none;
   cursor: pointer;
   color: #a6b4ce;
 }
-
+.tokenize ul {
+  list-style: none;
+  font-size: 14px;
+}
+.tokenize ul, .tokenize ul li {
+  margin: 0;
+  padding: 0;
+}
+.tokenize ul li {
+  font-weight: normal;
+}
+.tokenize ul li.current {
+  background-color: #0081c2;
+  color: white;
+}
 .tokenize > ul {
   position: absolute;
   top: 100%;
@@ -350,31 +361,16 @@
   margin: 0;
   padding: 0;
 }
-
-.tokenize ul {
-  list-style: none;
-  font-size: 14px;
-  padding-left: 0;
-}
-
-.tokenize ul li.current {
-  background-color: #0081c2;
-  color: white;
-}
-
-.tokenize ul li.tokenize-disable {
+.tokenize > ul > li {
   background-color: #fff;
   color: #000;
   font-size: 16px;
+}
+.tokenize > ul .tokenize-level {
   font-weight: bold;
 }
-
-.tokenize ul li.tokenize-disable ul {
+.tokenize > ul .tokenize-level .tokenize-menu {
   padding-left: 10px;
-}
-
-.tokenize ul li {
-  font-weight: normal;
 }
 
 .mPicker-hide {

@@ -6,7 +6,6 @@
  * @param {String}      cancelText                  取消按钮文本
  * @param {Boolean}     closeBtn                    是否开启关闭按钮
  * @param {Boolean}     shadow                      是否开启点击阴影关闭
- * @param {String}      animateClass                动画类，默认fadeInDown
  * @param {String}      type                        可选择 alert 或 confirm，区别在于有无【取消按钮】
  * @param {String}      status                      状态类，如 success , error , warning , info
  * @param {Function}    before                      回调函数 - 弹出前
@@ -20,7 +19,7 @@ $.extend({
   alert: function(options) {
 
     var $body = $('body');
-
+    var animateTime = document.all && !window.atob ? 0 : 200;
     var defaults = {
       title: '',
       content: '',
@@ -28,7 +27,6 @@ $.extend({
       cancelText: '取消',
       closeBtn: false,
       shadow: true,
-      animateClass: 'fadeInDown',
       type: 'confirm',
       status: 'default',
       keyboard: true,
@@ -56,7 +54,7 @@ $.extend({
     };
 
     if (!$.alertBackdrop) {
-      $.alertBackdrop = $('<div class="IUI-alert-backdrop hide"></div>');
+      $.alertBackdrop = $('<div class="IUI-alert-backdrop" style="display:none"></div>');
       $body.append($.alertBackdrop);
     }
 
@@ -120,18 +118,23 @@ $.extend({
      * @param  {jQuery object} target 需要显示的对象
      */
     function show(target) {
-      $.alertBackdrop.removeClass('hide');
-      target.removeClass('hide');
-      target.find('.IUI-alert-main').addClass(config.animateClass);
+        target.removeClass('hide');
+        target.find('.IUI-alert-main').addClass('alert-opening');
+        $.alertBackdrop.fadeIn(animateTime,function(){
+            target.find('.IUI-alert-main').removeClass('alert-opening');
+        });
     }
     /**
      * [hide description]
      * @param  {jQuery object} target 需要隐藏的对象
      */
     function hide(target) {
-      $body.off('touchstart.iui-alert click.iui-alert');
-      target.off('touchstart.iui-alert click.iui-alert').remove();
-      $.alertBackdrop.addClass('hide');
+        $([$body,target]).off('touchstart.iui-alert click.iui-alert');
+        target.addClass('alert-closing');
+        $.alertBackdrop.fadeOut(animateTime,function(){
+            $(this).addClass('hide');
+            target.remove();
+        });
     }
     /**
      * [create description]

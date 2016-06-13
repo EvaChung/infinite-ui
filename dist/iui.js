@@ -1,12 +1,11 @@
 (function($, window, document, undefined) {
-    var layerId = 0;
-    var animateEnd = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
-    var transitionEnd = 'webkitTransitionEnd transitionend oTransitionEnd MSTransitionEnd msTransitionEnd';
     /**
     utils：通用方法
     */
 
-    var utils = {
+    window.IUI_UTILS = {
+        animateEnd: 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend',
+        transitionEnd: 'webkitTransitionEnd transitionend oTransitionEnd MSTransitionEnd msTransitionEnd',
         toggleClass: function(className, target) {
 
             var el = target instanceof $ ? target : $(target);
@@ -86,7 +85,7 @@
         }
     };
 
-    var IUI = {};
+    window.IUI = {};
 
 
     $.fn.IUI = function() {
@@ -135,7 +134,6 @@
      * @param {String}      cancelText                  取消按钮文本
      * @param {Boolean}     closeBtn                    是否开启关闭按钮
      * @param {Boolean}     shadow                      是否开启点击阴影关闭
-     * @param {String}      animateClass                动画类，默认fadeInDown
      * @param {String}      type                        可选择 alert 或 confirm，区别在于有无【取消按钮】
      * @param {String}      status                      状态类，如 success , error , warning , info
      * @param {Function}    before                      回调函数 - 弹出前
@@ -149,7 +147,7 @@
         alert: function(options) {
 
             var $body = $('body');
-
+            var animateTime = document.all && !window.atob ? 0 : 200;
             var defaults = {
                 title: '',
                 content: '',
@@ -157,7 +155,6 @@
                 cancelText: '取消',
                 closeBtn: false,
                 shadow: true,
-                animateClass: 'fadeInDown',
                 type: 'confirm',
                 status: 'default',
                 keyboard: true,
@@ -185,7 +182,7 @@
             };
 
             if (!$.alertBackdrop) {
-                $.alertBackdrop = $('<div class="IUI-alert-backdrop hide"></div>');
+                $.alertBackdrop = $('<div class="IUI-alert-backdrop" style="display:none"></div>');
                 $body.append($.alertBackdrop);
             }
 
@@ -249,18 +246,23 @@
              * @param  {jQuery object} target 需要显示的对象
              */
             function show(target) {
-                $.alertBackdrop.removeClass('hide');
                 target.removeClass('hide');
-                target.find('.IUI-alert-main').addClass(config.animateClass);
+                target.find('.IUI-alert-main').addClass('alert-opening');
+                $.alertBackdrop.fadeIn(animateTime, function() {
+                    target.find('.IUI-alert-main').removeClass('alert-opening');
+                });
             }
             /**
              * [hide description]
              * @param  {jQuery object} target 需要隐藏的对象
              */
             function hide(target) {
-                $body.off('touchstart.iui-alert click.iui-alert');
-                target.off('touchstart.iui-alert click.iui-alert').remove();
-                $.alertBackdrop.addClass('hide');
+                $([$body, target]).off('touchstart.iui-alert click.iui-alert');
+                target.addClass('alert-closing');
+                $.alertBackdrop.fadeOut(animateTime, function() {
+                    $(this).addClass('hide');
+                    target.remove();
+                });
             }
             /**
              * [create description]
@@ -487,13 +489,13 @@
      *
      *
      */
-    ;
+
     (function($, window) {
 
-        var $backdrop = $('<div class="layer-backdrop"></div>');
+        var $backdrop = $('<div class="layer-backdrop" style="display:none"></div>');
         var screenH = document.documentElement.clientHeight;
         var $body = $('body');
-
+        var animateTime = document.all && !window.atob ? 0 : 200;
 
         function Layer(config, selector) {
             var defaults = {
@@ -505,7 +507,6 @@
                 closeHandle: '.btn-cancel,.btn-close',
                 offsetWidth: 'auto',
                 offsetHeight: 'auto',
-                animateClass: 'fadeInDown',
                 url: $(this).attr('data-url') || false,
                 dataType: $(this).attr('data-dataType') || 'html',
                 content: '',
@@ -533,10 +534,7 @@
             var layerWidth = Number($selector.attr('data-width')) || config.offsetWidth;
             var layerHeight = Number($selector.attr('data-height')) || config.offsetHeight;
 
-            $content.data({
-                initWidth: layerWidth,
-                initHeight: layerHeight
-            }).css({
+            $content.css({
                 width: layerWidth,
                 height: layerHeight
             });
@@ -621,9 +619,11 @@
             self.$selector.removeClass('hide');
             self.$selector.after($backdrop);
             self.resize();
-            self.$content.addClass(config.animateClass);
+            self.$content.addClass('layer-opening');
+            $backdrop.fadeIn(animateTime, function() {
+                self.$content.removeClass('layer-opening');
+            });
             self.$selector.trigger('layer.show', [self]);
-
             return self;
         };
 
@@ -632,10 +632,12 @@
             var self = this;
             var config = self.config;
 
-            self.$selector.addClass('hide');
-            self.$content.removeClass(config.animateClass);
-            $body.removeClass('layer-open');
-            self.$backdrop.remove();
+            self.$content.addClass('layer-closing');
+            self.$backdrop.fadeOut(animateTime, function() {
+                self.$selector.addClass('hide');
+                self.$content.removeClass('layer-closing');
+                $(this).remove();
+            });
             self.$selector.trigger('layer.hide', [this]);
 
             return self;
@@ -648,21 +650,7 @@
             var outerHeight = parseInt($content.css('margin-bottom')) * 2;
             var contentHeight = $content.outerHeight() + outerHeight;
 
-            if (config.vertical && contentHeight < screenH) {
-                $body.removeClass('layer-open');
-                $content.css({
-                    'top': '50%',
-                    'margin-top': -(contentHeight / 2)
-                });
-                return false;
-            }
-
             $body.addClass('layer-open');
-
-            $content.removeAttr('style').css({
-                'width': $content.data('initWidth'),
-                'height': $content.data('initHeight')
-            });
 
         };
 
@@ -790,26 +778,29 @@
      * @param {String}  	url
      * @param {String}  	method
      * @param {String}  	type
-     * @param {String}  	before
-     * @param {String}  	success
-     * @param {String}  	error
-     * @param {String}  	pending
+     * @param {Function}  	before
+     * @param {Function}  	success
+     * @param {Function}  	error
+     * @param {Function}    pending
+     * @param {Function}  	always
      */
     $.fn.IUI({
         ajaxForm: function(options) {
             return this.each(function() {
+                var $selector = $(this);
                 var defaults = {
-                    url: $(this).attr('action'),
-                    method: $(this).attr('method') || 'POST',
-                    type: $(this).attr('data-type') || 'json',
+                    url: $selector.attr('action'),
+                    method: $selector.attr('method') || 'POST',
+                    type: $selector.attr('data-type') || 'json',
+                    data: $selector.attr('data-ajaxType') || 'ajax',
                     before: function() {},
                     success: function() {},
                     error: function() {},
-                    pending: function() {}
+                    pending: function() {},
+                    always: function() {}
 
                 };
 
-                var $selector = $(this);
                 var $fields = $selector.find('input');
                 var config = $.extend({}, defaults, options);
 
@@ -826,20 +817,32 @@
 
                     var beforeResult = config.before.call($selector, event, config);
 
+                    var args = {
+                        url: config.url,
+                        type: config.method,
+                        data: $selector.serialize()
+                    };
+
+                    // ajax2
+                    if (config.data !== 'ajax') {
+                        args.data = new FormData($selector[0]);
+                        args.cache = false;
+                        args.contentType = false;
+                        args.processData = false;
+                    }
+
                     if (beforeResult === false) {
                         return false;
                     }
                     $selector.addClass('disabled').prop('disabled', true);
-                    $.ajax({
-                        url: config.url,
-                        type: config.method,
-                        data: $selector.serialize()
-                    }).then(function(res) {
+                    $.ajax(args).then(function(res) {
                         $selector.removeClass('disabled').prop('disabled', false);
                         config.success.call($selector, res, config);
                     }, function(err) {
                         $selector.removeClass('disabled').prop('disabled', false);
                         config.error.call($selector, err, config);
+                    }).always(function(res) {
+                        config.always.call($selector, res, config);
                     });
                 });
 
@@ -1198,21 +1201,28 @@
 
     /**
      * tokenize 组件
-     * @param  {function} overLimitCount 选择超过个数
-     * @return {function}   existToken 已经存在
-     * @param  {string} remove 如果为'no-remove'，表示不删除初始化的token, 当readOnly为true的时候有效
+     * @param  {boolean} readOnly 为true的时候，其他所有option失效
      * @return {string}   contain 默认为'.tokenize'，共有上下文
-     * @return {boolean}  readOnly 默认为 false，当为true的时候，只能显示初始选项，没有其他功能
+     * @param  {string} remove 如果为'no-remove'，表示不能删除初始化就选中的token
+     * @param  {number} maxLength 最多可以输入多少个字符进行搜索，默认是10
+     * @param  {function} overLimitCount 选择超过限制个数触发
+     * @return {function}   existToken 已经存在标签触发
+     * @return {function}   searchCallback 搜索后的回调函数
      * .tokenize > select + ul + .token > .token-item
      */
+    /*
+       多级必须有optgroup 必须有label属性
+    */
     ;
     (function($) {
         var settings = {
+            readOnly: false,
+            contain: '.tokenize',
+            remove: '',
+            maxLength: 20,
             overLimitCount: function() {},
             existToken: function() {},
-            remove: '',
-            contain: '.tokenize',
-            readOnly: false
+            searchCallback: function() {}
         };
 
         var KEY_CODE = {
@@ -1231,14 +1241,13 @@
             ].join(''),
             optionTemplate: '<option selected="selected" value="{value}">{value}</option>',
             liTemplate: '<li class="hidden" data-value="{value}">{value}</li>',
-            inputTemplate: '<div class="token"> <span> <input type="text"> </span> </div>',
-            optGroupBegin: '<li>aa</li><ul>',
-            optGroupEnd: '</ul>',
+            inputTemplate: '<div class="token"> <span> <input type="text" maxlength="{{maxlength}}" style="width: {{width}}px"> </span> </div>'
         };
 
         var tokenize = $.fn.tokenize = function(options) {
-
             var defaults = $.extend({}, settings, options);
+
+            htmlTemplate.inputTemplate = htmlTemplate.inputTemplate.replace('{{maxlength}}', defaults.maxLength).replace('{{width}}', defaults.maxLength * 12);
 
             this.each(function(index, el) {
                 var $this = $(this);
@@ -1252,28 +1261,35 @@
                     create: $this.attr('data-create') === 'false' ? false : true,
                     limitCount: limitCount
                 });
+
                 //添加input
                 $this.append(htmlTemplate.inputTemplate);
+
                 //创建模拟下拉框
                 tokenize.renderSelect($this);
+
                 //设置各种事件
                 tokenize.setEvent($this, defaults);
+
                 //创建默认token
                 $this.find('li[uled]').each(function(index, el) {
                     $(el).addClass('current ' + defaults.remove).trigger('click');
                 });
+
+                // 恢复显示
+                $this.find('.tokenize-level').removeClass('hide');
             });
         };
 
 
         //模拟下拉框
-        tokenize.renderSelect = function($target) {
-            var htmlStr = $target.find('select').prop('outerHTML');
+        tokenize.renderSelect = function($contain) {
+            var htmlStr = $contain.find('select').prop('outerHTML');
 
-            htmlStr = (htmlStr + '').replace(/<optgroup\s+label="(.*)".*>/g, '<li class="tokenize-disable">$1<ul class="tokenize-disable">');
+            htmlStr = (htmlStr + '').replace(/<optgroup\s+label="(.*)".*>/g, '<li class="tokenize-level">$1<ul class="tokenize-menu">');
             htmlStr = htmlStr.replace(/<\/optgroup>/g, '</ul></li>');
-            htmlStr = htmlStr.replace(/select/g, 'ul').replace(/option/g, 'li class="hide"').replace(/value/g, 'data-value');
-            $target.append(htmlStr);
+            htmlStr = htmlStr.replace(/select/g, 'ul').replace(/option/g, 'li').replace(/value/g, 'data-value');
+            $contain.append(htmlStr);
         };
 
         //创建token
@@ -1285,27 +1301,29 @@
         };
 
         //设置事件
-        tokenize.setEvent = function($target, defaults) {
+        tokenize.setEvent = function($contain, defaults) {
 
             if (defaults.readOnly === false) {
                 //删除token
-                $target.on('click', '.token-close', function(event) {
+                $contain.on('click', '.token-close', function(event) {
                     event.stopPropagation();
                     var $this = $(this);
-                    var $tokenize = $this.parents(defaults.contain);
+                    var $contain = $this.parents(defaults.contain);
                     var value = $this.attr('data-value');
-                    var $li = $tokenize.find('li[data-value="' + value + '"]');
+                    var $li = $contain.find('li[data-value="' + value + '"]');
                     if ($li.hasClass('no-remove')) {
                         return;
                     }
-                    $tokenize.find('option[value="' + value + '"]').removeAttr('selected');
+                    $contain.find('option[value="' + value + '"]').removeAttr('selected');
                     $li.removeClass('hidden');
                     $li.parents('li').eq(0).removeClass('hide');
                     $this.parent('.token-item').remove();
+
+                    tokenize.hideToken($contain);
                 });
 
                 //聚焦输入
-                $target.on('click', '.token', function(event) {
+                $contain.on('click', '.token', function(event) {
                     event.stopPropagation();
                     var $this = $(this);
                     $this.find('input').focus();
@@ -1313,7 +1331,7 @@
                 });
 
                 //输入搜索token
-                $target.on('keyup', 'input', function(event) {
+                $contain.on('keyup', 'input', function(event) {
                     var keycode = event.keyCode;
                     var KC = KEY_CODE;
                     if (keycode !== KC.enter && keycode !== KC.back && keycode !== KC.bottom && keycode !== KC.top) {
@@ -1322,7 +1340,7 @@
                 });
 
                 //按下enter键设置token
-                $target.on('keyup', 'ul,input', function(event) {
+                $contain.on('keyup', '>ul,input', function(event) {
                     var keycode = event.keyCode;
                     var KC = KEY_CODE;
                     if (keycode === KC.enter || keycode === KC.back) {
@@ -1331,7 +1349,7 @@
                 });
 
                 //按下上下键切换token
-                $target.on('keyup', function(event) {
+                $contain.on('keyup', function(event) {
                     var keycode = event.keyCode;
                     var KC = KEY_CODE;
                     if (keycode === KC.bottom || keycode === KC.top) {
@@ -1340,20 +1358,22 @@
                 });
 
                 //鼠标样式
-                $target.on('mouseenter', 'li', function(event) {
-                    if (!$(this).hasClass('tokenize-disable')) {
+                $contain.on('mouseenter', 'li', function(event) {
+                    if (!$(this).hasClass('tokenize-level')) {
                         var $this = $(this);
                         $this.parents(defaults.contain).find('li').removeClass('current');
                         $this.addClass('current');
                     }
                 });
+            } else {
+                $contain.find('input').attr('readonly', 'readonly');
             }
 
 
 
             //点击li设置token
-            $target.on('click', 'li', function(event) {
-                if (!$(this).hasClass('tokenize-disable')) {
+            $contain.on('click', 'li', function(event) {
+                if (!$(this).hasClass('tokenize-level')) {
                     tokenize.setToken.call(this, defaults);
                 } else {
                     event.stopPropagation();
@@ -1364,9 +1384,11 @@
 
         //输入搜索token
         tokenize.searchToken = function(defaults) {
-            var $parent = $(this).parents(defaults.contain);
-            var $lis = $parent.find('>ul').removeClass('hide').find('li').not('.tokenize-disable').removeClass('current').not('.hidden');
-            var showAll = $parent.data('showAll');
+            var $contain = $(this).parents(defaults.contain);
+
+            // 获取可见的非级别li
+            var $lis = $contain.find('>ul').removeClass('hide').find('li').not('.tokenize-level').removeClass('current').not('.hidden');
+            var showAll = $contain.data('showAll');
             var values = $.trim(this.value);
             var count = 0;
             $lis.each(function(index, el) {
@@ -1383,27 +1405,31 @@
                 }
 
             });
+
+            defaults.searchCallback.call($contain);
+
+            // 隐藏父ul
+            tokenize.hideTitle.call($contain);
         };
 
         //按下enter键或者点击 li 设置token
         tokenize.setToken = function(defaults) {
-            var $tokenize = $(this).parents(defaults.contain);
-            var $tokens = $tokenize.find('li').not('.tokenize-disable');
+            var $contain = $(this).parents(defaults.contain);
+            var $tokens = $contain.find('li').not('.tokenize-level');
             //var $visibleTokens = $tokens.filter(':visible');
             var $selectedTokens = $tokens.filter('.current');
             var str;
             var index;
-            var $inp = $tokenize.find('.token input');
+            var $inp = $contain.find('.token input');
             var value = $.trim($inp.val());
-            var $pli = null;
 
             if (!tokenize.testCount.call(this, defaults)) {
-                defaults.overLimitCount($tokenize);
+                defaults.overLimitCount($contain);
                 return;
             }
 
             if (!tokenize.testExist.call(this, defaults)) {
-                defaults.existToken($tokenize);
+                defaults.existToken($contain);
                 return;
             }
 
@@ -1416,29 +1442,31 @@
 
                 //改变select
                 index = $tokens.index($selectedTokens);
-                $tokenize.find('option').eq(index).attr('selected', 'selected');
+                $contain.find('option').eq(index).attr('selected', 'selected');
 
                 // 隐藏父ul
-                $pli = $selectedTokens.parents('li').eq(0);
-                if ($pli.find('>ul>li:visible').length === 0) {
-                    $pli.addClass('hide');
+                tokenize.hideTitle.call($contain);
+            } else {
+                var $ul = $contain.find('ul');
+
+                // 多级是无法创建的
+                if ($contain.data('create') && $ul.length === 1 && value) {
+                    //添加 li
+                    $contain.find('ul').append(htmlTemplate.liTemplate.replace(/\{value\}/g, value));
+
+                    //创建 token
+                    tokenize.createToken.call(this, value, value, defaults);
+
+                    //修改 select
+                    $contain.find('select').append(htmlTemplate.optionTemplate.replace(/\{value\}/g, value));
                 }
-            } else if ($tokenize.data('create') && value) {
-                //添加 li
-                $tokenize.find('ul').append(htmlTemplate.liTemplate.replace(/\{value\}/g, value));
-
-                //创建 token
-                tokenize.createToken.call(this, value, value, defaults);
-
-                //修改 select
-                $tokenize.find('select').append(htmlTemplate.optionTemplate.replace(/\{value\}/g, value));
             }
-            tokenize.hideToken($tokenize);
+            tokenize.hideToken($contain);
         };
 
         //按下上下键切换token
         tokenize.turnToken = function(keycode) {
-            var $tokens = $(this).find('li').not('.tokenize-disable');
+            var $tokens = $(this).find('li').not('.tokenize-level');
             var $visibleTokens = $tokens.filter(':visible');
             var $selectedTokens = $visibleTokens.filter('.current');
             var index = $visibleTokens.index($selectedTokens);
@@ -1456,17 +1484,32 @@
                 tokenize.hideToken($('.tokenize'));
             });
             return function($ele) {
-                $ele.find('ul').not('.tokenize-disable').addClass('hide');
-                $ele.find('li').not('.tokenize-disable').addClass('hide');
-                //return $ele.find('ul').not('.tokenize-disable').addClass('hide').find('li').addClass('hide');
+                $ele.find('>ul').addClass('hide');
+                $ele.find('li').not('.tokenize-level').addClass('hide');
+                //return $ele.find('ul').not('.tokenize-menu').addClass('hide').find('li').addClass('hide');
             };
         }();
 
+        //隐藏标题（多级的情况）
+        tokenize.hideTitle = function() {
+            var $lis = this.find('.tokenize-level');
+
+            $lis.each(function(index, el) {
+                var $el = $(el);
+
+                if ($el.find('li:not(.hidden):not(.hide)').length > 0) {
+                    $el.removeClass('hide');
+                } else {
+                    $el.addClass('hide');
+                }
+            });
+        };
+
         //判断选择的个数
         tokenize.testCount = function(defaults) {
-            var $tokenize = $(this).parents(defaults.contain);
-            var limitCount = $tokenize.data('limitCount');
-            var length = $tokenize.find('.token-item').length;
+            var $contain = $(this).parents(defaults.contain);
+            var limitCount = $contain.data('limitCount');
+            var length = $contain.find('.token-item').length;
             if (limitCount !== Infinity) {
                 if (length >= limitCount) {
                     return false;
@@ -1477,9 +1520,9 @@
 
         //判断是否已经存在
         tokenize.testExist = function(defaults) {
-            var $tokenize = $(this).parents(defaults.contain);
-            var text = $.trim($tokenize.find('.token input').val());
-            var $tokenItem = $tokenize.find('.token-item');
+            var $contain = $(this).parents(defaults.contain);
+            var text = $.trim($contain.find('.token input').val());
+            var $tokenItem = $contain.find('.token-item');
             var result = true;
             $tokenItem.each(function(index, el) {
                 var $span = $(el).find('span').eq(0);
@@ -2008,17 +2051,17 @@
      *
      * @example
      *
-     * $('.multiselect-main')IUI('multiselect',function(options));
+     * $('.lrselect-main')IUI('lrselect',function(options));
 
      *
      * html基本结构
-     * div.multiselect-box>ul.multiselect>li
+     * div.lrselect-box>ul.lrselect>li
      *
      * 二级
-     *div.multiselect-box>ul.multiselect>li>div.mul-title+li.level-2
+     *div.lrselect-box>ul.lrselect>li>div.mul-title+li.level-2
      */
     $.fn.IUI({
-        multiselect: function(options) {
+        lrselect: function(options) {
             var defaults = {
                 level: 1,
                 dataJson: '',
@@ -2032,28 +2075,28 @@
              */
             var data = {
                 self: {
-                    ele: '.multiselect',
-                    contraryEle: '.multiselect-to'
+                    ele: '.lrselect',
+                    contraryEle: '.lrselect-to'
                 },
                 to: {
-                    ele: '.multiselect-to',
-                    contraryEle: '.multiselect'
+                    ele: '.lrselect-to',
+                    contraryEle: '.lrselect'
                 }
             };
             var data2 = {
                 self: {
-                    ele: '.multiselect .level-2',
-                    contraryEle: '.multiselect-to .level-2'
+                    ele: '.lrselect .level-2',
+                    contraryEle: '.lrselect-to .level-2'
                 },
                 to: {
-                    ele: '.multiselect-to .level-2',
-                    contraryEle: '.multiselect .level-2'
+                    ele: '.lrselect-to .level-2',
+                    contraryEle: '.lrselect .level-2'
                 }
             };
 
             self.$container = $(this);
-            self.$multi = self.$container.find('.multiselect');
-            self.$multiTo = self.$container.find('.multiselect-to');
+            self.$multi = self.$container.find('.lrselect');
+            self.$multiTo = self.$container.find('.lrselect-to');
             self.config = $.extend({}, defaults, options);
 
             /**
@@ -2129,11 +2172,11 @@
                 };
             };
 
-            function Multiselect() {
+            function lrSelect() {
                 this.calculator = new Calculator();
                 this.init();
             }
-            Multiselect.prototype = {
+            lrSelect.prototype = {
                 init: function() {
                     self.mulData = self.config.level >= 2 ? data2 : data;
                     this.render(self.config.dataJson);
@@ -2259,25 +2302,25 @@
                  */
                 operateEvent: function() {
                     var _this = this;
-                    if (!self.$container.find('.mutiselect-right').length) {
+                    if (!self.$container.find('.lrselect-right').length) {
                         return;
                     }
-                    self.$container.on('click', '.mutiselect-right', function() {
+                    self.$container.on('click', '.lrselect-right', function() {
                         _this.move();
                     });
-                    self.$container.on('click', '.mutiselect-left', function() {
+                    self.$container.on('click', '.lrselect-left', function() {
                         _this.moveTo();
                     });
-                    self.$container.on('click', '.mutiselect-rightAll', function() {
+                    self.$container.on('click', '.lrselect-rightAll', function() {
                         _this.moveAll();
                     });
-                    self.$container.on('click', '.mutiselect-leftAll', function() {
+                    self.$container.on('click', '.lrselect-leftAll', function() {
                         _this.moveToAll();
                     });
-                    self.$container.on('click', '.mutiselect-undo', function() {
+                    self.$container.on('click', '.lrselect-undo', function() {
                         _this.calculator.undo();
                     });
-                    self.$container.on('click', '.mutiselect-redo', function() {
+                    self.$container.on('click', '.lrselect-redo', function() {
                         _this.calculator.redo();
                     });
                 },
@@ -2417,7 +2460,7 @@
                 }
             };
 
-            multiObject = new Multiselect();
+            multiObject = new lrSelect();
 
             /**
              * 拼接html
@@ -2543,679 +2586,278 @@
         }
     });
 
-    /**
-     * hideNavbar 组件
-     * @description  滚动隐藏导航
-     */
-    $.fn.IUI({
-        hideNavbar: function(options) {
+    ;
+    (function($, window, document, undefined) {
 
+        /**
+         * [iSelector description]              构造器
+         * @param {[type]} selector [description]   selector
+         * @param {[type]} options  [description]   参数
+         */
+        function iSelector(selector, options) {
+            this.options = $.extend({}, iSelector.defaults, options);
+            this.$container = $(this.options.container);
+            this.$selector = $(selector);
+            this.init();
+            this.event();
+        }
 
-            var $this = this;
+        /**
+         * [defaults description]         定义参数
+         * dataJson               传入json数据
+         * container              父节点
+         * template               自定义html模板
+         * placeholder              列默认显示的文字
+         * field                input的字段名 [省，市，区]
+         * iselect                是否用于select,默认是false，用于自定义
+         * isvalue                value存的是id 还是 name 默认true.是存id
+         * shorthand              是否开启简写功能,默认不开启 false
+         * level                多少列  默认是一列(级) 1
+         * values                 返回选中的值
+         * joinHtml               拼接html的函数，用于json数据自定义的，里面有4个传值
+                            [data-json数据, pid-json数据的父id, level-列数（级数）, placeholder-默认显示的文字]
+         */
 
-            var $navbar = $(".navbar");
+        /**
+         * 关于 template
+         * data-caller={{caller}} ： 必填，用于呼出下来列表，select时是change事件，自定义标签是click
+         * data-item              ： 自定义标签时必填，因为【项】需要绑定click事件
+         * role="name"            ： 自定义标签时必填，用于声明【name】 显示选中的选项名称
+         * role="content"         ： 自定义标签时必填，用于声明【容器】 选项列表
+         * role="input"       :  自定义标签时必填，用于声明【input】隐藏域
+         * name="{{field}}"     :  input字段名称，必填
+         */
+        iSelector.defaults = {
+            dataJson: null,
+            container: 'body',
+            template: '<div class="selector-level selector-level-{{level}}"><a href="javascript:;" role="name" class="selector-name selector-name-dcolor" data-caller="{{caller}}">{{name}}</a><input type="hidden" name="{{field}}" role="input" value=""><ul role="content" class="selector-list hide">{{content}}</ul></div>',
+            placeholder: ['请选择省份', '请选择市', '请选择区'],
+            field: ['userProvinceId', 'userCityId', 'userAreaId'],
+            iselect: false,
+            isvalue: true,
+            shorthand: false,
+            values: [],
+            level: 1,
+            joinHtml: function(data, pid, level, placeholder) {
+                var _data = data;
+                var _len = _data.length;
+                var _pid = pid || '100000';
+                var _html = this.options.iselect ? '<option>' + placeholder + '</option>' : '';
 
-            var height = $navbar.outerHeight() / 2;
-
-            var hideNavbar = this.hasClass('hide-navbar-on-scroll');
-
-            var previousScroll, currentScroll, scrollHeight, offsetHeight, reachEnd, action, navbarHidden, direction, wait;
-
-            if (!hideNavbar && !$navbar.length) {
-                return false;
-            }
-
-
-            previousScroll = currentScroll = Math.abs($this.scrollTop());
-
-            wait = utils.throttle(handleScroll, 100);
-
-            $this.on('scroll', wait);
-
-
-            function handleScroll(event) {
-                currentScroll = $this.scrollTop();
-
-                scrollHeight = this.scrollHeight;
-
-                offsetHeight = this.offsetHeight;
-
-                navbarHidden = $navbar.hasClass('navbar-hidden');
-                //direction : true => up
-                direction = previousScroll <= currentScroll;
-
-                previousScroll = currentScroll;
-
-
-                if (currentScroll < height || previousScroll > currentScroll) {
-                    behavior(false);
-                    return false;
+                if (level < 0) {
+                    return _html;
                 }
 
-                // //reachEnd : true => 滚动条到底部
-                // reachEnd = currentScroll + offsetHeight >= scrollHeight - 20;
+                for (var i = 0; i < _len; i++) {
+                    var _name = this.options.shorthand ? _data[i].shortName : _data[i].name;
+                    var _val = this.options.isvalue ? _data[i].id : _data[i].name;
 
-                behavior(direction);
+                    if (_data[i].parentId === _pid) {
+                        if (this.options.iselect) {
+                            _html += '<option data-item="' + level + '" value="' + _val + '">' + _name + '</option>';
+                        } else {
+                            _html += '<li data-item="' + level + '" data-id="' + _data[i].id + '" data-value="' + _val + '">' + _name + '</li>';
+                        }
+                    }
+                }
 
+                return _html;
+            },
+            startClick: null //自定义标签一开始点击的回调
+        };
 
+        iSelector.prototype.init = function() {
+            var self = this;
+            var config = self.options;
+            var html, placeholder, field;
 
-                return false;
+            /**
+             * [for description]    定义的级别循环,添加html模板到对应的级别去
+             */
+            for (var i = 0; i < config.level; i++) {
+
+                //默认提示
+                placeholder = config.placeholder[i] || '';
+
+                //html模板把{{level}}和{{caller}}替换成对应的级别
+                html = config.template.replace('{{level}}', i + 1).replace('{{caller}}', i + 1);
+
+                if (!i) {
+                    html = html.replace('{{content}}', config.joinHtml.call(this, config.dataJson, null, i + 1, placeholder));
+                } else {
+                    html = html.replace('{{content}}', config.joinHtml.call(this, config.dataJson, null, -1, placeholder));
+                }
+
+                //自定义标签的时候会要求有这个{{name}},{{field}},要把这个替换成默认的显示文字
+                if (html.indexOf('{{name}}') !== -1) {
+                    html = html.replace('{{name}}', placeholder);
+                }
+
+                //自定义标签的时候会要求有这个{{field}},要把这个替换成要传的字段名称
+                if (html.indexOf('{{field}}') !== -1) {
+                    field = config.field[i] || '';
+                    html = html.replace('{{field}}', field);
+                }
+
+                //把html添加到对应的级别去
+                self.$selector.append(html);
+
             }
 
-            function behavior(direction) {
-                //direction => hide
-                if (direction) {
-                    if ($navbar.hasClass('navbar-hidden')) {
-                        return false;
+        };
+
+        iSelector.prototype.event = function() {
+            var self = this;
+            var config = self.options;
+            var $selector = self.$selector;
+
+            /**
+             * 定义的级别循环,级别的事件处理
+             */
+            for (var i = 0; i < config.level; i++) {
+                (eventInjection)(i);
+            }
+
+            //判断是否是用于自定义的
+            if (!config.iselect) {
+                //执行点击区域外的就隐藏列表;
+                $(document).on('click.iselector', function(event) {
+                    var e = event || window.event;
+                    var elem = e.target || e.srcElement;
+                    while (elem) {
+                        if (elem.className && elem.className.indexOf(self) > -1) {
+                            return;
+                        }
+                        elem = elem.parentNode;
                     }
-                    $navbar.addClass('navbar-hidden');
+
+                    self.$selector.find('[role="content"]').addClass('hide');
+                });
+
+            }
+
+            function eventInjection(index) {
+                var plusIndex = i + 1;
+
+                //判断是否是select  是就用chage事件，否则就是click事件
+                if (config.iselect) {
+
+                    $selector.on('change.iselector', '[data-caller="' + plusIndex + '"]', function(event) {
+                        var $this = $(this);
+
+                        self.hideSelector($this, index, true);
+
+                    });
+
                 } else {
 
-                    if (!$navbar.hasClass('navbar-hidden')) {
+                    //显示列表
+                    $selector.on('click.iselector', '[data-caller="' + plusIndex + '"]', function(event) {
+                        var $this = $(this);
+                        var $selectorList = $selector.find('[role="content"]');
+
+                        $selectorList.addClass('hide').eq(index).removeClass('hide');
+
+                        if (typeof config.startClick === 'function') {
+                            /**
+                             * 一开始点击的时候调用一个回调函数
+                             * typeof 判断传进来的类型是不是一个function函数
+                             * 返回三个参数 $self/_this/config
+                             */
+                            config.startClick.apply(this, [self, $this, config]);
+                        }
+
                         return false;
-                    }
+                    });
 
-                    $navbar.removeClass('navbar-hidden');
+                    //点击列表事件
+                    $selector.on('click.iselector', '[data-item="' + plusIndex + '"]', function(event) {
+                        var $this = $(this);
+
+                        config.values = [];
+
+                        self.hideSelector($this, index, false);
+
+                    });
                 }
 
             }
-        }
-    });
+        };
 
-    /**
-     * panel 组件
-     * @param {Number}		delay 		动画时间，单位毫秒
-     */
-    $.fn.IUI({
-        panel: function(options) {
-            var $selector = this;
-            var $body = $('body');
-            var $overlay = $('<div class="panel-overlay hide"></div>');
-            var $sidebar = $selector.data('target') ? $($selector.data('target')) : $('.panel').eq(0);
-            var _direction, $target;
-            var defaults = {
-                delay: 300
-            };
-
-            var config = $.extend({}, defaults, options);
-
-            if ($selector.find('.panel-overlay').length) {
-                $overlay = $('.panel-overlay');
-            } else {
-                $selector.append($overlay);
-            }
-
-            if (!$selector.hasClass('panel-viewport')) {
-                $selector = $('.panel-viewport');
-            }
-
-            $selector.on('touchstart.IUI-panel click.IUI-panel', '.panel-open', function(event) {
-                event.preventDefault();
-                openPanel($(this));
-            });
-
-            $selector.on('touchstart.IUI-panel click.IUI-panel', '.panel-overlay', function(event) {
-                event.preventDefault();
-                closePanel();
-            });
-
-            $selector.on(transitionEnd, function(event) {
-                event.preventDefault();
-                if (!$selector.hasClass('panel-move')) {
-                    $sidebar.addClass('hide');
-                }
-            });
-
-            function openPanel(handle) {
-                var $handle = handle;
-                _direction = 'panel-' + $handle.attr('data-direction');
-                $target = $('.' + _direction);
-                $overlay.removeClass('hide');
-                $selector.addClass(_direction + ' panel-move');
-                $sidebar.removeClass('hide');
-            }
-
-            function closePanel() {
-                $selector.removeClass('panel-left panel-move');
-                $overlay.addClass('hide');
-
-            }
-        }
-    });
-
-    /**
-     * validate 组件
-     *
-     * *** options ***
-     *
-     * @param {Number}                              level      显示的层级，默认：1
-     * @param {Number}                              rows       picker显示的行数，默认：4
-     * @param {Boolean}                             Linkage    选择联动 - 若为false，则不联动
-     * @param {Array}                               dataJson   渲染picker的json - 有规定的格式，可查看json文件。不联动默认遍历获取第一个json
-     * @param {Number}                              height     每一行的高度
-     * @param {Boolean}                             idDefault  匹配默认值 - 若为false，则不匹配
-     * @param {Str}                                 splitStr   设置分割value的符号，与默认值和显示在input里的值有关
-     * @param {Element selector}                    header     picker头部html
-     *@param {function}                             confirm: function() {}
-     *@param {function}                             cancel: function() {}
-     *
-     * *** 关于json格式 ***
-     *jsonChange.js是针对campaign里的json做的格式转换
-     *
-     * *** 关于value值 ***
-     *
-     *$('.select-value').data('value1')：第一级的value值
-     *$('.select-value').data('value2')：第二级的value值
-     *
-     *
-     * *** methods ***
-     *
-     *  show                详情请查阅源码部分
-     *  hide                详情请查阅源码部分
-     *  updateData          详情请查阅源码部分
-     *
-     */
-    function __dealCssEvent(eventNameArr, callback) {
-        var events = eventNameArr,
-            i, dom = this; // jshint ignore:line
-
-        function fireCallBack(e) {
-            /*jshint validthis:true */
-            if (e.target !== this) return;
-            callback.call(this, e);
-            for (i = 0; i < events.length; i++) {
-                dom.off(events[i], fireCallBack);
-            }
-        }
-        if (callback) {
-            for (i = 0; i < events.length; i++) {
-                dom.on(events[i], fireCallBack);
-            }
-        }
-    }
-
-    //动画结束事件兼容
-    $.fn.animationEnd = function(callback) {
-        __dealCssEvent.call(this, ['webkitAnimationEnd', 'animationend'], callback);
-        return this;
-    };
-    $.fn.transitionEnd = function(callback) {
-        __dealCssEvent.call(this, ['webkitTransitionEnd', 'transitionend'], callback);
-        return this;
-    };
-    $.fn.IUI({
-        mPicker: function(options) {
-            var defaults = {
-                level: 1,
-                rows: 4,
-                Linkage: false,
-                dataJson: '',
-                height: 40,
-                idDefault: false,
-                splitStr: ' ',
-                header: '<div class="mPicker-header"><a href="javascript:;" class="mPicker-cancel">取消</a><a href="javascript:;" class="mPicker-confirm">确定</a></div>',
-                confirm: function() {},
-                cancel: function() {}
-            };
+        /**
+         * [hideSelector description]             选项执行的函数
+         * @param  {[type]} tagert  [description]       传点击的this
+         * @param  {[type]} index   [description]       传循环的列数
+         * @param  {[type]} iselect [description]       是否是select   true/false
+         */
+        iSelector.prototype.hideSelector = function(tagert, index, iselect) {
             var self = this;
-
-            self.$container = $(this);
-
-            self.$container.data('mPicker', self);
-
-            self.options = $.extend({}, defaults, options);
-
-            var ulWidth = ['100%', '50%'];
-
-            var $body = $('body');
-            /**
-             * 阻止默认滚动
-             */
-            $body.on('touchmove', function(event) {
-                if (self.lock) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-            });
-            /**
-             * 禁止滚动－－防止滚动选择时页面滚动
-             */
-            $body.on({
-                touchstart: function(event) {
-                    event.preventDefault();
-                    self.lock = 1;
-                },
-                touchmove: function(event) {
-                    event.preventDefault();
-                    //兼容部分手机有时候没有触发touchend
-                    clearTimeout(self.timeTouchend);
-                    self.timeTouchend = setTimeout(function() {
-                        self.lock = 0;
-                    }, 100);
-                },
-                touchend: function(event) {
-                    event.preventDefault();
-                    self.lock = 0;
-                }
-            }, '.mPicker-main');
-            /**
-             * 点击打开选择
-             */
-            self.$container.on('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                self.render();
-                self.$container.focus();
-                self.$container.blur();
-                self.$main.removeClass('hide');
-                self.$mask.removeClass('hide');
-
-                clearTimeout($body.data('mPicker-timer'));
-                $body.data('mPicker-timer', setTimeout(function() {
-                    self.$main.removeClass('down');
-                }, 10));
-                /**
-                 * 显示默认值(判断点击确定选择后不再获取默认值)
-                 */
-                if (!self.noFirst && self.options.idDefault) {
-                    matchDefaultData();
-                }
-                /**
-                 * 获取input的data-id显示选中的元素
-                 */
-                var id = [];
-                self.$list.each(function(index, ele) {
-                    setTransitionY(self.$container, 0);
-                    var dataVal = self.$container.data('id' + (index + 1)) ? self.$container.data('id' + (index + 1)) : 0;
-                    id.push(dataVal);
-                });
-
-                //获得选中的元素
-                setItemMultiple(id);
-
-                self.event();
-            });
+            var config = self.options;
+            var $selector = self.$selector;
+            var $name = $selector.find('[role="name"]');
+            var $caller = $selector.find('[data-caller]');
+            var $input = $selector.find('[role="input"]');
+            var $content = $selector.find('[role="content"]');
+            var parentId = iselect ? tagert.val() : tagert.attr('data-id');
+            var txt = tagert.text();
+            var plusIndex = index + 1;
+            var nextIndex = index + 2;
+            var placeholder = config.placeholder[plusIndex] || '';
 
             /**
-             *  初始化mpicker,根据json渲染html结构
-             *  添加遮罩，边框等
+             * [if description]     判断是否是用于select，执行select事件，否则执行自定义的事件
+             * @param  {[type]} iselect [description]   是否是用于select
              */
-            self.render = function() {
-                var listStr;
-                var jsonData = [];
-                var mainStr;
-                /**
-                 * 根据行数计算居中的位置
-                 */
-                self.$container.data('middleRowIndex', parseInt(self.options.rows / 2.5));
-                /**
-                 * 添加遮罩
-                 */
-                if ($('.mPicker-mask').length === 0) {
-                    $body.append('<div class="mPicker-mask hide"></div>');
-                }
+            if (iselect) {
 
-                self.$mask = $('.mPicker-mask');
-                /**
-                 * 添加 mPicker-main元素
-                 */
-                jsonData.push(self.options.dataJson);
-                if (self.options.level === 2) {
-                    var childStr = getChildJson(self.options.dataJson[0]);
-                    jsonData.push(childStr);
-                }
-                listStr = concatHtmlList(jsonData);
-                mainStr = '<div class="mPicker-main down" data-pickerId="' + self.pickerId + '">' + self.options.header + '<div class="mPicker-content">' + listStr + '</div></div>';
-                $body.append(mainStr);
-                /**
-                 * 设置变量
-                 */
-                self.$main = $body.find('.mPicker-main');
-                self.$content = self.$main.find('.mPicker-content');
-                self.$list = self.$main.find('.mPicker-list');
-                self.$list.width(ulWidth[self.options.level - 1]);
-                self.$itemOne = self.$list.eq(0);
-                if (self.options.level === 2) {
-                    self.$itemTwo = self.$list.eq(1);
-                }
-                /**
-                 * 添加选中的边框
-                 */
-                self.$content.append('<div class="mPicker-active-box"></div>');
-                self.$content.find('.mPicker-active-box').height(self.options.height);
-                /**
-                 * 设置选中的边框位置
-                 */
-                var activeBoxMarginTop = self.options.rows % 2 === 0 ? -self.options.height + 'px' : -self.options.height * 0.5 + 'px';
+                //默认提示
+                placeholder = config.placeholder[plusIndex] || '';
 
-                self.$content.find('.mPicker-active-box').css({
-                    'margin-top': activeBoxMarginTop
-                });
-                /**
-                 * 设置内容高度
-                 */
-                self.$content.height(self.options.height * self.options.rows);
-            };
+                //添加下一列的选项
+                $content.eq(plusIndex).html(config.joinHtml.call(self, config.dataJson, parentId, nextIndex, placeholder));
 
-            /**
-             *  事件
-             *  取消，确定，点击遮罩，列表滑动事件
-             */
-            self.event = function() {
-                //点击确定
-                self.$main.find('.mPicker-confirm').on('touchstart.confirm click.confirm', function(e) {
-                    e.preventDefault();
-                    var str = '';
-                    self.noFirst = true;
-                    $.each(self.$list, function(index, ele) {
-                        var $active = $(ele).find('.active');
-                        var splitStr = index === 0 ? '' : self.options.splitStr;
-                        if ($active.length > 0) {
-                            index = index + 1;
-                            self.$container.data('value' + index, $active.data('value'));
-                            self.$container.data('id' + index, $active.data('id'));
-                            str += splitStr + $active.text();
-                        }
-                    });
-                    self.$container.val(str);
-                    self.deffered.hide(self.options.confirm);
-                });
+                //执行下一列的事件，然后选中第一个
+                $content.eq(plusIndex).find('[data-item]').eq(0).prop('selected', true).trigger('change');
 
-                //点击取消
-                self.$main.find('.mPicker-cancel').on('touchstart.cancel click.cancel', function(e) {
-                    e.preventDefault();
-                    self.deffered.hide(self.options.cancel);
-                });
+            } else {
 
-                //点击遮罩取消
-                self.$mask.off('touchstart.mask click.mask').on('touchstart.mask click.mask', function(e) {
-                    e.preventDefault();
-                    self.deffered.hide(self.options.cancel);
-                });
+                //添加选中的class
+                tagert.addClass('checked').siblings('.checked').removeClass('checked');
 
-                //遍历下拉列表
-                var startY;
-                var curY;
-                var moveY;
+                //添加选中的文字到name显示
+                $name.eq(index).text(txt).removeClass('selector-name-dcolor');
 
-                self.$list.on('touchstart.list', function(event) {
-                    fnTouches(event);
+                //添加选中的值到input里
+                $input.eq(index).val(parentId);
 
-                    var $this = $(this);
+                //添加下一列的选项列表
+                $content.eq(plusIndex).html(config.joinHtml.call(self, config.dataJson, parentId, nextIndex, placeholder));
 
-                    var tranY = getTranslateY($this);
+                //执行下一列的点击事件，选中第一个
+                $content.eq(plusIndex).find('[data-item]').eq(0).trigger('click');
 
-                    startY = event.touches[0].pageY - tranY;
+                //隐藏对应的列表
+                $content.eq(index).addClass('hide');
 
-                    changeTime(0, $this);
-                });
-
-                self.$list.on('touchmove.list', function(event) {
-                    event.preventDefault();
-
-                    fnTouches(event);
-
-                    var translate;
-
-                    var $this = $(this);
-
-                    var listHeight = $this.height();
-
-                    var itemHeight = self.options.height * self.options.rows;
-
-                    var transMaxY = itemHeight - listHeight - parseInt(self.options.rows / 2) * self.options.height;
-
-                    var transMinY = self.$container.data('middleRowIndex') * self.options.height;
-
-                    curY = event.touches[0].pageY;
-
-                    moveY = curY - startY;
-
-                    translate = Math.round(moveY);
-                    //过了
-                    translate = translate > transMinY ? transMinY : translate;
-                    translate = translate < transMaxY ? transMaxY : translate;
-                    // console.info(self.options.rows)
-                    setTransitionY($this, translate);
-                    //兼容部分手机有时候没有触发touchend
-                    clearTimeout(self.timeTouchend);
-                    self.timeTouchend = setTimeout(function() {
-                        touchEndFn($this);
-                    }, 100);
-                });
-
-                self.$list.on('touchend.list', function(event) {
-                    event.preventDefault();
-                    var $this = $(this);
-                    touchEndFn($this);
-                });
-            };
-
-            /**
-             *  滑动结束执行函数
-             *  ele:对应的list==>ul
-             *  如果是联动，则更新相应的list html
-             */
-            function touchEndFn(ele) {
-                clearTimeout(self.timeTouchend);
-                var result = setActiveItem(ele);
-
-                var resultId = result.target.data('id');
-
-                var itemIndex = self.$list.index(ele);
-                // self.lock=0;
-                //点第一个联动
-                if (self.options.Linkage && itemIndex === 0) {
-                    refreshItemTwo(resultId);
-                }
-                //回调函数
-                // callbackFnName[itemIndex].call(ele, result);
-
-                changeTime(200, ele);
             }
 
-            /**
-             *  第一次打开匹配默认值
-             */
-            function matchDefaultData() {
-                var inputVal = self.$container.val().split(self.options.splitStr);
-                var defaultId = [];
-                var defaultValue = [];
-                var dataLevel2;
-                var hasLevel2;
-                //遍历获取id
-                var nameEach = function(data, index) {
-                    $.each(data, function(key, val) {
-                        if (val.name == inputVal[index]) {
-                            defaultId[index] = key;
-                            defaultValue[index] = val.value;
-                            self.$container.data('value' + (index + 1), defaultValue[index]);
-                            self.$container.data('id' + (index + 1), defaultId[index]);
-                            return false;
-                        }
-                    });
-                };
-                if (typeof(inputVal) !== 'object' || !inputVal.length || !self.$main) {
-                    return;
-                }
+            //返回选中的值
+            config.values.unshift(parentId);
 
-                //将name值默认匹配成id，一旦匹配就跳出循环，多个匹配取第一个
-                //匹配一级
-                nameEach(self.options.dataJson, 0);
-                //匹配二级
-                dataLevel2 = self.options.Linkage ? self.options.dataJson[defaultId[0]] : self.options.dataJson[0];
+            //选择选项后触发自定义事件choose(选择)事件
+            $selector.trigger('choose-' + plusIndex, [self, tagert, plusIndex, config.values]);
 
-                if (self.options.Linkage && self.options.level === 2 && defaultId[0] && inputVal.length > 1) {
-                    hasLevel2 = 1;
-                }
+        };
 
-                if (!self.options.Linkage && self.options.level === 2 && inputVal.length > 1) {
-                    hasLevel2 = 1;
-                }
-
-                if (hasLevel2) {
-                    dataLevel2 = getChildJson(dataLevel2);
-                    nameEach(dataLevel2, 1);
-                }
-
-            }
-            /**
-             *  滑动结束，设置transtion值，返回当前选中的li index和元素
-             *  obj:滑动的元素
-             *  val:可有可没有。可传入data-id或不传
-             */
-            function setActiveItem(obj, val) {
-                var result;
-                var y = Math.round((getTranslateY(obj) / self.options.height));
-                //得到选中的index
-                var index = typeof(val) === 'number' ? obj.find('li').index(obj.find('li[data-id="' + val + '"]')) : self.$container.data('middleRowIndex') - y;
-
-                var y2 = -self.options.height * (index - self.$container.data('middleRowIndex'));
-
-                setTransitionY(obj, y2);
-                //添加选中样式
-                obj.find('li').eq(index).addClass('active').siblings('li').removeClass('active');
-
-                result = {
-                    target: obj.find('li').eq(index),
-                    index: index
-                };
-                return result;
-            }
-            /**
-             *  传入第一级index，更新第二级html（联动的情况下）
-             */
-            function refreshItemTwo(index) {
-                //兼容不存在child
-                var data = getChildJson(self.options.dataJson[index]);
-                if (self.options.level === 2) {
-                    var str = concatHtmlItem(data);
-                    self.$itemTwo.html(str);
-                    setActiveItem(self.$itemTwo, 0);
-                }
-            }
-            /**
-             *  传入数组，设置多级html
-             *  index:数组
-             */
-            function setItemMultiple(index) {
-                var index1 = index[0] ? index[0] : 0;
-                var index2 = index[1] ? index[1] : 0;
-
-                if (self.options.Linkage) {
-                    refreshItemTwo(index1);
-                }
-
-                setActiveItem(self.$itemOne, index1);
-
-                if (self.options.level === 2) {
-                    setActiveItem(self.$itemTwo, index2);
-                }
-            }
-
-            /**
-             *  传入json,判断返回json,child
-             *  兼容不存在child报错的情况
-             */
-            function getChildJson(data) {
-                if (!data) {
-                    return [];
-                }
-                var result = ({}).hasOwnProperty.call(data, 'child') ? data.child : [];
-                return result;
-            }
-            /**
-             *  传入json拼接html，只有li级别
-             */
-            function concatHtmlItem(data) {
-                var str = '';
-                $.each(data, function(index, val) {
-                    str += '<li data-value="' + val.value + '" data-id="' + index + '">' + val.name + '</li>';
-                });
-                return str;
-            }
-            /**
-             *  传入li html 拼接ul
-             */
-            function concatHtmlList(data) {
-                var html = '';
-                for (var i = 0; i < data.length; i++) {
-                    var itemStr = concatHtmlItem(data[i]);
-                    html += '<ul class="mPicker-list">' + itemStr + '</ul>';
-                }
-                return html;
-            }
-            /**
-             *  设置运动时间
-             */
-            function changeTime(times, obj) {
-                obj.css({
-                    '-webkit-transition-duration': times + 'ms',
-                    'transition-duration': times + 'ms'
-                });
-            }
-            /**
-             *  touches兼容
-             */
-            function fnTouches(e) {
-                if (!e.touches) {
-                    e.touches = e.originalEvent.touches;
-                }
-            }
-            /**
-             *  设置translateY
-             */
-            function setTransitionY(obj, y) {
-                obj.css({
-                    "-webkit-transform": 'translateY(' + y + 'px)',
-                    transform: 'translateY(' + y + 'px)'
-                });
-            }
-            /**
-             *  获取translateY
-             */
-            function getTranslateY(obj) {
-                var transZRegex = /\.*translateY\((.*)px\)/i;
-                var result;
-                if (obj[0].style.WebkitTransform) {
-                    result = parseInt(transZRegex.exec(obj[0].style.WebkitTransform)[1]);
-                } else if (obj[0].style.transform) {
-                    result = parseInt(transZRegex.exec(obj[0].style.transforms)[1]);
-                }
-                return result;
-            }
-            /**
-             * 暴露的接口：显示，隐藏，更新数据
-             */
-            self.deffered = {
-                container: self.$container,
-                show: function() {
-                    self.$container.trigger('touchstart');
-                },
-                hide: function(callback) {
-                    self.$mask.addClass('hide');
-                    self.$main.addClass('down').transitionEnd(function() {
-                        self.$main.remove();
-                        if (typeof(callback) === 'function') {
-                            callback.call(this);
-                        }
-                    });
-                },
-                updateData: function(data) {
-                    if (!data.length) {
-                        return;
+        $.fn.IUI({
+            iselector: function(config) {
+                return this.each(function() {
+                    if (!$(this).data('iselector')) {
+                        $(this).data('iselector', new iSelector(this, config));
                     }
-                    self.noFirst = false;
-                    for (var i = 0; i < self.options.level; i++) {
-                        self.$container.data('id' + (i + 1), 0);
-                        self.$container.data('value' + (i + 1), '');
-                    }
-                    self.options.dataJson = data;
-                    self.$main.remove();
-                }
-            };
+                });
+            }
+        });
 
-            return self.deffered;
-        }
-    });
+    })(jQuery, window, document);
 }(jQuery, window, document, undefined));

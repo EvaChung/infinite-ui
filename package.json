@@ -21,6 +21,7 @@
     "gulp-rename": "^1.2.2",
     "gulp-yuicompressor": "0.0.3",
     "jshint": "^2.9.1",
+    "webpack": "^1.13.1",
     "yargs": "^4.2.0"
   },
   "scripts": {

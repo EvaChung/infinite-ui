@@ -98,5 +98,9 @@ $ gulp build:mobi			//编译mobile组件及css
 
 * 2016年5月23日 `tokenize`增加多级列表选择
 
+* 2016年6月8日 `tokenize`优化js和css代码，增加搜索回调函数和可以限制输入搜索的字符的长度
+
+* 2016年6月8日 `ajaxForm`增加always回调和对ajax2的支持
+
 
 

@@ -9,66 +9,66 @@
 
 <body>
     <div class="main">
-        <div class="multiselect-main clearfix">
+        <div class="lrselect-main clearfix">
             <select name="multi[]" id="" multiple="multiple"></select>
-            <div class="multiselect-box">
-                <ul class="multiselect">
+            <div class="lrselect-box">
+                <ul class="lrselect">
                 </ul>
             </div>
 
-            <div class="multiselect-toolBox" style="">
-                <button class="mutiselect-undo">撤销</button>
-                <button class="mutiselect-rightAll">>></button>
-                <button class="mutiselect-right">></button>
-                <button class="mutiselect-leftAll"><<</button>
-                <button class="mutiselect-left"><</button>
-                <button class="mutiselect-redo">取消撤销</button>
-                <button class="mutiselect-render">重新渲染</button>
+            <div class="lrselect-toolBox" style="">
+                <button class="lrselect-undo">撤销</button>
+                <button class="lrselect-rightAll">>></button>
+                <button class="lrselect-right">></button>
+                <button class="lrselect-leftAll"><<</button>
+                <button class="lrselect-left"><</button>
+                <button class="lrselect-redo">取消撤销</button>
+                <button class="lrselect-render">重新渲染</button>
             </div>
-            <div class="multiselect-box">
-                <ul class="multiselect-to">
+            <div class="lrselect-box">
+                <ul class="lrselect-to">
                 </ul>
             </div>
         </div>
 
-        <div class="multiselect-main-2 clearfix">
+        <div class="lrselect-main-2 clearfix">
             <select name="multi[]" id="" multiple="multiple"></select>
-            <div class="multiselect-box">
-                <ul class="multiselect">
+            <div class="lrselect-box">
+                <ul class="lrselect">
                 </ul>
             </div>
 
-            <div class="multiselect-toolBox" style="">
-                <button class="mutiselect-undo">撤销</button>
-                <button class="mutiselect-rightAll">>></button>
-                <button class="mutiselect-right">></button>
-                <button class="mutiselect-leftAll"><<</button>
-                <button class="mutiselect-left"><</button>
-                <button class="mutiselect-redo">取消撤销</button>
+            <div class="lrselect-toolBox" style="">
+                <button class="lrselect-undo">撤销</button>
+                <button class="lrselect-rightAll">>></button>
+                <button class="lrselect-right">></button>
+                <button class="lrselect-leftAll"><<</button>
+                <button class="lrselect-left"><</button>
+                <button class="lrselect-redo">取消撤销</button>
             </div>
-            <div class="multiselect-box">
-                <ul class="multiselect-to">
+            <div class="lrselect-box">
+                <ul class="lrselect-to">
                 </ul>
             </div>
         </div>
 
-        <div class="multiselect-main-3 clearfix">
+        <div class="lrselect-main-3 clearfix">
             <select name="multi[]" id="" multiple="multiple"></select>
-            <div class="multiselect-box">
-                <ul class="multiselect">
+            <div class="lrselect-box">
+                <ul class="lrselect">
                 </ul>
             </div>
 
-            <div class="multiselect-toolBox" style="">
-                <button class="mutiselect-undo">撤销</button>
-                <button class="mutiselect-rightAll">>></button>
-                <button class="mutiselect-right">></button>
-                <button class="mutiselect-leftAll"><<</button>
-                <button class="mutiselect-left"><</button>
-                <button class="mutiselect-redo">取消撤销</button>
+            <div class="lrselect-toolBox" style="">
+                <button class="lrselect-undo">撤销</button>
+                <button class="lrselect-rightAll">>></button>
+                <button class="lrselect-right">></button>
+                <button class="lrselect-leftAll"><<</button>
+                <button class="lrselect-left"><</button>
+                <button class="lrselect-redo">取消撤销</button>
             </div>
-            <div class="multiselect-box">
-                <ul class="multiselect-to">
+            <div class="lrselect-box">
+                <ul class="lrselect-to">
                 </ul>
             </div>
         </div>
@@ -76,7 +76,7 @@
     </div>
     <script src="../src/jquery.js"></script>
     <script src="../dist/iui.js"></script>
-    <!-- <script src="../src/js/multiselect.js"></script> -->
+    <!-- <script src="../src/js/lrselect.js"></script> -->
 <script>
 $(function(){
     var json=[{
@@ -144,31 +144,31 @@ $(function(){
             name:'2three'
         }];
 
-    var objectExamples=$('.multiselect-main').IUI('multiselect',{
+    var objectExamples=$('.lrselect-main').IUI('lrselect',{
         level:2,
         dataJson:json,
         afterMoveLeft:function(val){
             // console.info('移到左边');
-            // console.info($('.multiselect-main').find('select').val());
+            // console.info($('.lrselect-main').find('select').val());
             // $('.tag-select').tokenize().clear();
         },
         afterMoveRight:function(val){
-            // console.info($('.multiselect-main').find('select').val())
+            // console.info($('.lrselect-main').find('select').val())
             // console.info('移到右边');
         }
     });
 
-    $('.mutiselect-render').on('click', function(event) {
+    $('.lrselect-render').on('click', function(event) {
         event.preventDefault();
         objectExamples.updateJson(jsonUpdate,1);
     });
 
     //objectExamples.moveRightAll();
-    // var $ele=$('.multiselect li[data-id="11"]');
+    // var $ele=$('.lrselect li[data-id="11"]');
     // objectExamples.moveRight($ele);
     //objectExamples.moveLeftAll();
 
-    var objectExamples2=$('.multiselect-main-2').IUI('multiselect',{
+    var objectExamples2=$('.lrselect-main-2').IUI('lrselect',{
         level:2,
         dataJson:json,
         afterMoveLeft:function(val){
@@ -179,7 +179,7 @@ $(function(){
             console.info('移到右边');
         }
     });
-    var objectExample3=$('.multiselect-main-3').IUI('multiselect',{
+    var objectExample3=$('.lrselect-main-3').IUI('lrselect',{
         dataJson:json,
         afterMoveLeft:function(val){
             console.info('移到左边');

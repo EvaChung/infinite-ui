@@ -7,17 +7,17 @@
  *
  * @example
  *
- * $('.multiselect-main')IUI('multiselect',function(options));
+ * $('.lrselect-main')IUI('lrselect',function(options));
 
  *
  * html基本结构
- * div.multiselect-box>ul.multiselect>li
+ * div.lrselect-box>ul.lrselect>li
  *
  * 二级
- *div.multiselect-box>ul.multiselect>li>div.mul-title+li.level-2
+ *div.lrselect-box>ul.lrselect>li>div.mul-title+li.level-2
  */
 $.fn.IUI({
-    multiselect: function(options) {
+    lrselect: function(options) {
         var defaults = {
             level: 1,
             dataJson: '',
@@ -31,28 +31,28 @@ $.fn.IUI({
          */
         var data = {
             self: {
-                ele: '.multiselect',
-                contraryEle: '.multiselect-to'
+                ele: '.lrselect',
+                contraryEle: '.lrselect-to'
             },
             to: {
-                ele: '.multiselect-to',
-                contraryEle: '.multiselect'
+                ele: '.lrselect-to',
+                contraryEle: '.lrselect'
             }
         };
         var data2 = {
             self: {
-                ele: '.multiselect .level-2',
-                contraryEle: '.multiselect-to .level-2'
+                ele: '.lrselect .level-2',
+                contraryEle: '.lrselect-to .level-2'
             },
             to: {
-                ele: '.multiselect-to .level-2',
-                contraryEle: '.multiselect .level-2'
+                ele: '.lrselect-to .level-2',
+                contraryEle: '.lrselect .level-2'
             }
         };
 
         self.$container = $(this);
-        self.$multi = self.$container.find('.multiselect');
-        self.$multiTo = self.$container.find('.multiselect-to');
+        self.$multi = self.$container.find('.lrselect');
+        self.$multiTo = self.$container.find('.lrselect-to');
         self.config = $.extend({}, defaults, options);
 
         /**
@@ -128,11 +128,11 @@ $.fn.IUI({
             };
         };
 
-        function Multiselect() {
+        function lrSelect() {
             this.calculator = new Calculator();
             this.init();
         }
-        Multiselect.prototype = {
+        lrSelect.prototype = {
             init: function() {
                 self.mulData = self.config.level >= 2 ? data2 : data;
                 this.render(self.config.dataJson);
@@ -258,25 +258,25 @@ $.fn.IUI({
              */
             operateEvent: function() {
                 var _this = this;
-                if (!self.$container.find('.mutiselect-right').length) {
+                if (!self.$container.find('.lrselect-right').length) {
                     return;
                 }
-                self.$container.on('click', '.mutiselect-right', function() {
+                self.$container.on('click', '.lrselect-right', function() {
                     _this.move();
                 });
-                self.$container.on('click', '.mutiselect-left', function() {
+                self.$container.on('click', '.lrselect-left', function() {
                     _this.moveTo();
                 });
-                self.$container.on('click', '.mutiselect-rightAll', function() {
+                self.$container.on('click', '.lrselect-rightAll', function() {
                     _this.moveAll();
                 });
-                self.$container.on('click', '.mutiselect-leftAll', function() {
+                self.$container.on('click', '.lrselect-leftAll', function() {
                     _this.moveToAll();
                 });
-                self.$container.on('click', '.mutiselect-undo', function() {
+                self.$container.on('click', '.lrselect-undo', function() {
                     _this.calculator.undo();
                 });
-                self.$container.on('click', '.mutiselect-redo', function() {
+                self.$container.on('click', '.lrselect-redo', function() {
                     _this.calculator.redo();
                 });
             },
@@ -416,7 +416,7 @@ $.fn.IUI({
             }
         };
 
-        multiObject = new Multiselect();
+        multiObject = new lrSelect();
 
         /**
          * 拼接html

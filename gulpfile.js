@@ -12,15 +12,16 @@ var argv = require('yargs').argv;
 var browserSync = require("browser-sync");
 var reload = browserSync.reload;
 
+
 /**
  * 全局部件
  */
 var globWidgets = [
-    './src/js/pubsub.js',
-    './src/js/alert.js',
-    './src/js/cookie.js',
-    './src/js/loading.js',
-    './src/js/tip.js',
+  './src/js/pubsub.js',
+  './src/js/alert.js',
+  './src/js/cookie.js',
+  './src/js/loading.js',
+  './src/js/tip.js',
 ];
 
 /**
@@ -28,12 +29,14 @@ var globWidgets = [
  * @场景：PC端，IE8+
  */
 var pcComponents = [
-    './src/js/tooltip.js',
-    './src/js/emailSuffix.js',
-    './src/js/placeholder.js',
-    './src/js/fadeSlide.js',
-    './src/js/typeCount.js',
-    './src/js/multiselect.js'
+  './src/js/tooltip.js',
+  './src/js/emailSuffix.js',
+  './src/js/placeholder.js',
+  './src/js/fadeSlide.js',
+  './src/js/typeCount.js',
+  './src/js/lrselect.js',
+  './src/js/iselector.js',
+  './src/js/tokenize.js'
 ];
 
 /**
@@ -41,10 +44,10 @@ var pcComponents = [
  * @场景：移动端，Android 4.2+ , IOS 6+
  */
 var mobileComponents = [
-    './src/js/hideNavbar.js',
-    './src/js/fresh.js',
-    './src/js/panel.js',
-    './src/js/mpicker.js'
+  './src/js/hideNavbar.js',
+  './src/js/fresh.js',
+  './src/js/panel.js',
+  './src/js/mpicker.js'
 ];
 
 
@@ -53,12 +56,11 @@ var mobileComponents = [
  * @场景：适应多端
  */
 var commonComponents = [
-    './src/js/layer.js',
-    './src/js/returnTop.js',
-    './src/js/tab.js',
-    './src/js/ajaxForm.js',
-    './src/js/validate.js',
-    './src/js/tokenize.js'
+  './src/js/layer.js',
+  './src/js/returnTop.js',
+  './src/js/tab.js',
+  './src/js/ajaxForm.js',
+  './src/js/validate.js',
 ];
 
 /**
@@ -80,41 +82,46 @@ var components = coreUtil.concat(globWidgets, commonComponents, argv.pc ? pcComp
  * gulp build --mobi      编译mobile
  */
 gulp.task('build', function() {
-    gulp.src(components)
-        .pipe(jshint())
-        .pipe(jshint.reporter('default'))
-        .pipe(concat('iui.js'))
-        .pipe(header(headerText))
-        .pipe(footer(footerText))
-        .pipe(prettify({ config: '.jsbeautifyrc', mode: 'VERIFY_AND_WRITE' }))
-        .pipe(gulp.dest('./dist/'))
-        .pipe(compress({ type: 'js' }))
-        .pipe(rename('iui.min.js'))
-        .pipe(gulp.dest('./dist/'));
+  gulp.src(components)
+    .pipe(jshint())
+    .pipe(jshint.reporter('default'))
+    .pipe(concat('iui.js'))
+    .pipe(header(headerText))
+    .pipe(footer(footerText))
+    .pipe(prettify({ config: '.jsbeautifyrc', mode: 'VERIFY_AND_WRITE' }))
+    .pipe(gulp.dest('./dist/'))
+    .pipe(compress({ type: 'js' }))
+    .pipe(rename('iui.min.js'))
+    .pipe(gulp.dest('./dist/'));
 
-    gulp.src('./src/sass/*.scss')
-        .pipe(compass({
-            config_file:'./config.rb',
-            css: './dist/',
-            sass: './src/sass/'
-        }))
-        .pipe(gulp.dest('./dist/'))
+  gulp.task('compass');
 
+});
+
+//编译compass
+gulp.task('compass', function() {
+  gulp.src('./src/sass/*.scss')
+    .pipe(compass({ comments: true, css: './dist', sass: './src/sass' })).
+  on('error', function(err) {
+      console.log(err);
+    })
+    .pipe(reload({ stream: true }));
 });
 
 gulp.task('browser-sync', function() {
-    browserSync({
-        server: {
-            baseDir: "./"
-        }
-    });
+  browserSync({
+    server: {
+      baseDir: "./"
+    }
+  });
 });
 
 gulp.task('fresh', function() {
-    gulp.src(['./examples/*.html','./src/js/*.js']).pipe(reload({
-        stream: true
-    }));
+  gulp.src(['./examples/*.html', './src/js/*.js']).pipe(reload({
+    stream: true
+  }));
 });
-gulp.task('watch', ['browser-sync', 'fresh'], function() {
-    gulp.watch(['./examples/*.html','./src/js/*.js'], ['fresh']);
+gulp.task('watch', ['browser-sync', 'compass', 'fresh'], function() {
+  gulp.watch(['./src/sass/**/*.scss'], ['compass']);
+  gulp.watch(['./examples/*.html', './src/js/*.js'], ['fresh']);
 });

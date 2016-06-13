@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+</head>
+
+<body>
+    <form action="/examples/ajaxForm.html" data-ajaxType="ajax2">
+    <input type="hidden" name="name" value="1">
+        <button>ajax2</button>
+    </form>
+     <form action="/examples/ajaxForm.html">
+        <input type="hidden" name="name" value="1">
+        <button>ajax</button>
+    </form>
+    <script src="../src/jquery.js"></script>
+    <script src="../dist/iui.js"></script>
+    <script>
+        $('form').each(function(index, el) {
+            $(el).IUI('ajaxForm', {
+                success: function(){
+                    console.log(this.attr('data-ajaxType'));
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

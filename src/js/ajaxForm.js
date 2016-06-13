@@ -3,26 +3,29 @@
  * @param {String}  	url
  * @param {String}  	method
  * @param {String}  	type
- * @param {String}  	before
- * @param {String}  	success
- * @param {String}  	error
- * @param {String}  	pending
+ * @param {Function}  	before
+ * @param {Function}  	success
+ * @param {Function}  	error
+ * @param {Function}    pending
+ * @param {Function}  	always
  */
 $.fn.IUI({
     ajaxForm: function(options) {
         return this.each(function() {
+            var $selector = $(this);
             var defaults = {
-                url: $(this).attr('action'),
-                method: $(this).attr('method') || 'POST',
-                type: $(this).attr('data-type') || 'json',
+                url: $selector.attr('action'),
+                method: $selector.attr('method') || 'POST',
+                type: $selector.attr('data-type') || 'json',
+                data: $selector.attr('data-ajaxType') || 'ajax',
                 before: function() {},
                 success: function() {},
                 error: function() {},
-                pending: function() {}
+                pending: function() {},
+                always: function(){}
 
             };
 
-            var $selector = $(this);
             var $fields = $selector.find('input');
             var config = $.extend({}, defaults, options);
 
@@ -39,20 +42,32 @@ $.fn.IUI({
 
                 var beforeResult = config.before.call($selector, event, config);
 
+                var args = {
+                    url: config.url,
+                    type: config.method,
+                    data: $selector.serialize()
+                };
+
+                // ajax2
+                if (config.data !== 'ajax') {
+                    args.data = new FormData($selector[0]);
+                    args.cache = false;
+                    args.contentType = false;
+                    args.processData = false;
+                }
+
                 if (beforeResult === false) {
                     return false;
                 }
                 $selector.addClass('disabled').prop('disabled',true);
-                $.ajax({
-                    url: config.url,
-                    type: config.method,
-                    data: $selector.serialize()
-                }).then(function(res) {
+                $.ajax(args).then(function(res) {
                     $selector.removeClass('disabled').prop('disabled',false);
                     config.success.call($selector, res, config);
                 }, function(err) {
                     $selector.removeClass('disabled').prop('disabled',false);
                     config.error.call($selector, err, config);
+                }).always(function(res) {
+                    config.always.call($selector, res, config);
                 });
             });
 

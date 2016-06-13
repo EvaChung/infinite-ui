@@ -8,38 +8,62 @@
 <style>
 	body{
 		font-family: '微软雅黑';
-		background: #eee;
+		background: #fff;
 	}
 	h2{
 		color: #aaa;
 		font-size: 16px;
 	}
-	div{
+	.form-container{
 		width: 500px;
+		height: 42px;
+		margin-bottom: 10px;
 		overflow: hidden;
 	}
-	div label{
+	.form-container>label{
+		float: left;
+		width: 150px;
+		height: 100%;
+		font-size: 16px;
+		text-align: right;
 		line-height: 42px;
 	}
-	input{
-		float: right;
+	.form-container>div{
+		float: left;
+		width: 350px;
+		height: 100%;
+		border: 1px solid #aaa;
+		box-sizing: border-box;
+		border-radius: 5px;
+	}
+
+	.form-container>div>input{
+		display: inline-block;
 		color: #333;
-		width: 200px;
-		height: 40px;
+		width: 100%;
+		height: 100%;
+		font-size: 16px;
 		text-indent: 5px;
 		line-height: 42px;
-		border: 1px solid #999;
+		border: 0;
 		outline: none;
 		background: #fff;
+		box-sizing: border-box;
+		border-radius: 5px;
 	}
-	#t4{
-		position: absolute;
-		left: 304px;
+	.form-container>div.no-border{
+		border: 0;
 	}
-	.not-text{
-		width: 30px;
-		height: 30px;
+	.form-container>div>*{
+		vertical-align: middle;
+	}
+	.form-container>div>input.not-text{
+		display: inline-block;
+		width: 20px;
+		height: 20px;
 		margin-left: 10px;
+		margin-top: 12px;
+		box-sizing: border-box;
 	}
 </style>
 </head>
@@ -48,39 +72,44 @@
 <h1>placeholder</h1>
 <h2>兼容性：IE7及以上</h2>
 <h2>调用方法：$('body').IUI('placeholder',{color:"",zIndex:""});</h2>
-<div>
-	<label for="">static,float,text</label>
-	<input type="text" value="" placeholder="static">
+<h2>注意：请使用这种表单结构</h2>
+<div class="form-container">
+	<label for="">text：</label>
+	<div>
+		<input type="text" value="" placeholder="static">
+	</div>
 </div>
-<hr />
-<div>
-	<label for="">原来就有value</label>
-	<input type="text" value="原来就有value" placeholder="原来就有value">
+<div class="form-container">
+	<label for="">原来就有value：</label>
+	<div>
+		<input type="text" value="原来就有value" placeholder="原来就有value">
+	</div>
 </div>
-<hr />
-<div>
-	<label for="">static,float,溢出,text</label>
-	<input type="text" value="" placeholder="溢出溢出溢出溢出溢出溢出溢出">
+<div class="form-container">
+	<label for="">溢出：</label>
+	<div>
+		<input type="text" value="" placeholder="溢出溢出溢出溢出溢出溢出溢出">
+	</div>
 </div>
-<hr />
-<div>
-	<label for="">static,float,password</label>
-	<input type="password" value="" placeholder="password">
+<div class="form-container">
+	<label for="">absolute：</label>
+	<div>
+		<input type="text" id="t4" value="" placeholder="absolute">
+	</div>
 </div>
-<hr />
-<div>
-	<label for="">absolute,text</label>
-	<input type="text" id="t4" value="" placeholder="absolute">
+<div class="form-container">
+	<label for="">password：</label>
+	<div>
+		<input type="password" value="" placeholder="password">
+	</div>
 </div>
-<hr />
-<div>
-	<label for="">checkbox,button,submit,radio</label>
-	<input type="checkbox" class="not-text" value="" placeholder="checkbox">
-	<input type="button" class="not-text" value="" placeholder="button">
-	<input type="submit" class="not-text" value="" placeholder="submit">
-	<input type="radio" class="not-text" value="" placeholder="radio">
+<div class="form-container">
+	<label for="">other input：</label>
+	<div class="no-border">
+		<input type="checkbox" class="not-text" value="" placeholder="checkbox">
+		<input type="radio" class="not-text" value="" placeholder="radio">
+	</div>
 </div>
-<hr />
 
 <script type="text/javascript" src="../src/jquery.min.js" chartset="UTF-8"></script>
 <script type="text/javascript" src="../dist/iui.js" chartset="UTF-8"></script>

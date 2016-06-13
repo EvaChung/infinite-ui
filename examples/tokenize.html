@@ -3,71 +3,80 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-	<title>Document</title>
+	<title>tokenize</title>
 	<link rel="stylesheet" href="../dist/style-pc.css">
 	<script src="../src/jquery.js"></script>
-	<script type="text/javascript" src="../dist/iui.js"></script>
+	<script src="../dist/iui.js"></script>
 </head>
 <body>
-	<h2>示例一（默认）</h2>
-	<p>data-showAll="true" data-create="true" data-limitCount="Infinity"</p>
-	<p>
-		input 为空显示选项，自动创建没有的选项，不限制选择个数，提示存在
-	</p>
+	<div>
+		<p>自定义属性有：<br>
+			data-showAll: 为空点击是否显示下拉，默认是 <br>
+			data-create: 不存在token时，是否自动创建，默认是 <br>
+			data-limitCount: 显示选择的个数，默认是无限
+		</p>
+		<p>api有：<br>
+			 /** <br>
+			 * tokenize 组件 <br>
+			 * @param  {boolean} readOnly 为true的时候，其他所有option失效 <br>
+			 * @return {string}   contain 默认为'.tokenize'，共有上下文 <br>
+			 * @param  {string} remove 如果为'no-remove'，表示不能删除初始化就选中的token <br>
+			 * @param  {number} maxLength 最多可以输入多少个字符进行搜索，默认是10 <br>
+			 * @param  {function} overLimitCount 选择超过限制个数触发 <br>
+			 * @return {function}   existToken 已经存在标签触发 <br>
+			 * @return {function}   searchCallback 搜索后的回调函数 <br>
+			 * .tokenize > select + ul + .token > .token-item <br>
+			 */ <br>
+			 /* <br>
+			    多级必须有optgroup 必须有label属性 optgroup label="" <br>
+			 */
+		</p>
+	</div>
+	<h2>示例一</h2>
 	<div class="tokenize">
 		<select multiple name="tokenize-demo" id="" class="hide">
-			<option selected="selected" value="a b c">a b c</option>
-			<option value="d d d">d d d</option>
-			<option value="u s a">u s a</option>
+			<optgroup label="这个示例是多级的">
+				<option selected="selected" value="默认选中">默认选中</option>
+				<option selected="selected" class="no-remove" value="d d d">默认选中,并且不能删除</option>
+				<option class="no-remove" value="d d d">a默认不选中,选中就不能删除</option>
+				<option value="点击弹出下拉">为空默认点击弹出下拉</option>
+				<option value="不限制选择个数">默认不限制选择个数</option>
+				<option value="多级是不能自动创建的">多级是不能自动创建的</option>
+				<option value="一级默认是能创建">一级默认是能创建</option>
+				<option value="支持限制token的字符长度，默认是20个">支持限制token的字符长度，默认是20个</option>
+			</optgroup>
+			<optgroup label="标题2">
+				<option value="selected">selected表示默认选中</option>
+				<option value="no-remove">no-remove表示不能删除</option>
+				<option value="有个搜索回调函数也不错哦">有个搜索回调函数也不错哦</option>
+			</optgroup>
 		</select>
 	</div>
 
 
-	<h2>示例二</h2>
-	<p>data-showAll="false" data-create="false" data-limitCount="2"</p>
-	<p>
-		input 为空不显示选项，不自动创建没有的选项，限制选择个数
-	</p>
-	<div class="tokenize" data-showAll="false" data-create="false" data-limitCount="2">
+	<h2>示例二<small>（输入a方便测试）</small></h2>
+	<div class="tokenize" data-showAll="false" data-create="true" data-limitCount="2">
 		<select multiple name="tokenize-demo" id="" class="hide">
-			<option value="css">css</option>
-			<option value="html">html</option>
-			<option value="javascript">javascript</option>
-			<option value="svg">svg</option>
-			<option value="canvas">canvas</option>
-			<option value="react">react</option>
-			<option value="a b c">a b c</option>
-			<option value="d d d">d d d</option>
-			<option value="u s a">u s a</option>
+			<option value="默认选中">a默认不选中</option>
+			<option class="no-remove" value="d d d">a默认不选中,选中就不能删除</option>
+			<option value="点击不弹出下拉">a为空点击不弹出下拉</option>
+			<option value="限制选择个数">a限制选择个数2</option>
+			<option value="一级默认是能创建">a一级默认是能创建</option>
 		</select>
 	</div>
 
-	<h2>示例三</h2>
-	<p></p>
-	<p>
-
-	</p>
-	<div id="div3" class="tokenize">
-		<select multiple name="book_class" class="hide">
-          <optgroup label="Web设计">
-	          <option value="0">网站建设</option>
-	          <option value="1">网页设计</option>
-	          <option value="2">JavaScript程序设计</option>
-          </optgroup>
-          <optgroup label="软件世界">
-	          <option value="3">软件工程</option>
-	          <option value="4">软件应用</option>
-          </optgroup>
-        </select>
-	</div>
 	<script>
-		$('.tokenize').IUI('tokenize',{
+		var sc = 0;
+		$('.tokenize').IUI('tokenize', {
 			overLimitCount: function($err){
 				alert('只能选择' + $err.data('limitCount') + '个token')
 			},
 			existToken: function($err){
 				var value = $err.find('input').val();
 				alert(value + '已经存在')
+			},
+			searchCallback: function(){
+				console.log('搜索了' + (++sc) + '次')
 			}
 		});
 

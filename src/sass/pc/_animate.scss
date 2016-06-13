@@ -1,25 +1,27 @@
-.fadeIn{
-    @include animation(fadeIn .35s ease-out forwards);
-    @include keyframes (fadeIn) {
-        0% {
+.layer-opening,.alert-opening {
+    @include animation(zoomIn .2s ease-out forwards);
+    @include keyframes (zoomIn) {
+        from {
             opacity: 0;
+            -webkit-transform: scale3d(.95, .95, .95);
+            transform: scale3d(.95, .95, .95);
         }
-        100% {
+        50% {
             opacity: 1;
         }
     }
 }
 
-.fadeInDown {
-    @include animation(fadeInDown 0.25s ease-out forwards);
-    @include keyframes (fadeInDown) {
-        0% {
-            opacity: 0;
-            @include transform(translateY(-20%));
+.layer-closing,.alert-closing {
+    @include animation(zoomOut .2s ease-out forwards);
+    @include keyframes (zoomOut) {
+        50% {
+            opacity: 1;
         }
         100% {
-            opacity: 1;
-            @include transform(translateY(0%));
+            opacity: 0;
+            -webkit-transform: scale3d(.95, .95, .95);
+            transform: scale3d(.95, .95, .95);
         }
     }
 }

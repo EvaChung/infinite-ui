@@ -35,7 +35,7 @@ $.fn.IUI({
             closePanel();
         });
 
-        $selector.on(transitionEnd, function(event) {
+        $selector.on(IUI_UTILS.transitionEnd, function(event) {
             event.preventDefault();
             if (!$selector.hasClass('panel-move')) {
                 $sidebar.addClass('hide');
