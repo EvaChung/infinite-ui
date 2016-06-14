@@ -47,7 +47,7 @@ http://localhost:3000/examples/index.html
 
 ##History
 
-* 2016年06月13日 ** 适配`webpack`模块加载  `version 1.2` **
+* 2016年06月13日 **适配`webpack`模块加载  `version 1.2`**
 
 * 2016年6月13日 重构`placeholder`组件，使用label模拟,避免提交出错
 
