@@ -13,6 +13,7 @@
  * @param  {String}            dataType            ajax dataType
  * @param  {Function}          successCall         ajax success callback
  * @param  {Function}          errorCall           ajax error callback
+ * @param  {Function}          showCall            回调函数 - 显示触发
  * @param  {Function}          confirmCall         回调函数 - 确认触发
  * @param  {Function}          cancelCall          回调函数 - 关闭触发
  *
@@ -59,6 +60,8 @@
       url: $(this).attr('data-url') || false,
       dataType: $(this).attr('data-dataType') || 'html',
       content: '',
+      showCall: function() {},
+      hideCall: function() {},
       successCall: function() {},
       errorCall: function() {},
       confirmCall: function() {},
@@ -173,6 +176,7 @@
       self.$content.removeClass('layer-opening');
     });
     self.$selector.trigger('layer.show', [self]);
+    config.showCall.apply(self.$selector, [self]);
     return self;
   };
 
@@ -188,6 +192,7 @@
       $(this).remove();
     });
     self.$selector.trigger('layer.hide', [this]);
+    config.hideCall.apply(self.$selector, [self]);
 
     return self;
   };

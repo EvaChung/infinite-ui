@@ -6,237 +6,91 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Document</title>
-    <link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="/dist/style-pc.css">
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        body{
+            background-color: #F6F6F6;
+        }
+        #head h1{
+            margin: 20px;
+        }
+        #banner{
+            height: 30px;
+            background-color: #eb6100;
+        }
+        #sidebar,#main{
+            float: left;
+            box-sizing: border-box;
+        }
+        #sidebar>div,#main>div{
+            background-color: #fff;
+            padding: 20px;
+        }
+        #sidebar{
+            width: 20%;
+            padding: 20px 10px 20px 20px;
+        }
+        #sidebar a{
+            display: block;
+            text-decoration: none;
+            color: #4b8fe0;
+            line-height: 40px;
+        }
+        #main{
+            width: 80%;
+            padding: 20px 20px 20px 10px;
+        }
+        iframe{
+            width: 100%;
+            min-height: 450px;
+        }
+    </style>
 </head>
 
 <body>
-    <script type="text/html" id="demoOne-template">
-        <div style="padding:20px;">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Username</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td rowspan="2">1</td>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
-                    </tr>
-                    <tr>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@TwBootstrap</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Jacob</td>
-                        <td>Thornton</td>
-                        <td>@fat</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td colspan="2">Larry the Bird</td>
-                        <td>@twitter</td>
-                    </tr>
-                    <tr>
-                        <td rowspan="2">1</td>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
-                    </tr>
-                    <tr>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@TwBootstrap</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Jacob</td>
-                        <td>Thornton</td>
-                        <td>@fat</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td colspan="2">Larry the Bird</td>
-                        <td>@twitter</td>
-                    </tr>
-                    <tr>
-                        <td rowspan="2">1</td>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
-                    </tr>
-                    <tr>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@TwBootstrap</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Jacob</td>
-                        <td>Thornton</td>
-                        <td>@fat</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td colspan="2">Larry the Bird</td>
-                        <td>@twitter</td>
-                    </tr>
-                    <tr>
-                        <td rowspan="2">1</td>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
-                    </tr>
-                    <tr>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@TwBootstrap</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Jacob</td>
-                        <td>Thornton</td>
-                        <td>@fat</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td colspan="2">Larry the Bird</td>
-                        <td>@twitter</td>
-                    </tr>
-                    <tr>
-                        <td rowspan="2">1</td>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
-                    </tr>
-                    <tr>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@TwBootstrap</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Jacob</td>
-                        <td>Thornton</td>
-                        <td>@fat</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td colspan="2">Larry the Bird</td>
-                        <td>@twitter</td>
-                    </tr>
-                    <tr>
-                        <td rowspan="2">1</td>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
-                    </tr>
-                    <tr>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@TwBootstrap</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Jacob</td>
-                        <td>Thornton</td>
-                        <td>@fat</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td colspan="2">Larry the Bird</td>
-                        <td>@twitter</td>
-                    </tr>
-                    <tr>
-                        <td rowspan="2">1</td>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
-                    </tr>
-                    <tr>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@TwBootstrap</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Jacob</td>
-                        <td>Thornton</td>
-                        <td>@fat</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td colspan="2">Larry the Bird</td>
-                        <td>@twitter</td>
-                    </tr>
-                    <tr>
-                        <td rowspan="2">1</td>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
-                    </tr>
-                    <tr>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@TwBootstrap</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Jacob</td>
-                        <td>Thornton</td>
-                        <td>@fat</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td colspan="2">Larry the Bird</td>
-                        <td>@twitter</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </script>
-    <div class="container">
-        <br>
-        <a href="javascript:;" class="btn btn-primary">click me</a>
-    <script src="//cdn.bootcss.com/jquery/1.8.1/jquery.min.js"></script>
-    <script type="text/javascript" src="../bin/app.bundle.js"></script>
-        <script type="text/javascript">
-        var staticLayer = $('#demoOne').IUI('layer', {
-            offsetWidth: 500,
-            content: $('#demoOne-template').html()
-        });
-
-        var staticModals = $('#demoTwo').IUI('layer',{
-            offsetWidth: 500,
-            content: $('#demoOne-template').html()
-        });
-        //staticModals.showLayer();
-        // setInterval(function(){
-        // 	$('#demoTwo').find('.layer-content').append('<p>123123</p>');
-        // 	staticModals.resize();
-        // 	staticModals.showLayer().hideLayer();
-        // }, 500);
-
-        var ajaxLayer = $('#demoThree').IUI('layer',{
-        	url:'./ext/layer-ajaxPage.html',
-            offsetWidth:600,
-        	successCall:function(res,ajax,deferred){
-        		deferred.$content.html(res);
-        	}
-        });
-        $('.btn-primary').on('click', function(event) {
-        staticModals.showLayer();
-        });
-        </script>
+    <div id="head">
+        <h1>infinite-ui api</h1>
     </div>
+    <div id="banner"></div>
+    <div id="content">
+        <div id="sidebar">
+            <div>
+                <a href="ajaxForm.html">ajaxForm</a>
+                <a href="alert.html">alert</a>
+                <a href="iselector.html">iselector</a>
+                <a href="j-selector.html">j-selector</a>
+                <a href="layer.html">layer</a>
+                <a href="loading.html">loading</a>
+                <a href="lrselect.html">lrselect</a>
+                <a href="mpicker.html">mpicker</a>
+                <a href="placeholder.html">placeholder</a>
+                <a href="tokenize.html">tokenize</a>
+                <a href="validate.html">validate</a>
+            </div>
+        </div>
+        <div id="main">
+            <div>
+                <iframe src="" frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
+    <script src="../src/jquery.min.js"></script>
+    <script>
+        $('#sidebar').on('click', 'a', function(event) {
+            event.preventDefault();
+
+            $('iframe').attr('src', $(this).attr('href'));
+        });
+
+        $('iframe').on('load', function(event) {
+            var $this = $(this);
+
+            $this.height($this.contents().find('body').height()+200);
+        });
+    </script>
 </body>
 
 </html>

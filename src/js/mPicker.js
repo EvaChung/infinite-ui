@@ -1,8 +1,10 @@
 /**
- * validate 组件
+ * mPicker 组件
  *
  * *** options ***
  *
+ * @param {Str}                                 display    显示的方式，默认是显示在底部    'bottom'/'modal'
+ * @param {Boolean}                             shadow     点击遮罩隐藏组件 - 默认为false;若为false，则禁止点击遮罩隐藏组件
  * @param {Number}                              level      显示的层级，默认：1
  * @param {Number}                              rows       picker显示的行数，默认：4
  * @param {Boolean}                             Linkage    选择联动 - 若为false，则不联动
@@ -10,6 +12,7 @@
  * @param {Number}                              height     每一行的高度
  * @param {Boolean}                             idDefault  匹配默认值 - 若为false，则不匹配
  * @param {Str}                                 splitStr   设置分割value的符号，与默认值和显示在input里的值有关
+ * @param {Boolean}                             isshort    是否开启简写，默认是关闭的
  * @param {Element selector}                    header     picker头部html
  *@param {function}                             confirm: function() {}
  *@param {function}                             cancel: function() {}
@@ -59,16 +62,20 @@ $.fn.transitionEnd = function(callback) {
     return this;
 };
 $.fn.IUI({
-    mPicker:function(options){
-        var defaults={
+    mPicker: function(options) {
+        var defaults = {
+            display: 'bottom',
+            shadow: false,
             level: 1,
             rows: 4,
             Linkage: false,
             dataJson: '',
-            height: 40,
+            height: 36,
             idDefault: false,
             splitStr: ' ',
-            header: '<div class="mPicker-header"><a href="javascript:;" class="mPicker-cancel">取消</a><a href="javascript:;" class="mPicker-confirm">确定</a></div>',
+            isshort : false,
+            header: '<div class="mPicker-header"></div>',
+            footer: '<div class="mPicker-footer"><a href="javascript:;" class="mPicker-confirm">确定</a><a href="javascript:;" class="mPicker-cancel">取消</a></div>',
             confirm: function() {},
             cancel: function() {}
         };
@@ -114,31 +121,31 @@ $.fn.IUI({
             }
         }, '.mPicker-main');
         /**
-        * 点击打开选择
-        */
+         * 点击打开选择
+         */
         self.$container.on('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
             self.render();
             self.$container.focus();
             self.$container.blur();
-            self.$main.removeClass('hide');
+            self.$mPicker.removeClass('hide');
             self.$mask.removeClass('hide');
 
             clearTimeout($body.data('mPicker-timer'));
-            $body.data('mPicker-timer',setTimeout(function(){
+            $body.data('mPicker-timer', setTimeout(function() {
                 self.$main.removeClass('down');
-            },10));
-             /**
+            }, 10));
+            /**
              * 显示默认值(判断点击确定选择后不再获取默认值)
              */
             if (!self.noFirst && self.options.idDefault) {
                 matchDefaultData();
             }
-             /**
+            /**
              * 获取input的data-id显示选中的元素
              */
-            var id=[];
+            var id = [];
             self.$list.each(function(index, ele) {
                 setTransitionY(self.$container, 0);
                 var dataVal = self.$container.data('id' + (index + 1)) ? self.$container.data('id' + (index + 1)) : 0;
@@ -155,53 +162,59 @@ $.fn.IUI({
          *  初始化mpicker,根据json渲染html结构
          *  添加遮罩，边框等
          */
-        self.render=function(){
+        self.render = function() {
             var listStr;
             var jsonData = [];
             var mainStr;
             /**
              * 根据行数计算居中的位置
              */
-            self.$container.data('middleRowIndex',parseInt(self.options.rows / 2.5));
+            self.$container.data('middleRowIndex', parseInt(self.options.rows / 2.5));
             /**
-             * 添加遮罩
+             * 添加mPicker容器
              */
-            if ($('.mPicker-mask').length === 0) {
-                $body.append('<div class="mPicker-mask hide"></div>');
+            if ($('.mPicker').length === 0) {
+                $body.append('<div class="mPicker hide"><div class="mPicker-mask hide"></div>');
             }
 
-            self.$mask=$('.mPicker-mask');
-             /**
+            self.$mPicker = $body.find('.mPicker');
+            //展示方式
+            self.disy = self.options.display === 'bottom' ? 'mPicker-bottom down' : 'mPicker-modal';
+            /**
              * 添加 mPicker-main元素
              */
             jsonData.push(self.options.dataJson);
             if (self.options.level === 2) {
-                var childStr=getChildJson(self.options.dataJson[0]);
+                var childStr = getChildJson(self.options.dataJson[0]);
                 jsonData.push(childStr);
             }
             listStr = concatHtmlList(jsonData);
-            mainStr = '<div class="mPicker-main down" data-pickerId="'+self.pickerId+'">' + self.options.header + '<div class="mPicker-content">' + listStr + '</div></div>';
-            $body.append(mainStr);
+            mainStr = '<div class="mPicker-main '+ self.disy +'" data-pickerId="' + self.pickerId + '">' + self.options.header + '<div class="mPicker-content">' + listStr + '</div><div class="mPicker-shadow"></div>' + self.options.footer + '</div>';
+            self.$mPicker.append(mainStr);
             /**
              * 设置变量
              */
-            self.$main = $body.find('.mPicker-main');
+            self.$mask = $('.mPicker-mask');
+            self.$main = self.$mPicker.find('.mPicker-main');
             self.$content = self.$main.find('.mPicker-content');
             self.$list = self.$main.find('.mPicker-list');
-            self.$list.width(ulWidth[self.options.level - 1]);
-            self.$itemOne = self.$list.eq(0);
+            self.$listul = self.$list.find('ul');
+            if(self.options.level > 1 ){
+                self.$list.width(ulWidth[self.options.level - 1]);
+            }
+            self.$itemOne = self.$listul.eq(0);
             if (self.options.level === 2) {
-                self.$itemTwo = self.$list.eq(1);
+                self.$itemTwo = self.$listul.eq(1);
             }
             /**
              * 添加选中的边框
              */
-            self.$content.append('<div class="mPicker-active-box"></div>');
-            self.$content.find('.mPicker-active-box').height(self.options.height);
-             /**
+            self.$list.append('<div class="mPicker-active-box"></div>');
+            self.$list.find('.mPicker-active-box').height(self.options.height);
+            /**
              * 设置选中的边框位置
              */
-            var activeBoxMarginTop = self.options.rows % 2 === 0 ? -self.options.height + 'px' : -self.options.height * 0.5 + 'px';
+            var activeBoxMarginTop = self.options.rows % 2 === 0 ? -self.options.height - 2 + 'px' : -self.options.height * 0.5 - 2 + 'px';
 
             self.$content.find('.mPicker-active-box').css({
                 'margin-top': activeBoxMarginTop
@@ -210,19 +223,20 @@ $.fn.IUI({
              * 设置内容高度
              */
             self.$content.height(self.options.height * self.options.rows);
+            self.$list.height(self.options.height * self.options.rows);
         };
 
         /**
          *  事件
          *  取消，确定，点击遮罩，列表滑动事件
          */
-        self.event=function(){
+        self.event = function() {
             //点击确定
-            self.$main.find('.mPicker-confirm').on('touchstart.confirm click.confirm',function(e) {
+            self.$main.find('.mPicker-confirm').on('touchstart.confirm click.confirm', function(e) {
                 e.preventDefault();
                 var str = '';
                 self.noFirst = true;
-                $.each(self.$list, function(index, ele) {
+                $.each(self.$listul, function(index, ele) {
                     var $active = $(ele).find('.active');
                     var splitStr = index === 0 ? '' : self.options.splitStr;
                     if ($active.length > 0) {
@@ -243,9 +257,11 @@ $.fn.IUI({
             });
 
             //点击遮罩取消
-            self.$mask.off('touchstart.mask click.mask').on('touchstart.mask click.mask',function(e) {
+            self.$mask.off('touchstart.mask click.mask').on('touchstart.mask click.mask', function(e) {
                 e.preventDefault();
-                self.deffered.hide(self.options.cancel);
+                if(self.options.shadow){
+                    self.deffered.hide(self.options.cancel);
+                }
             });
 
             //遍历下拉列表
@@ -256,13 +272,13 @@ $.fn.IUI({
             self.$list.on('touchstart.list', function(event) {
                 fnTouches(event);
 
-                var $this = $(this);
+                var $this = $(this).find('ul');
 
                 var tranY = getTranslateY($this);
 
                 startY = event.touches[0].pageY - tranY;
 
-                 changeTime(0, $this);
+                changeTime(0, $this);
             });
 
             self.$list.on('touchmove.list', function(event) {
@@ -272,11 +288,11 @@ $.fn.IUI({
 
                 var translate;
 
-                var $this=$(this);
+                var $this = $(this).find('ul');
 
-                var listHeight =$this.height();
+                var listHeight = $this.height();
 
-                var itemHeight=self.options.height* self.options.rows;
+                var itemHeight = self.options.height * self.options.rows;
 
                 var transMaxY = itemHeight - listHeight - parseInt(self.options.rows / 2) * self.options.height;
 
@@ -301,7 +317,7 @@ $.fn.IUI({
 
             self.$list.on('touchend.list', function(event) {
                 event.preventDefault();
-                var $this=$(this);
+                var $this = $(this).find('ul');
                 touchEndFn($this);
             });
         };
@@ -317,7 +333,7 @@ $.fn.IUI({
 
             var resultId = result.target.data('id');
 
-            var itemIndex=self.$list.index(ele);
+            var itemIndex = self.$listul.index(ele);
             // self.lock=0;
             //点第一个联动
             if (self.options.Linkage && itemIndex === 0) {
@@ -326,20 +342,20 @@ $.fn.IUI({
             //回调函数
             // callbackFnName[itemIndex].call(ele, result);
 
-            changeTime(200, ele);
+            changeTime(400, ele);
         }
 
         /**
          *  第一次打开匹配默认值
          */
-        function matchDefaultData(){
+        function matchDefaultData() {
             var inputVal = self.$container.val().split(self.options.splitStr);
             var defaultId = [];
             var defaultValue = [];
             var dataLevel2;
             var hasLevel2;
-             //遍历获取id
-            var nameEach=function(data, index) {
+            //遍历获取id
+            var nameEach = function(data, index) {
                 $.each(data, function(key, val) {
                     if (val.name == inputVal[index]) {
                         defaultId[index] = key;
@@ -358,17 +374,17 @@ $.fn.IUI({
             //匹配一级
             nameEach(self.options.dataJson, 0);
             //匹配二级
-            dataLevel2=self.options.Linkage?self.options.dataJson[defaultId[0]]:self.options.dataJson[0];
+            dataLevel2 = self.options.Linkage ? self.options.dataJson[defaultId[0]] : self.options.dataJson[0];
 
-            if (self.options.Linkage&& self.options.level === 2 && defaultId[0] && inputVal.length > 1) {
-                hasLevel2=1;
+            if (self.options.Linkage && self.options.level === 2 && defaultId[0] && inputVal.length > 1) {
+                hasLevel2 = 1;
             }
 
             if (!self.options.Linkage && self.options.level === 2 && inputVal.length > 1) {
-                hasLevel2=1;
+                hasLevel2 = 1;
             }
 
-            if(hasLevel2){
+            if (hasLevel2) {
                 dataLevel2 = getChildJson(dataLevel2);
                 nameEach(dataLevel2, 1);
             }
@@ -397,7 +413,7 @@ $.fn.IUI({
             };
             return result;
         }
-         /**
+        /**
          *  传入第一级index，更新第二级html（联动的情况下）
          */
         function refreshItemTwo(index) {
@@ -409,7 +425,7 @@ $.fn.IUI({
                 setActiveItem(self.$itemTwo, 0);
             }
         }
-         /**
+        /**
          *  传入数组，设置多级html
          *  index:数组
          */
@@ -417,7 +433,7 @@ $.fn.IUI({
             var index1 = index[0] ? index[0] : 0;
             var index2 = index[1] ? index[1] : 0;
 
-            if(self.options.Linkage){
+            if (self.options.Linkage) {
                 refreshItemTwo(index1);
             }
 
@@ -433,30 +449,31 @@ $.fn.IUI({
          *  兼容不存在child报错的情况
          */
         function getChildJson(data) {
-            if(!data){
+            if (!data) {
                 return [];
             }
-            var result=({}).hasOwnProperty.call(data,'child')?data.child:[];
+            var result = ({}).hasOwnProperty.call(data, 'child') ? data.child : [];
             return result;
         }
-         /**
+        /**
          *  传入json拼接html，只有li级别
          */
-        function concatHtmlItem(data){
+        function concatHtmlItem(data) {
             var str = '';
             $.each(data, function(index, val) {
-                str += '<li data-value="' + val.value + '" data-id="' + index + '">' + val.name + '</li>';
+                var name = self.options.isshort ? val.shortName : val.name;
+                str += '<li data-value="' + val.value + '" data-id="' + index + '">' + name + '</li>';
             });
             return str;
         }
         /**
          *  传入li html 拼接ul
          */
-        function concatHtmlList(data){
-            var html='';
+        function concatHtmlList(data) {
+            var html = '';
             for (var i = 0; i < data.length; i++) {
-                var itemStr=concatHtmlItem(data[i]);
-                html+='<ul class="mPicker-list">' + itemStr + '</ul>';
+                var itemStr = concatHtmlItem(data[i]);
+                html += '<div class="mPicker-list"><ul>' + itemStr + '</ul></div>';
             }
             return html;
         }
@@ -486,7 +503,7 @@ $.fn.IUI({
                 transform: 'translateY(' + y + 'px)'
             });
         }
-         /**
+        /**
          *  获取translateY
          */
         function getTranslateY(obj) {
@@ -503,18 +520,29 @@ $.fn.IUI({
          * 暴露的接口：显示，隐藏，更新数据
          */
         self.deffered = {
-            container:self.$container,
+            container: self.$container,
             show: function() {
                 self.$container.trigger('touchstart');
             },
             hide: function(callback) {
                 self.$mask.addClass('hide');
-                self.$main.addClass('down').transitionEnd(function(){
-                    self.$main.remove();
-                    if(typeof(callback)==='function'){
-                        callback.call(this);
-                    }
-                });
+
+                if(self.options.display === 'bottom'){
+                    self.$main.addClass('down').transitionEnd(function() {
+                        self.$mPicker.addClass('hide');
+                        self.$main.remove();
+                        if (typeof(callback) === 'function') {
+                            callback.call(this);
+                        }
+                    });
+                    return false;
+                }
+
+                self.$mPicker.addClass('hide');
+                self.$main.remove();
+                if (typeof(callback) === 'function') {
+                    callback.call(this);
+                }
             },
             updateData: function(data) {
                 if (!data.length) {

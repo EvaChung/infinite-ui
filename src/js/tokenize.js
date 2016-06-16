@@ -44,7 +44,7 @@
     var tokenize = $.fn.tokenize = function(options){
         var defaults = $.extend({}, settings, options);
 
-        htmlTemplate.inputTemplate = htmlTemplate.inputTemplate.replace('{{maxlength}}', defaults.maxLength).replace('{{width}}', defaults.maxLength*12);
+        htmlTemplate.inputTemplate = htmlTemplate.inputTemplate.replace('{{maxlength}}', defaults.maxLength).replace('{{width}}', defaults.maxLength*16);
 
         this.each(function(index, el) {
             var $this = $(this);

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<title>tokenize</title>
+	<link rel="stylesheet" href="../dist/style-mobi.css">
+	<script src="../src/jquery.js"></script>
+	<script src="../src/js/loading.js"></script>
+	<style>
+
+		.loading{
+			position: relative;
+			width: 200px;
+			height: 200px;
+			background-color: #ddd;
+		}
+		pre{
+			padding: 20px;
+			background-color: #ddd;
+		}
+	</style>
+</head>
+<body>
+	<div>
+		<pre>
+	var defaults = { <br>
+            display: false, <br>
+            type: true, <br>
+            animateHtml: '&lt;div class="ball-clip-rotate"&gt;&lt;div&gt;&lt;/div&gt;&lt;/div>', <br>
+            src: 'http://img.yi114.com/201571121314_382.gif', <br>
+            context: $('body'), <br>
+            shadow: true <br>
+        };
+		</pre>
+	</div>
+	<h2>示例一(有阴影，css动画)</h2>
+    <pre>
+        $('.loading1').loading(true, 'css');
+        或者
+        $('.loading1').loading({
+            display: true,
+            type: 'css'
+        });
+    </pre>
+	<div class="loading1 loading">
+
+	</div>
+
+
+	<h2>示例二（有阴影，git图片动画）</h2>
+    <pre>
+        $('.loading2').loading(true, 'css');
+        或者
+        $('.loading2').loading({
+            display: true,
+            type: 'git'
+        });
+    </pre>
+	<div class="loading2 loading">
+
+	</div>
+	<h2>示例三(无阴影，css动画)</h2>
+    <pre>
+        $('.loading3').loading({
+            display: true,
+            type: 'css',
+            shadow: false
+        });
+    </pre>
+	<div class="loading3 loading">
+
+	</div>
+
+
+	<h2>示例四（无阴影，css图片动画）</h2>
+    <pre>
+        $('.loading3').loading({
+            display: true,
+            type: 'css',
+            shadow: false
+        });
+    </pre>
+    <div class="loading4 loading" style="width: 50px;height: 50px;">
+        <button style="width: 50px;height: 50px;">确定</button>
+    </div>
+	<script>
+        $('.loading1').loading(true, 'css');
+        $('.loading2').loading(true, 'git');
+		$('.loading3').loading({
+			display: true,
+			type: 'css',
+			shadow: false
+		});
+		$('.loading4').loading({
+            display: true,
+            type: 'css',
+            shadow: false
+        })
+        $.loading(true, 'css');
+	</script>
+</body>
+</html>

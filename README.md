@@ -1,8 +1,10 @@
 # Infinite-ui
+
 A lightweight jQuery UI library
 
-##Version
+## Version
 `1.2.0`
+
 ##Support
 * Internet Explorer 8+
 
@@ -47,15 +49,31 @@ http://localhost:3000/examples/index.html
 
 ##History
 
+* 2016年06月16日 更新记录：
+  * `1.2.0`的 `cookie` 不再向下兼容，升级后请对之前cookie的调用做修改
+  * 优化`loading`插件，增强调用的灵活性
+
+
+* 2016年06月14日 更新记录：
+  * `mPicker` 增加 `display` 显示方式和 `isshort` 简写参数
+  * `validate` 增加了一条生日的验证规则 `isBirthday`
+  * `layer` 增加显示的回调函数 `showCall`
+  * 新增分享组件 `share`
+  * 后台错误提示组件 `ajaxError`
+  * 唯一字段邮箱或者手机显示隐藏组件 `exist`（活动专用）
+
+
+
 * 2016年06月13日 **适配`webpack`模块加载  `version 1.2`**
 
 * 2016年6月13日 重构`placeholder`组件，使用label模拟,避免提交出错
 
 * 2016年6月12日 重构`layer`组件的居中方式及动画效果
 
-* 2016年6月8日 `ajaxForm`增加always回调和对ajax2的支持
+* 2016年6月8日 更新记录：
+  * `ajaxForm`增加always回调和对ajax2的支持
+  * `tokenize`优化js和css代码，增加搜索回调函数和可以限制输入搜索的字符的长度
 
-* 2016年6月8日 `tokenize`优化js和css代码，增加搜索回调函数和可以限制输入搜索的字符的长度
 
 * 2016年6月3日 新增`dialog`组件
 
@@ -67,9 +85,10 @@ http://localhost:3000/examples/index.html
 
 * 2016年03月29日 增加初始选项及禁止删除功能，修复`tokenize`的多次调用bug
 
-* 2016年03月21日 重构`layer`组件，降低耦合度
+* 2016年03月21日 更新记录：
+  * 重构`layer`组件，降低耦合度
+  * 新增`mpicker`组件
 
-* 2016年03月21日 新增`mpicker`组件
 
 * 2016年03月11日 新增`tokenize`组件
 
@@ -107,46 +126,13 @@ http://localhost:3000/examples/index.html
 
 * 2015年08月11日 新增`layer`组件
 
-* 2015年08月10日 新增`returnTop`组件
+* 2015年08月10日 更新记录：
+  * 新增`returnTop`组件
+  * 新增IUI库扩展功能，支持`AMD`、`CMD`模块加载
 
-* 2015年08月10日 新增IUI库扩展功能，支持`AMD`、`CMD`模块加载
 
 * 2015年08月09日 完成`emailSuffix`组件
 
 * 2015年08月08日 完成`tab`组件
 
 * 2015年08月07日 着手开发`Infinite-UI Library`
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

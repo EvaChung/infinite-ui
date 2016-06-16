@@ -6,12 +6,6 @@
     window.IUI_UTILS = {
         animateEnd: 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend',
         transitionEnd: 'webkitTransitionEnd transitionend oTransitionEnd MSTransitionEnd msTransitionEnd',
-        toggleClass: function(className, target) {
-
-            var el = target instanceof $ ? target : $(target);
-            var toggleClass = el.hasClass(className) ? 'removeClass' : 'addClass';
-            el[toggleClass](className);
-        },
         isPlaceholder: function() {
             var input = document.createElement('input');
             return 'placeholder' in input;
@@ -248,7 +242,7 @@
             function show(target) {
                 target.removeClass('hide');
                 target.find('.IUI-alert-main').addClass('alert-opening');
-                $.alertBackdrop.fadeIn(animateTime, function() {
+                $.alertBackdrop.removeClass('hide').fadeIn(animateTime, function() {
                     target.find('.IUI-alert-main').removeClass('alert-opening');
                 });
             }
@@ -302,64 +296,151 @@
     });
 
     /*!
-     * jQuery Cookie Plugin v1.4.1
-     * https://github.com/carhartl/jquery-cookie
+     * JavaScript Cookie v2.1.2
+     * https://github.com/js-cookie/js-cookie
      *
-     * Copyright 2006, 2014 Klaus Hartl
+     * Copyright 2006, 2015 Klaus Hartl & Fagner Brack
      * Released under the MIT license
-     *
-     * @example : $.cookie('name', 'value', { expires: 7, path: '' });
      */
+    ;
+    (function($) {
+        function extend() {
+            var i = 0;
+            var result = {};
+            for (; i < arguments.length; i++) {
+                var attributes = arguments[i];
+                for (var key in attributes) {
+                    result[key] = attributes[key];
+                }
+            }
+            return result;
+        }
 
-    $.extend({
-        cookie: function(key, value, options) {
-
-            /**
-             * cookie set
-             */
-            if (arguments.length > 1 && String(value) !== "[object Object]") {
-
-                options = jQuery.extend({}, options);
-
-                if (value === null || value === undefined) {
-                    options.expires = -1;
+        function init(converter) {
+            function api(key, value, attributes) {
+                var result;
+                if (typeof document === 'undefined') {
+                    return;
                 }
 
-                if (typeof options.expires === 'number') {
-                    var days = options.expires,
-                        t = options.expires = new Date();
-                    t.setDate(t.getDate() + days);
+                // Write
+
+                if (arguments.length > 1) {
+                    attributes = extend({
+                        path: '/'
+                    }, api.defaults, attributes);
+
+                    if (typeof attributes.expires === 'number') {
+                        var expires = new Date();
+                        expires.setMilliseconds(expires.getMilliseconds() + attributes.expires * 864e+5);
+                        attributes.expires = expires;
+                    }
+
+                    try {
+                        result = JSON.stringify(value);
+                        if (/^[\{\[]/.test(result)) {
+                            value = result;
+                        }
+                    } catch (e) {}
+
+                    if (!converter.write) {
+                        value = encodeURIComponent(String(value))
+                            .replace(/%(23|24|26|2B|3A|3C|3E|3D|2F|3F|40|5B|5D|5E|60|7B|7D|7C)/g, decodeURIComponent);
+                    } else {
+                        value = converter.write(value, key);
+                    }
+
+                    key = encodeURIComponent(String(key));
+                    key = key.replace(/%(23|24|26|2B|5E|60|7C)/g, decodeURIComponent);
+                    key = key.replace(/[\(\)]/g, escape);
+
+                    return (document.cookie = [
+                        key, '=', value,
+                        attributes.expires && '; expires=' + attributes.expires.toUTCString(), // use expires attribute, max-age is not supported by IE
+                        attributes.path && '; path=' + attributes.path,
+                        attributes.domain && '; domain=' + attributes.domain,
+                        attributes.secure ? '; secure' : ''
+                    ].join(''));
                 }
 
-                value = String(value);
+                // Read
 
-                return (document.cookie = [
-                    encodeURIComponent(key), '=',
-                    options.raw ? value : encodeURIComponent(value),
-                    options.expires ? '; expires=' + options.expires.toUTCString() : '',
-                    options.path ? '; path=' + options.path : '',
-                    options.domain ? '; domain=' + options.domain : '',
-                    options.secure ? '; secure' : ''
-                ].join(''));
+                if (!key) {
+                    result = {};
+                }
+
+                // To prevent the for loop in the first place assign an empty array
+                // in case there are no cookies at all. Also prevents odd result when
+                // calling "get()"
+                var cookies = document.cookie ? document.cookie.split('; ') : [];
+                var rdecode = /(%[0-9A-Z]{2})+/g;
+                var i = 0;
+
+                for (; i < cookies.length; i++) {
+                    var parts = cookies[i].split('=');
+                    var cookie = parts.slice(1).join('=');
+
+                    if (cookie.charAt(0) === '"') {
+                        cookie = cookie.slice(1, -1);
+                    }
+
+                    try {
+                        var name = parts[0].replace(rdecode, decodeURIComponent);
+                        cookie = converter.read ?
+                            converter.read(cookie, name) : converter(cookie, name) ||
+                            cookie.replace(rdecode, decodeURIComponent);
+
+                        if (this.json) {
+                            try {
+                                cookie = JSON.parse(cookie);
+                            } catch (e) {}
+                        }
+
+                        if (key === name) {
+                            result = cookie;
+                            break;
+                        }
+
+                        if (!key) {
+                            result[name] = cookie;
+                        }
+                    } catch (e) {}
+                }
+
+                return result;
             }
 
-            /**
-             * cookie get
-             */
-            options = value || {};
+            api.set = api;
+            api.get = function(key) {
+                return api(key);
+            };
+            api.getJSON = function() {
+                return api.apply({
+                    json: true
+                }, [].slice.call(arguments));
+            };
+            api.defaults = {};
 
-            var result, decode = options.raw ? function(s) {
-                return s;
-            } : decodeURIComponent;
+            api.remove = function(key, attributes) {
+                api(key, '', extend(attributes, {
+                    expires: -1
+                }));
+            };
 
-            return (result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(document.cookie)) ? decode(result[1]) : null;
+            api.withConverter = init;
+
+            return api;
         }
-    });
+
+        $.extend({
+            cookie: init(function() {})
+        });
+    }(jQuery));
 
     /**
      * loading 组件
-     * @param {Boolean} 		open  		显示或隐藏 true/false
-     * @param {Boolean} 		mobile 		选择 css3 或 git
+     * @param {Boolean} 		display  		显示或隐藏 true/false
+     * @param {Boolean} 		type 		选择 css3 或 git
      * @param {jQuery Object} 	context     loading所在的上下文，
      *
      * @example
@@ -367,23 +448,49 @@
      * $.loading(true)
      *
      */
-    $.extend({
-        loading: function(open, mobile, context) {
-            // 当参数长度大于1，则使用CSS3 loading效果
-            // context是执行环境
-            var arg = arguments;
-            var type = arg.length > 1;
-            var display = arg[0];
-            var $context = context || $('body');
-            var loadingStr = '<div class="IUI-loading">' + (type ? '<div class="loader-inner ball-clip-rotate"><div></div></div>' : '<img src="http://img.yi114.com/201571121314_382.gif" width="32" height="32">') + '</div>';
-            if (display) {
-                $context.append('<div class="IUI-loading-backdrop"></div>' + loadingStr);
-            } else {
-                $context.find('.IUI-loading-backdrop,.IUI-loading').remove();
-            }
 
+    $.loading = $.fn.loading = function(options, type) {
+        var defaults = {
+            display: false,
+            type: 'css',
+            animateHtml: '<div class="ball-clip-rotate"><div></div></div>',
+            src: 'http://img.yi114.com/201571121314_382.gif',
+            shadow: true
+        };
+
+        var $context = this instanceof $ ? this : $('body');
+
+
+
+        var loadingStr = '<div class="IUI-loading">';
+
+        if (typeof options === 'object') {
+            $.extend(defaults, options);
+        } else {
+            if (options !== undefined) {
+                defaults.display = options;
+            }
+            if (type !== undefined) {
+                defaults.type = type;
+            }
         }
-    });
+
+        if (defaults.type === 'css') {
+            loadingStr += '{{animateHtml}}</div>'.replace('{{animateHtml}}', defaults.animateHtml);
+        } else {
+            loadingStr += '<img src="{{src}}" ></div>'.replace('{{src}}', defaults.src);
+        }
+
+        if (defaults.display) {
+            if (defaults.shadow) {
+                loadingStr = '<div class="IUI-loading-backdrop"></div>' + loadingStr;
+            }
+            $context.append(loadingStr);
+        } else {
+            $context.find('>.IUI-loading-backdrop,>.IUI-loading').remove();
+        }
+
+    };
 
     /**
      * tip 组件
@@ -463,6 +570,7 @@
      * @param  {String}            dataType            ajax dataType
      * @param  {Function}          successCall         ajax success callback
      * @param  {Function}          errorCall           ajax error callback
+     * @param  {Function}          showCall            回调函数 - 显示触发
      * @param  {Function}          confirmCall         回调函数 - 确认触发
      * @param  {Function}          cancelCall          回调函数 - 关闭触发
      *
@@ -510,6 +618,8 @@
                 url: $(this).attr('data-url') || false,
                 dataType: $(this).attr('data-dataType') || 'html',
                 content: '',
+                showCall: function() {},
+                hideCall: function() {},
                 successCall: function() {},
                 errorCall: function() {},
                 confirmCall: function() {},
@@ -624,6 +734,7 @@
                 self.$content.removeClass('layer-opening');
             });
             self.$selector.trigger('layer.show', [self]);
+            config.showCall.apply(self.$selector, [self]);
             return self;
         };
 
@@ -639,6 +750,7 @@
                 $(this).remove();
             });
             self.$selector.trigger('layer.hide', [this]);
+            config.hideCall.apply(self.$selector, [self]);
 
             return self;
         };
@@ -774,6 +886,148 @@
     });
 
     /**
+     * share 分享组件
+     */
+    $.extend({
+        share: function(options) {
+            var param = $.extend({
+                title: null, //分享的标题
+                summary: null, //分享的简介
+                url: null, //分享url地址
+                pic: $('body').find('img').eq(0).attr('src'), //分享的图片，默认拿第一张图片
+                copybtn: '#copy-url', //复制按钮
+                swbbtn: '.sweibo', //新浪微博按钮
+                qzonebtn: '.qzone', //QQ空间按钮
+                twbbtn: '.tweibo', //腾讯微博按钮
+                dbbtn: '.douban', //豆瓣按钮
+                rrbtn: '.renren' //人人网按钮
+            }, options);
+            var title = encodeURIComponent(param.title);
+            var summary = encodeURIComponent(param.summary);
+            var pic = encodeURIComponent(document.domain + param.pic);
+            var weiboUrl = encodeURIComponent(param.url + '&share=weibo');
+            weiboUrl = 'http://service.weibo.com/share/share.php?url=' + weiboUrl + '&title=' + title + '&pic=' + pic + '&appkey=&searchPic=false';
+            $(param.swbbtn).attr('href', weiboUrl);
+            var qzoneUrl = encodeURIComponent(param.url + '&share=qzone');
+            qzoneUrl = 'http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=' + qzoneUrl + '#qzone&title=' + title + '&summary=' + summary + '&pics=' + pic;
+            $(param.qzonebtn).attr('href', qzoneUrl);
+            var tweiboUrl = encodeURIComponent(param.url + '&share=tweibo');
+            tweiboUrl = 'http://share.v.t.qq.com/index.php?c=share&a=index&url=' + tweiboUrl + '#tweibo&appkey=appkey&title=' + summary + '&pic=' + pic;
+            $(param.twbbtn).attr('href', tweiboUrl);
+            var doubanUrl = encodeURIComponent(param.url + '&share=douban');
+            doubanUrl = 'http://www.douban.com/share/service?image=' + pic + '&href=' + doubanUrl + '#douban&name=' + title + '&text=' + summary;
+            $(param.dbbtn).attr('href', doubanUrl);
+            var renrenUrl = encodeURIComponent(param.url + '&share=renren');
+            renrenUrl = 'http://widget.renren.com/dialog/share?resourceUrl=' + renrenUrl + '&srcUrl=' + renrenUrl + '&title=' + title + '&pic=' + pic + '&description=' + summary;
+            $(param.rrbtn).attr('href', renrenUrl);
+            $(param.copybtn).val(param.url + '&share=copy');
+        }
+    });
+    /**
+     * 判断是否显示/隐藏邮箱、手机
+     * @param  [description]             obj             传body进来;  $('body')
+     * @param  [description]             parents         input的父级，用于隐藏/显示
+     * @param  [description]             type            判断的类型，邮箱还是手机; 传name
+     */
+    $.extend({
+        exist: function(options) {
+            var param = $.extend({
+                obj: $('body'), //传body进来;  $('body')
+                parents: '.form-container', //input的父级，用于隐藏/显示
+                type: 'email', //判断的类型，邮箱还是手机; 传name
+                success: null //成功的回调函数
+            }, options);
+
+            var obj = param.obj instanceof $ ? param.obj : $(param.obj);
+            var $parents = obj.find('#' + param.type).parents(param.parents);
+            var activityId = obj.find('input[name="activityId"]').val();
+            var _val = obj.find('#' + param.type).val();
+            var csrf = $('meta[name="csrf-param"]').prop('content');
+            var csrf_val = $('meta[name="csrf-token"]').prop('content');
+            var isemail = _val ? '&email=' + _val : '';
+
+            $.post('/index/init-activity', csrf + '=' + csrf_val + '&activityId=' + activityId + isemail, function(res) {
+                if (res.status) {
+                    if (_val) {
+                        if (res.register) {
+                            $parents.find('#' + param.type).val('');
+                            $parents.removeClass('none');
+                        } else {
+                            $parents.addClass('none');
+                        }
+                    }
+                    if (param.success) {
+                        param.success(res.region);
+                    }
+                }
+            });
+        }
+    });
+    /**
+     * 错误提示组件
+     * @param {String,jQuery Object}        obj         被提示的对象，可传 id 或 jQuery 对象
+     * @param {String}                      data        后台返回的data数据
+     * @param {Number}                      timeout     多少毫秒后隐藏提示
+     * @param {Boolean}                     status      状态，success or error 默认true
+     */
+    $.extend({
+        ajaxError: function(options) {
+            var _selt = this;
+            var item_arr = []; //存页面要验证的字段
+            var param = $.extend({
+                obj: '#message',
+                data: null, //插入后台的data数据
+                timeout: 3000, //设置多少时间隐藏提示
+                status: true
+            }, options);
+            var obj = param.obj instanceof $ ? param.obj : $(param.obj);
+            var status = param.status ? 'success' : 'error';
+            var msg = ''; //提示信息
+
+            if (param.data.error.constructor !== Object) {
+                console.log('验证已经全部通过，不再执行往下方法');
+                return false;
+            }
+
+            $.each(_selt.find('.val-error'), function(index, title) { //循环页面的字段，拿到字段名存在item_arr数组里
+                var _aname = $(title).attr('name');
+                var _dname = $(title).attr('data-name');
+                var _sname = _dname ? _dname : _aname;
+                item_arr.push(_sname);
+            });
+
+            if (item_arr) {
+                $.each(item_arr, function(key, value) {
+                    $.each(param.data.error, function(item, val) {
+                        if (value === item) {
+                            msg = val;
+                            return msg;
+                        }
+                    });
+                    if (msg) {
+                        showerrow(msg);
+                        return false;
+                    }
+                });
+            }
+
+            function showerrow(text) {
+
+                var count = obj.data('count') || 1;
+
+                clearTimeout(obj.data('count'));
+
+                obj.html('<span class="' + status + '">' + text + '</span>').removeClass('hide none');
+
+                obj.data('count', setTimeout(function() {
+
+                    obj.addClass('none');
+
+                }, param.timeout));
+            }
+        }
+    });
+    /**
      * ajaxForm 组件
      * @param {String}  	url
      * @param {String}  	method
@@ -851,55 +1105,55 @@
     });
 
     /**
-     * validate 组件
-     *
-     * *** options ***
-     *
-     * @param {Boolean}                      ajaxValidate        启动ajax验证
-     * @param {Element selector}             globalMessage       全局提示id，若为false，则逐项提示
-     * @param {Element selector}             errorClass          验证信息 - 错误 class
-     * @param {Element selector}             infoClass           验证信息 - 提示 class  若为false，则无info提示
-     * @param {Element selector}             successClass        验证信息 - 成功 class  若为false，则无info提示
-     * @param {Array}                        collections         验证规则配置
-     * @param {Object}                       strategy            新增验证规则
-     *
-     *
-     * collections 语法：[{验证项},{验证项},{验证项},{验证项}]
-     *
-     * 验证项 语法：
-     *
-        {
-            required: 'password',                                 // 对应 input[data-required]
-            context: '.form-group',                               // data-required的执行上下文
-            infoMsg: '请输入您的密码，字符长度为3-16位',             // 提示信息
-            matches: {                                           // 组合验证
-                isNonEmpty: {                                    // 对应 strategy 中存在的验证方法
-                    errMsg: '密码不能为空'                        //  验证错误的返回信息
-                },
-                between: {
-                    errMsg: '密码长度为6-16位',
-                    range:[6,16]                                //可自定义字段
+         * validate 组件
+         *
+         * *** options ***
+         *
+         * @param {Boolean}                      ajaxValidate        启动ajax验证
+         * @param {Element selector}             globalMessage       全局提示id，若为false，则逐项提示
+         * @param {Element selector}             errorClass          验证信息 - 错误 class
+         * @param {Element selector}             infoClass           验证信息 - 提示 class  若为false，则无info提示
+         * @param {Element selector}             successClass        验证信息 - 成功 class  若为false，则无info提示
+         * @param {Array}                        collections         验证规则配置
+         * @param {Object}                       strategy            新增验证规则
+         *
+         *
+         * collections 语法：[{验证项},{验证项},{验证项},{验证项}]
+         *
+         * 验证项 语法：
+         *
+            {
+                required: 'password',                                 // 对应 input[data-required]
+                context: '.form-group',                               // data-required的执行上下文
+                infoMsg: '请输入您的密码，字符长度为3-16位',             // 提示信息
+                matches: {                                           // 组合验证
+                    isNonEmpty: {                                    // 对应 strategy 中存在的验证方法
+                        errMsg: '密码不能为空'                        //  验证错误的返回信息
+                    },
+                    between: {
+                        errMsg: '密码长度为6-16位',
+                        range:[6,16]                                //可自定义字段
+                    }
                 }
             }
-        }
 
-     *
-     *
-     * *** events ***
-     *
-     * $('any element').on('validate.focus',function(event,matches){});
-     *
-     * $('any element').on('validate.blur',function(event,matches){});
-     *
-     *
-     *
-     * *** methods ***
-     *
-     *  batch           详情请查阅源码部分
-     *  message         详情请查阅源码部分
-     *  verify          详情请查阅源码部分
-     *
-     */
+         *
+         *
+         * *** events ***
+         *
+         * $('any element').on('validate.focus',function(event,matches){});
+         *
+         * $('any element').on('validate.blur',function(event,matches){});
+         *
+         *
+         *
+         * *** methods ***
+         *
+         *  batch           详情请查阅源码部分
+         *  message         详情请查阅源码部分
+         *  verify          详情请查阅源码部分
+         *
+         */
     $.fn.IUI({
         validate: function(options) {
             /**
@@ -927,9 +1181,24 @@
                         return false;
                     }
                 },
+                birthdayRange: function(params) {
+                    //生日范围
+                    var val = this.self[0].value;
+                    var min = params.range[0];
+                    var max = params.range[1];
+                    if (val < min || val > max) {
+                        return false;
+                    }
+                },
+                isBirthday: function(params) {
+                    //是否为生日
+                    if (!/^[1-9]\d{3}([-|\/|\.])?((0\d)|([1-9])|(1[0-2]))\1(([0|1|2]\d)|([1-9])|3[0-1])$/.test(this.self[0].value)) {
+                        return false;
+                    }
+                },
                 isMobile: function(params) {
                     //是否为手机号码
-                    if (!/(^1[3|5|8][0-9]{9}$)/.test(this.self[0].value)) {
+                    if (!/^1[3|4|5|6|7|8][0-9]\d{8}$/.test(this.self[0].value)) {
                         return false;
                     }
                 },
@@ -1013,6 +1282,7 @@
                 this.$selector = selector;
                 this.cache = {};
                 this.init();
+                this.behavior();
             }
 
 
@@ -1024,9 +1294,19 @@
                 var collections = self.options.collections;
                 var statusArr = ['info', 'success', 'error'];
                 for (var i = 0; i < collections.length; i++) {
-                    self.add(collections[i]);
+                    var target = self.$selector.find('[data-required="' + collections[i].required + '"]');
+                    var msg = "iui-validate:cannot find element by data-required=\"" + collections[i].required + "\"";
+                    if (target.length) {
+                        self.add(collections[i]);
+                    } else {
+                        if (window.console) {
+                            console.warn(msg);
+                        } else {
+                            throw msg;
+                        }
+                    }
+
                 }
-                self.behavior();
                 $.each(self.cache, function(name, fields) {
                     if (fields.context.length === 0) {
                         return;
@@ -1047,7 +1327,7 @@
              */
             Validate.prototype.add = function(options) {
                 var $dom = this.$selector.find('[data-required=' + options.required + ']');
-                var $context = $dom.parents(options.context);
+                var $context = $dom.parents(options.context).eq(0);
                 $.extend(true, this.cache, (function() {
                     var item = {};
                     var target = item[options.required] = {};
@@ -1055,6 +1335,7 @@
                     target.self = $dom;
                     target.context = $context;
                     target.infoMsg = options.infoMsg || '';
+                    target.options = options;
                     $.extend(true, target.matches, options.matches);
                     return item;
                 }()));
@@ -1078,6 +1359,11 @@
                 });
 
                 this.$selector.on('blur', handle, function(event) {
+                    var $this = $(this);
+                    var requiredName = $this.data('required');
+                    if (self.cache[requiredName].options.unblur) {
+                        return false;
+                    }
                     self.verify.call(this, self, 'blur');
                 });
 
@@ -1164,6 +1450,9 @@
                 var self = this;
                 var status = [];
                 $.each(this.cache, function(name, target) {
+                    if (target.self[0].disabled) {
+                        return;
+                    }
                     var initStatus = target.self.data('validateStatus');
                     var result = !initStatus ? self.verify.call(target.self, self, 'batch') : initStatus;
 
@@ -1183,10 +1472,10 @@
             function handler() {
                 var str = '';
                 var collections = this.options.collections;
-
                 for (var i = 0; i < collections.length; i++) {
                     var key = collections[i].required;
-                    if (/checkbox|radio|file/.test(this.cache[key].self[0].type)) {
+                    var target = this.cache[key];
+                    if (target && /checkbox|radio|file/.test(target.self[0].type)) {
                         continue;
                     }
                     str += '[data-required=' + collections[i].required + '],';
@@ -1432,119 +1721,92 @@
         }
     });
 
-    $(function() {
-
-
-        var IUI = {};
-        $.fn.IUI = function() {
-            var arg = arguments;
-            var method = arguments[0];
-            if (IUI[method]) {
-                method = IUI[method];
-                arg = Array.prototype.slice.call(arg, 1);
-                return method.apply(this, arg);
-            } else if (typeof(method) == 'object' || !method) {
-                for (var name in method) {
-                    IUI = $.extend(IUI, method);
-                    method = IUI[name];
-                    break;
-                }
-            } else {
-                $.error('Method ' + method + ' does not exist on jQuery.IUI Plugin');
-                return this;
+    /**
+     * placeholder 组件
+     * @param {color}     color           placeholder color
+     * @param {String}    zIndex          placeholder z-index 需高于input
+     *
+     * @example
+     * $('body').IUI('placeholder',{color:'#999',zIndex:2});
+     */
+    $.fn.IUI({
+        placeholder: function(option) {
+            if ('placeholder' in document.createElement('input')) {
+                return;
             }
-        };
 
+            var defaults = {
+                color: "#999", //placeholder color
+                zIndex: 2 //针对position:absolute的input元素，label覆盖在input之上
+            };
+            var param = $.extend({}, defaults, option || {});
+            var $eles = $(this).find('input[type="text"],input[type="password"],input[type="tel"],input[type="email"]');
 
-        /**
-         * placeholder 组件
-         * @param {color}     color           placeholder color
-         * @param {String}    zIndex          placeholder z-index 需高于input
-         *
-         * @example
-         * $('body').IUI('placeholder',{color:'#999',zIndex:2});
-         */
-        $.fn.IUI({
-            placeholder: function(option) {
-                if ('placeholder' in document.createElement('input')) {
-                    return;
-                }
+            return $eles.each(function(i, n) {
+                var $ele = $(n),
+                    ele = n, //ele供原生事件onpropertychange调用
+                    placeholder = $ele.attr('placeholder'),
+                    $elel = $('<label></label>').css({
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        height: 0,
+                        lineHeight: $ele.css("height"),
+                        fontSize: $ele.css("fontSize"),
+                        paddingLeft: $ele.css("textIndent") ? $ele.css("textIndent") : $ele.css('paddingLeft'),
+                        background: "none",
+                        cursor: "text",
+                        color: param.color,
+                        zIndex: param.zIndex
+                    }).text(placeholder).insertBefore($ele);
 
-                var defaults = {
-                    color: "#999", //placeholder color
-                    zIndex: 2 //针对position:absolute的input元素，label覆盖在input之上
-                };
-                var param = $.extend({}, defaults, option || {});
-                var $eles = $(this).find('input[type="text"],input[type="password"],input[type="tel"],input[type="email"]');
-
-                return $eles.each(function(i, n) {
-                    var $ele = $(n),
-                        ele = n, //ele供原生事件onpropertychange调用
-                        placeholder = $ele.attr('placeholder'),
-                        $elel = $('<label></label>').css({
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            height: 0,
-                            lineHeight: $ele.css("height"),
-                            fontSize: $ele.css("fontSize"),
-                            paddingLeft: $ele.css("textIndent") ? $ele.css("textIndent") : $ele.css('paddingLeft'),
-                            background: "none",
-                            cursor: "text",
-                            color: param.color,
-                            zIndex: param.zIndex
-                        }).text(placeholder).insertBefore($ele);
-
-                    $ele.parent().css({
-                        "position": "relative"
-                    });
-
-                    if ($ele.val()) {
-                        $elel.hide();
-                    }
-
-                    //事件绑定
-                    $elel.bind({
-                        "click": function() {
-                            $elel.hide();
-                            $ele.focus();
-                        }
-                    });
-                    $ele.bind({
-                        "focus": function() {
-                            $elel.hide();
-                        },
-                        "blur": function() {
-                            if (!$ele.val()) {
-                                $elel.show();
-                            }
-                        },
-                        "input": function() {
-                            if ($ele.val()) {
-                                $elel.hide();
-                            } else {
-                                $elel.show();
-                            }
-                        }
-                    });
-                    //IE6-8不支持input事件，另行绑定
-                    ele.onpropertychange = function(event) {
-                        event = event || window.event;
-                        if (event.propertyName == "value") {
-                            var $this = $(this);
-                            if ($this.val()) {
-                                $(this).prev('label').hide();
-                            } else {
-                                $(this).prev('label').show();
-                            }
-                        }
-                    };
+                $ele.parent().css({
+                    "position": "relative"
                 });
-            }
-        });
+
+                if ($ele.val()) {
+                    $elel.hide();
+                }
+
+                //事件绑定
+                $elel.bind({
+                    "click": function() {
+                        $elel.hide();
+                        $ele.focus();
+                    }
+                });
+                $ele.bind({
+                    "focus": function() {
+                        $elel.hide();
+                    },
+                    "blur": function() {
+                        if (!$ele.val()) {
+                            $elel.show();
+                        }
+                    },
+                    "input": function() {
+                        if ($ele.val()) {
+                            $elel.hide();
+                        } else {
+                            $elel.show();
+                        }
+                    }
+                });
+                //IE6-8不支持input事件，另行绑定
+                ele.onpropertychange = function(event) {
+                    event = event || window.event;
+                    if (event.propertyName == "value") {
+                        var $this = $(this);
+                        if ($this.val()) {
+                            $(this).prev('label').hide();
+                        } else {
+                            $(this).prev('label').show();
+                        }
+                    }
+                };
+            });
+        }
     });
-
-
 
     /**
      * fadeSlide 组件
@@ -2603,7 +2865,7 @@
         var tokenize = $.fn.tokenize = function(options) {
             var defaults = $.extend({}, settings, options);
 
-            htmlTemplate.inputTemplate = htmlTemplate.inputTemplate.replace('{{maxlength}}', defaults.maxLength).replace('{{width}}', defaults.maxLength * 12);
+            htmlTemplate.inputTemplate = htmlTemplate.inputTemplate.replace('{{maxlength}}', defaults.maxLength).replace('{{width}}', defaults.maxLength * 16);
 
             this.each(function(index, el) {
                 var $this = $(this);
@@ -3036,10 +3298,12 @@
     });
 
     /**
-     * validate 组件
+     * mPicker 组件
      *
      * *** options ***
      *
+     * @param {Str}                                 display    显示的方式，默认是显示在底部    'bottom'/'modal'
+     * @param {Boolean}                             shadow     点击遮罩隐藏组件 - 默认为false;若为false，则禁止点击遮罩隐藏组件
      * @param {Number}                              level      显示的层级，默认：1
      * @param {Number}                              rows       picker显示的行数，默认：4
      * @param {Boolean}                             Linkage    选择联动 - 若为false，则不联动
@@ -3047,6 +3311,7 @@
      * @param {Number}                              height     每一行的高度
      * @param {Boolean}                             idDefault  匹配默认值 - 若为false，则不匹配
      * @param {Str}                                 splitStr   设置分割value的符号，与默认值和显示在input里的值有关
+     * @param {Boolean}                             isshort    是否开启简写，默认是关闭的
      * @param {Element selector}                    header     picker头部html
      *@param {function}                             confirm: function() {}
      *@param {function}                             cancel: function() {}
@@ -3098,14 +3363,18 @@
     $.fn.IUI({
         mPicker: function(options) {
             var defaults = {
+                display: 'bottom',
+                shadow: false,
                 level: 1,
                 rows: 4,
                 Linkage: false,
                 dataJson: '',
-                height: 40,
+                height: 36,
                 idDefault: false,
                 splitStr: ' ',
-                header: '<div class="mPicker-header"><a href="javascript:;" class="mPicker-cancel">取消</a><a href="javascript:;" class="mPicker-confirm">确定</a></div>',
+                isshort: false,
+                header: '<div class="mPicker-header"></div>',
+                footer: '<div class="mPicker-footer"><a href="javascript:;" class="mPicker-confirm">确定</a><a href="javascript:;" class="mPicker-cancel">取消</a></div>',
                 confirm: function() {},
                 cancel: function() {}
             };
@@ -3159,7 +3428,7 @@
                 self.render();
                 self.$container.focus();
                 self.$container.blur();
-                self.$main.removeClass('hide');
+                self.$mPicker.removeClass('hide');
                 self.$mask.removeClass('hide');
 
                 clearTimeout($body.data('mPicker-timer'));
@@ -3201,13 +3470,15 @@
                  */
                 self.$container.data('middleRowIndex', parseInt(self.options.rows / 2.5));
                 /**
-                 * 添加遮罩
+                 * 添加mPicker容器
                  */
-                if ($('.mPicker-mask').length === 0) {
-                    $body.append('<div class="mPicker-mask hide"></div>');
+                if ($('.mPicker').length === 0) {
+                    $body.append('<div class="mPicker hide"><div class="mPicker-mask hide"></div>');
                 }
 
-                self.$mask = $('.mPicker-mask');
+                self.$mPicker = $body.find('.mPicker');
+                //展示方式
+                self.disy = self.options.display === 'bottom' ? 'mPicker-bottom down' : 'mPicker-modal';
                 /**
                  * 添加 mPicker-main元素
                  */
@@ -3217,28 +3488,32 @@
                     jsonData.push(childStr);
                 }
                 listStr = concatHtmlList(jsonData);
-                mainStr = '<div class="mPicker-main down" data-pickerId="' + self.pickerId + '">' + self.options.header + '<div class="mPicker-content">' + listStr + '</div></div>';
-                $body.append(mainStr);
+                mainStr = '<div class="mPicker-main ' + self.disy + '" data-pickerId="' + self.pickerId + '">' + self.options.header + '<div class="mPicker-content">' + listStr + '</div><div class="mPicker-shadow"></div>' + self.options.footer + '</div>';
+                self.$mPicker.append(mainStr);
                 /**
                  * 设置变量
                  */
-                self.$main = $body.find('.mPicker-main');
+                self.$mask = $('.mPicker-mask');
+                self.$main = self.$mPicker.find('.mPicker-main');
                 self.$content = self.$main.find('.mPicker-content');
                 self.$list = self.$main.find('.mPicker-list');
-                self.$list.width(ulWidth[self.options.level - 1]);
-                self.$itemOne = self.$list.eq(0);
+                self.$listul = self.$list.find('ul');
+                if (self.options.level > 1) {
+                    self.$list.width(ulWidth[self.options.level - 1]);
+                }
+                self.$itemOne = self.$listul.eq(0);
                 if (self.options.level === 2) {
-                    self.$itemTwo = self.$list.eq(1);
+                    self.$itemTwo = self.$listul.eq(1);
                 }
                 /**
                  * 添加选中的边框
                  */
-                self.$content.append('<div class="mPicker-active-box"></div>');
-                self.$content.find('.mPicker-active-box').height(self.options.height);
+                self.$list.append('<div class="mPicker-active-box"></div>');
+                self.$list.find('.mPicker-active-box').height(self.options.height);
                 /**
                  * 设置选中的边框位置
                  */
-                var activeBoxMarginTop = self.options.rows % 2 === 0 ? -self.options.height + 'px' : -self.options.height * 0.5 + 'px';
+                var activeBoxMarginTop = self.options.rows % 2 === 0 ? -self.options.height - 2 + 'px' : -self.options.height * 0.5 - 2 + 'px';
 
                 self.$content.find('.mPicker-active-box').css({
                     'margin-top': activeBoxMarginTop
@@ -3247,6 +3522,7 @@
                  * 设置内容高度
                  */
                 self.$content.height(self.options.height * self.options.rows);
+                self.$list.height(self.options.height * self.options.rows);
             };
 
             /**
@@ -3259,7 +3535,7 @@
                     e.preventDefault();
                     var str = '';
                     self.noFirst = true;
-                    $.each(self.$list, function(index, ele) {
+                    $.each(self.$listul, function(index, ele) {
                         var $active = $(ele).find('.active');
                         var splitStr = index === 0 ? '' : self.options.splitStr;
                         if ($active.length > 0) {
@@ -3282,7 +3558,9 @@
                 //点击遮罩取消
                 self.$mask.off('touchstart.mask click.mask').on('touchstart.mask click.mask', function(e) {
                     e.preventDefault();
-                    self.deffered.hide(self.options.cancel);
+                    if (self.options.shadow) {
+                        self.deffered.hide(self.options.cancel);
+                    }
                 });
 
                 //遍历下拉列表
@@ -3293,7 +3571,7 @@
                 self.$list.on('touchstart.list', function(event) {
                     fnTouches(event);
 
-                    var $this = $(this);
+                    var $this = $(this).find('ul');
 
                     var tranY = getTranslateY($this);
 
@@ -3309,7 +3587,7 @@
 
                     var translate;
 
-                    var $this = $(this);
+                    var $this = $(this).find('ul');
 
                     var listHeight = $this.height();
 
@@ -3338,7 +3616,7 @@
 
                 self.$list.on('touchend.list', function(event) {
                     event.preventDefault();
-                    var $this = $(this);
+                    var $this = $(this).find('ul');
                     touchEndFn($this);
                 });
             };
@@ -3354,7 +3632,7 @@
 
                 var resultId = result.target.data('id');
 
-                var itemIndex = self.$list.index(ele);
+                var itemIndex = self.$listul.index(ele);
                 // self.lock=0;
                 //点第一个联动
                 if (self.options.Linkage && itemIndex === 0) {
@@ -3363,7 +3641,7 @@
                 //回调函数
                 // callbackFnName[itemIndex].call(ele, result);
 
-                changeTime(200, ele);
+                changeTime(400, ele);
             }
 
             /**
@@ -3482,7 +3760,8 @@
             function concatHtmlItem(data) {
                 var str = '';
                 $.each(data, function(index, val) {
-                    str += '<li data-value="' + val.value + '" data-id="' + index + '">' + val.name + '</li>';
+                    var name = self.options.isshort ? val.shortName : val.name;
+                    str += '<li data-value="' + val.value + '" data-id="' + index + '">' + name + '</li>';
                 });
                 return str;
             }
@@ -3493,7 +3772,7 @@
                 var html = '';
                 for (var i = 0; i < data.length; i++) {
                     var itemStr = concatHtmlItem(data[i]);
-                    html += '<ul class="mPicker-list">' + itemStr + '</ul>';
+                    html += '<div class="mPicker-list"><ul>' + itemStr + '</ul></div>';
                 }
                 return html;
             }
@@ -3546,12 +3825,23 @@
                 },
                 hide: function(callback) {
                     self.$mask.addClass('hide');
-                    self.$main.addClass('down').transitionEnd(function() {
-                        self.$main.remove();
-                        if (typeof(callback) === 'function') {
-                            callback.call(this);
-                        }
-                    });
+
+                    if (self.options.display === 'bottom') {
+                        self.$main.addClass('down').transitionEnd(function() {
+                            self.$mPicker.addClass('hide');
+                            self.$main.remove();
+                            if (typeof(callback) === 'function') {
+                                callback.call(this);
+                            }
+                        });
+                        return false;
+                    }
+
+                    self.$mPicker.addClass('hide');
+                    self.$main.remove();
+                    if (typeof(callback) === 'function') {
+                        callback.call(this);
+                    }
                 },
                 updateData: function(data) {
                     if (!data.length) {

@@ -18,10 +18,10 @@ var reload = browserSync.reload;
  */
 var globWidgets = [
   './src/js/pubsub.js',
-  './src/js/alert.js',
+  './src/js/alert.js',      //活动这边用到的
   './src/js/cookie.js',
-  './src/js/loading.js',
-  './src/js/tip.js',
+  './src/js/loading.js',    //活动这边用到的
+  './src/js/tip.js',        //活动这边用到的
 ];
 
 /**
@@ -30,12 +30,12 @@ var globWidgets = [
  */
 var pcComponents = [
   './src/js/tooltip.js',
-  './src/js/emailSuffix.js',
-  './src/js/placeholder.js',
+  './src/js/emailSuffix.js',    //活动pc这边用到的
+  './src/js/placeholder.js',    //活动pc这边用到的
   './src/js/fadeSlide.js',
   './src/js/typeCount.js',
   './src/js/lrselect.js',
-  './src/js/iselector.js',
+  './src/js/iselector.js',    //活动pc这边用到的
   './src/js/tokenize.js'
 ];
 
@@ -47,7 +47,7 @@ var mobileComponents = [
   './src/js/hideNavbar.js',
   './src/js/fresh.js',
   './src/js/panel.js',
-  './src/js/mpicker.js'
+  './src/js/mpicker.js'     //活动wap这边用到的
 ];
 
 
@@ -56,11 +56,14 @@ var mobileComponents = [
  * @场景：适应多端
  */
 var commonComponents = [
-  './src/js/layer.js',
+  './src/js/layer.js',        //活动这边用到的
   './src/js/returnTop.js',
   './src/js/tab.js',
-  './src/js/ajaxForm.js',
-  './src/js/validate.js',
+  './src/js/share.js',        //活动这边用到的
+  './src/js/exist.js',        //活动这边用到的
+  './src/js/ajaxError.js',    //活动这边用到的
+  './src/js/ajaxForm.js',     //活动这边用到的
+  './src/js/validate.js',     //活动这边用到的
 ];
 
 /**

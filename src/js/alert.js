@@ -120,7 +120,7 @@ $.extend({
     function show(target) {
         target.removeClass('hide');
         target.find('.IUI-alert-main').addClass('alert-opening');
-        $.alertBackdrop.fadeIn(animateTime,function(){
+        $.alertBackdrop.removeClass('hide').fadeIn(animateTime,function(){
             target.find('.IUI-alert-main').removeClass('alert-opening');
         });
     }

@@ -5,12 +5,6 @@ utils：通用方法
 window.IUI_UTILS = {
   animateEnd: 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend',
   transitionEnd: 'webkitTransitionEnd transitionend oTransitionEnd MSTransitionEnd msTransitionEnd',
-  toggleClass: function(className, target) {
-
-    var el = target instanceof $ ? target : $(target);
-    var toggleClass = el.hasClass(className) ? 'removeClass' : 'addClass';
-    el[toggleClass](className);
-  },
   isPlaceholder: function() {
     var input = document.createElement('input');
     return 'placeholder' in input;
