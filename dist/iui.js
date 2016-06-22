@@ -576,7 +576,6 @@
      *
      * @method [showLayer]  显示层
      * @method [hideLayer]  隐藏层
-     * @method [resize]     修正位置
      * @method [ajaxLoad]   ajax 弹层
      *
      * @event
@@ -589,7 +588,6 @@
      * var layerId = $('#layerId').IUI('layer'); // 注意：layerId必须是唯一，当页面中没有div#layerId，将自动创建，并 append 到 container 中
      * layerId.showLayer();
      * layerId.hideLayer();
-     * layerId.resize();
      * layerId.ajaxLoad();
      *
      * html基本结构
@@ -725,14 +723,13 @@
         Layer.prototype.showLayer = function() {
             var self = this;
             var config = self.config;
-
             self.$selector.removeClass('hide');
             self.$selector.after($backdrop);
-            self.resize();
             self.$content.addClass('layer-opening');
             $backdrop.fadeIn(animateTime, function() {
                 self.$content.removeClass('layer-opening');
             });
+            $body.addClass('layer-open');
             self.$selector.trigger('layer.show', [self]);
             config.showCall.apply(self.$selector, [self]);
             return self;
@@ -742,29 +739,19 @@
         Layer.prototype.hideLayer = function() {
             var self = this;
             var config = self.config;
-
             self.$content.addClass('layer-closing');
             self.$backdrop.fadeOut(animateTime, function() {
                 self.$selector.addClass('hide');
                 self.$content.removeClass('layer-closing');
                 $(this).remove();
             });
+            $body.removeClass('layer-open');
             self.$selector.trigger('layer.hide', [this]);
             config.hideCall.apply(self.$selector, [self]);
 
             return self;
         };
 
-        Layer.prototype.resize = function() {
-            var self = this;
-            var config = self.config;
-            var $content = self.$content;
-            var outerHeight = parseInt($content.css('margin-bottom')) * 2;
-            var contentHeight = $content.outerHeight() + outerHeight;
-
-            $body.addClass('layer-open');
-
-        };
 
         $.fn.IUI({
             layer: function(config) {

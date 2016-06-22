@@ -1,0 +1,190 @@
+.hide {
+  display: none;
+}
+
+.cityContainer {
+  position: absolute;
+  background: #fff;
+  border: 1px solid #ccc;
+  box-sizing: content-box;
+  box-shadow: 2px 2px 5px #ccc;
+  z-index: 99999;
+}
+
+.citySelector,
+.citySearcher {
+  position: relative;
+}
+.citySelector .cityClose,
+.citySearcher .cityClose {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+  line-height: 20px;
+  font-style: normal;
+  color: #aaa;
+  cursor: pointer;
+  text-shadow: 0 1px 1px #aaa;
+}
+.citySelector .cityClose:hover,
+.citySearcher .cityClose:hover {
+  text-shadow: 0 1px 1px #000;
+}
+
+.citySelector {
+  width: 380px;
+  height: auto;
+}
+.citySelector .cityMenu {
+  width: 100%;
+  height: 30px;
+  padding: 0 5px;
+  margin: 0;
+  list-style: none;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.citySelector .cityMenu li {
+  float: left;
+  height: 100%;
+  padding: 0 5px;
+  list-style: none;
+  font-size: 12px;
+  line-height: 30px;
+  color: #333;
+  font-weight: 400;
+  cursor: pointer;
+  border-bottom: 1px solid #ccc;
+  box-sizing: border-box;
+}
+.citySelector .cityMenu li.active {
+  color: #90ddff;
+  border-bottom: 2px solid #90ddff;
+  text-shadow: 0 1px 1px #90ddff;
+}
+.citySelector .cityBox {
+  padding: 5px;
+  height: auto;
+  min-height: 100px;
+  max-height: 280px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+.citySelector .cityBox dl {
+  display: block;
+  width: 100%;
+  margin: 0;
+  margin-bottom: 5px;
+  padding: 0;
+  overflow: hidden;
+  list-style: none;
+  box-sizing: border-box;
+}
+.citySelector .cityBox dl dt {
+  float: left;
+  width: 15%;
+  color: #333;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 25px;
+  margin: 1px 0;
+  text-align: center;
+  box-sizing: border-box;
+}
+.citySelector .cityBox dl dd {
+  float: left;
+  width: 85%;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  font-size: 12px;
+  box-sizing: border-box;
+}
+.citySelector .cityBox dl dd a {
+  display: inline-block;
+  min-width: 45px;
+  max-width: 280px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: none;
+  cursor: pointer;
+  color: #333;
+  font-size: 12px;
+  line-height: 25px;
+  font-weight: 400;
+  padding: 0 3px;
+  margin: 1px 3px;
+  border-radius: 3px;
+}
+.citySelector .cityBox dl dd a:hover {
+  background: #ccebff;
+  text-decoration: none;
+}
+.citySelector .cityBox dl dd a.active {
+  background: #90ddff;
+}
+
+.citySearcher {
+  width: 278px;
+  height: auto;
+}
+.citySearcher ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  min-height: 30px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+.citySearcher li {
+  list-style: none;
+  width: 100%;
+  line-height: 30px;
+  margin-bottom: 1px;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 400;
+  color: #333;
+  background: #fff;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+.citySearcher li span {
+  float: left;
+  width: 50%;
+  text-align: left;
+  padding-left: 5px;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.citySearcher li i {
+  float: right;
+  width: 50%;
+  text-align: right;
+  padding-right: 5px;
+  font-style: normal;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.citySearcher li.cityNotFound {
+  padding-left: 5px;
+  color: #f00;
+}
+.citySearcher li.cityNotFound:hover {
+  background: #fff;
+}
+.citySearcher li:hover {
+  background: #ccebff;
+}
+.citySearcher li.active {
+  background: #90ddff;
+}
