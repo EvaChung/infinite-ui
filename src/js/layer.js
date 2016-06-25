@@ -41,6 +41,7 @@
 
 (function($, window) {
 
+  var scrollBarWidth = IUI_UTILS.scrollBarWidth;
   var $backdrop = $('<div class="layer-backdrop" style="display:none"></div>');
   var screenH = document.documentElement.clientHeight;
   var $body = $('body');
@@ -165,6 +166,7 @@
   Layer.prototype.showLayer = function() {
     var self = this;
     var config = self.config;
+    $body.css({'border-right':scrollBarWidth+'px transparent solid','overflow':'hidden'});
     self.$selector.removeClass('hide');
     self.$selector.after($backdrop);
     self.$content.addClass('layer-opening');
@@ -187,7 +189,7 @@
       self.$content.removeClass('layer-closing');
       $(this).remove();
     });
-    $body.removeClass('layer-open');
+    $body.removeClass('layer-open').removeAttr('style');
     self.$selector.trigger('layer.hide', [this]);
     config.hideCall.apply(self.$selector, [self]);
 

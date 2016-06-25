@@ -17,7 +17,7 @@
  */
 $.extend({
   alert: function(options) {
-
+    var scrollBarWidth = IUI_UTILS.scrollBarWidth();
     var $body = $('body');
     var animateTime = document.all && !window.atob ? 0 : 200;
     var defaults = {
@@ -118,9 +118,10 @@ $.extend({
      * @param  {jQuery object} target 需要显示的对象
      */
     function show(target) {
+        $body.css({'border-right':scrollBarWidth+'px transparent solid','overflow':'hidden'});
         target.removeClass('hide');
         target.find('.IUI-alert-main').addClass('alert-opening');
-        $.alertBackdrop.removeClass('hide').fadeIn(animateTime,function(){
+        $.alertBackdrop.removeClass('hide').fadeIn(animateTime, function() {
             target.find('.IUI-alert-main').removeClass('alert-opening');
         });
     }
@@ -129,11 +130,12 @@ $.extend({
      * @param  {jQuery object} target 需要隐藏的对象
      */
     function hide(target) {
-        $([$body,target]).off('touchstart.iui-alert click.iui-alert');
+        $([$body, target]).off('touchstart.iui-alert click.iui-alert');
         target.addClass('alert-closing');
-        $.alertBackdrop.fadeOut(animateTime,function(){
+        $.alertBackdrop.fadeOut(animateTime, function() {
             $(this).addClass('hide');
             target.remove();
+             $body.removeAttr('style');
         });
     }
     /**

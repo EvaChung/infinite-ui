@@ -48,6 +48,9 @@ http://localhost:3000/examples/index.html
 ```
 
 ##History
+* 2016年06月26日 更新记录：
+  * 修复`alert`,`layer`弹出时`body`因`overflow:hidden`而跳动的问题
+  * 优化`tip`插件，简化了接口，新增demo及文档
 
 * 2016年06月16日 更新记录：
   * `1.2.0`的 `cookie` 不再向下兼容，升级后请对之前cookie的调用做修改

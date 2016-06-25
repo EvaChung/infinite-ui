@@ -76,7 +76,22 @@
 
                 return result;
             };
-        }
+        },
+        scrollBarWidth: (function() {
+            var scrollbarWidth;
+            var $scrollDiv = $('<div/>');
+            $scrollDiv.css({
+                'width': 100,
+                'height': 100,
+                'overflow': 'scroll',
+                'position': 'absolute',
+                'top': -9999
+            });
+            $('html').append($scrollDiv);
+            scrollbarWidth = $scrollDiv[0].offsetWidth - $scrollDiv[0].clientWidth;
+            $scrollDiv.remove();
+            return scrollbarWidth;
+        }())
     };
 
     window.IUI = {};
@@ -139,7 +154,7 @@
      */
     $.extend({
         alert: function(options) {
-
+            var scrollBarWidth = IUI_UTILS.scrollBarWidth();
             var $body = $('body');
             var animateTime = document.all && !window.atob ? 0 : 200;
             var defaults = {
@@ -240,6 +255,10 @@
              * @param  {jQuery object} target 需要显示的对象
              */
             function show(target) {
+                $body.css({
+                    'border-right': scrollBarWidth + 'px transparent solid',
+                    'overflow': 'hidden'
+                });
                 target.removeClass('hide');
                 target.find('.IUI-alert-main').addClass('alert-opening');
                 $.alertBackdrop.removeClass('hide').fadeIn(animateTime, function() {
@@ -256,6 +275,7 @@
                 $.alertBackdrop.fadeOut(animateTime, function() {
                     $(this).addClass('hide');
                     target.remove();
+                    $body.removeAttr('style');
                 });
             }
             /**
@@ -494,11 +514,10 @@
 
     /**
      * tip 组件
-     * @param {String,jQuery Object}		obj  		被提示的对象，可传 id 或 jQuery 对象
+     * @param {String}		                obj  		被提示的对象，可传 id 或 jQuery 对象
      * @param {String}						text 		文本
      * @param {Number}						timeout 	多少毫秒后隐藏提示
      * @param {Boolean}						status 		状态，success or error
-     * @param {Boolean}						position 	自定义位置，当它为 true 时， obj 将成为tip的位置参照物
      * @param {Array}						offset 		自定义位置微调值，offset[0] = x, offset[1] = y
      * @param {Function}					callback    回调函数 - hide 时触发
      *
@@ -506,42 +525,56 @@
     $.extend({
         tip: function(options) {
             var param = $.extend({
+                container: 'body',
                 obj: "#message",
                 text: '',
-                timeout: 3000,
+                timeout: 1000,
                 status: true,
-                position: false,
-                offset: [0, 5],
+                offset: false,
                 callback: null
             }, options);
-
-            var obj = param.obj instanceof $ ? param.obj : $(param.obj);
+            // 判断传入的是id还是class
+            var callerStyle = param.obj.charAt(0) === '#' ? 'id' : 'class';
+            //初始化jQuery对象
+            var obj = $(param.obj).length === 0 ? $('<div ' + callerStyle + '="' + param.obj.slice(1) + '" />').appendTo('body') : $(param.obj);
+            //判断状态
             var status = param.status ? 'success' : 'error';
+            //定时器进程id与dom对象的count绑定，用于一对一清除
             var count = obj.data('count') || 1;
+            //自定义位置id标识
             var id = new Date().getTime();
+            //自定义位置时，caller的宽度
             var objWidth = obj.outerWidth();
+            //自定义位置时，caller的高度
             var objHeight = obj.outerHeight();
+            //自定义位置时，caller的x位置
             var x = obj.offset().left;
+            //自定义位置时，caller的y位置
             var y = obj.offset().top;
             var tip;
 
             clearTimeout(obj.data('count'));
 
-            if (param.position) {
+            //判断是否为局部提示
+            if (param.offset) {
+                //判断局部提示的caller是否第一次调用
                 if (typeof obj.attr('data-tip') === 'undefined') {
 
-                    $('<div class="tips" id="tip_' + id + '" style="left:' + (x + param.offset[0]) + 'px;top:' + (y + objHeight + param.offset[1]) + 'px"></div>').appendTo('body');
+                    $('<div class="tip-part" id="tip_' + id + '" style="left:' + (x + param.offset[0]) + 'px;top:' + (y + objHeight + param.offset[1]) + 'px"></div>').appendTo(param.container);
                     obj.attr('data-tip', id);
 
                 }
+                //获取局部提示元素
                 tip = $('#tip_' + obj.attr('data-tip'));
 
             }
 
-            var target = param.position === 'custom' ? tip : obj;
+            // 根据不同tip类型选择dom来做显示/隐藏的行为
+            var target = param.offset ? tip : obj;
 
             target.html('<span class="' + status + '">' + param.text + '</span>').removeClass('hide');
 
+            // 计时器隐藏提示
             obj.data('count', setTimeout(function() {
 
                 target.addClass('hide');
@@ -598,6 +631,7 @@
 
     (function($, window) {
 
+        var scrollBarWidth = IUI_UTILS.scrollBarWidth;
         var $backdrop = $('<div class="layer-backdrop" style="display:none"></div>');
         var screenH = document.documentElement.clientHeight;
         var $body = $('body');
@@ -723,6 +757,10 @@
         Layer.prototype.showLayer = function() {
             var self = this;
             var config = self.config;
+            $body.css({
+                'border-right': scrollBarWidth + 'px transparent solid',
+                'overflow': 'hidden'
+            });
             self.$selector.removeClass('hide');
             self.$selector.after($backdrop);
             self.$content.addClass('layer-opening');
@@ -745,7 +783,7 @@
                 self.$content.removeClass('layer-closing');
                 $(this).remove();
             });
-            $body.removeClass('layer-open');
+            $body.removeClass('layer-open').removeAttr('style');
             self.$selector.trigger('layer.hide', [this]);
             config.hideCall.apply(self.$selector, [self]);
 
