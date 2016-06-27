@@ -1,7 +1,6 @@
 /**
  * layer 组件
  * @param  {String}            container           组件的执行上下文环境，默认是body
- * @param  {Boolean}           vertical            是否垂直居中，若 false ,则由 css 控制
  * @param  {Boolean}           cache               是否缓存 ajax 页面
  * @param  {Boolean}           shadow              是否开启阴影层关闭
  * @param  {String}            confirmHandle       确认按钮Class
@@ -10,7 +9,9 @@
  * @param  {String}            offsetHeight        layer 高度
  * @param  {String}            animateClass        弹出动画Class
  * @param  {String}            url                 ajax url
- * @param  {String}            dataType            ajax dataType
+ * @param  {String}            dataType            ajax dataType : html,json,xml ...
+ * @param  {String}            method              ajax type : get/post
+ * @param  {String}            data                ajax data
  * @param  {Function}          successCall         ajax success callback
  * @param  {Function}          errorCall           ajax error callback
  * @param  {Function}          showCall            回调函数 - 显示触发
@@ -42,14 +43,16 @@
 (function($, window) {
 
   var scrollBarWidth = IUI_UTILS.scrollBarWidth;
-  var $backdrop = $('<div class="layer-backdrop" style="display:none"></div>');
-  var screenH = document.documentElement.clientHeight;
+
   var $body = $('body');
+
+  // 检测是否IE9-
+  // 注：animateTime的时间与 layer-opening css 的 animation-time 必须一致
   var animateTime = document.all && !window.atob ? 0 : 200;
+
   function Layer(config, selector) {
     var defaults = {
       container: 'body',
-      vertical: true,
       cache: false,
       shadow: true,
       confirmHandle: '.btn-confirm',
@@ -58,6 +61,8 @@
       offsetHeight: 'auto',
       url: $(this).attr('data-url') || false,
       dataType: $(this).attr('data-dataType') || 'html',
+      data:'',
+      method:'GET',
       content: '',
       showCall: function() {},
       hideCall: function() {},
@@ -68,7 +73,8 @@
     };
     this.$selector = selector;
     this.config = $.extend(defaults, config);
-    this.$backdrop = $backdrop;
+    //创建遮罩层
+    this.$backdrop =  $('<div class="layer-backdrop" style="display:none"></div>');
 
     this.init();
     this.event();
@@ -77,8 +83,8 @@
   Layer.prototype.init = function() {
     var self = this;
     var config = self.config;
-    var template = '<div class="layer-box hide" id="{layerName}"><div class="layer-content">' + config.content + '</div></div>';
-    var $selector = this.$selector = self.$selector.length ? self.$selector : $(template.replace('{layerName}', self.$selector.selector.replace('#', ''))).appendTo(config.container);
+    var template = '<div class="layer-box hide" id="{{layerName}}"><div class="layer-content">' + config.content + '</div></div>';
+    var $selector = this.$selector = self.$selector.length ? self.$selector : $(template.replace('{{layerName}}', self.$selector.selector.replace('#', ''))).appendTo(config.container);
     var $container = config.container === 'body' ? $body : $(config.container);
     var closeHandle = config.closeHandle;
     var $content = this.$content = $selector.find('.layer-content');
@@ -96,7 +102,7 @@
     var config = self.config;
     var $selector = self.$selector;
     var requestUrl = config.url || '?';
-    var method = $selector.attr('data-method') || 'GET';
+    var method = ($selector.attr('data-method') || config.method).toUpperCase();
     var dataType = config.dataType;
 
     if (config.cache && $selector.data('success')) {
@@ -161,21 +167,43 @@
       config.cancelCall.apply($selector, [event, this]);
       return false;
     });
+
+    // 绑定 esc 键盘控制
+    $(document).off('keyup.iui-layer').on('keyup.iui-layer', function(event) {
+      if (event.keyCode === 27) {
+        $selector.trigger('click.iui-layer', config.closeHandle);
+      }
+    });
   };
 
   Layer.prototype.showLayer = function() {
     var self = this;
     var config = self.config;
-    $body.css({'border-right':scrollBarWidth+'px transparent solid','overflow':'hidden'});
+    var $backdrop = self.$backdrop;
+    var screenH = document.documentElement.clientHeight;
+    var GtIE10 = document.body.style.msTouchAction === undefined;
+    // 当body高度大于可视高度，修正滚动条跳动
+    // >=ie10的滚动条不需要做此修正,tmd :(
+    if ($('body').height() > screenH & GtIE10) {
+        $body.css({'border-right': scrollBarWidth + 'px transparent solid','overflow':'hidden'});
+    }
+    //显示层
     self.$selector.removeClass('hide');
+    //插入-遮罩-dom
     self.$selector.after($backdrop);
+    //插入-弹层-css3显示动画
     self.$content.addClass('layer-opening');
+    //插入-遮罩-显示动画
     $backdrop.fadeIn(animateTime, function() {
+      //注：animateTime的时间与 layer-opening css 的 animation-time 必须一致
+      //移除-弹层-css3显示动画
       self.$content.removeClass('layer-opening');
     });
-    $body.addClass('layer-open');
+    //触发show事件
     self.$selector.trigger('layer.show', [self]);
+    //触发showCall回调
     config.showCall.apply(self.$selector, [self]);
+    //返回Layer对象
     return self;
   };
 
@@ -183,14 +211,22 @@
   Layer.prototype.hideLayer = function() {
     var self = this;
     var config = self.config;
+    //插入-弹层-隐藏动画
     self.$content.addClass('layer-closing');
+    //插入-遮罩-隐藏动画
     self.$backdrop.fadeOut(animateTime, function() {
+      //隐藏弹层
       self.$selector.addClass('hide');
+      //移除css3隐藏动画
       self.$content.removeClass('layer-closing');
+      //恢复 body 滚动条
+      $body.removeAttr('style');
+      //移除遮罩dom
       $(this).remove();
     });
-    $body.removeClass('layer-open').removeAttr('style');
+    //触发hide事件
     self.$selector.trigger('layer.hide', [this]);
+    //触发hideCall回调
     config.hideCall.apply(self.$selector, [self]);
 
     return self;

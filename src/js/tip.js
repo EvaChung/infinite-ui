@@ -17,7 +17,7 @@ $.extend({
             timeout: 1000,
             status: true,
             offset: false,
-            customClass:'tip-part'
+            customClass:'tip-part',
             callback: null
         }, options);
         // 判断传入的是id还是class

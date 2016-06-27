@@ -154,7 +154,7 @@
      */
     $.extend({
         alert: function(options) {
-            var scrollBarWidth = IUI_UTILS.scrollBarWidth();
+            var scrollBarWidth = IUI_UTILS.scrollBarWidth;
             var $body = $('body');
             var animateTime = document.all && !window.atob ? 0 : 200;
             var defaults = {
@@ -235,30 +235,38 @@
             });
 
 
+
             if (config.keyboard) {
-                if (config.keyboard) {
-                    $(window).on('keyup.iui-alert', function(event) {
-                        // keyCode => esc
-                        if (event.keyCode === 27) {
-                            container.find('.IUI-alert-cancel,.IUI-alert-close').trigger('click.iui-alert');
-                        }
-                        // keyCode => enter
-                        if (event.keyCode === 13) {
-                            container.find('.IUI-alert-confirm').trigger('click.iui-alert');
-                        }
-                    });
-                }
+
+                $(document).off('keyup.iui-alert').on('keyup.iui-alert', function(event) {
+                    // keyCode => esc
+                    if (event.keyCode === 27) {
+                        container.find('.IUI-alert-cancel,.IUI-alert-close').trigger('click.iui-alert');
+                    }
+                    // keyCode => enter
+                    if (event.keyCode === 13) {
+                        container.find('.IUI-alert-confirm').trigger('click.iui-alert');
+                    }
+                });
             }
+
 
             /**
              * [show description]
              * @param  {jQuery object} target 需要显示的对象
              */
             function show(target) {
-                $body.css({
-                    'border-right': scrollBarWidth + 'px transparent solid',
-                    'overflow': 'hidden'
-                });
+                var screenH = document.documentElement.clientHeight;
+                var GtIE10 = document.body.style.msTouchAction === undefined;
+                //当body高度大于可视高度，修正滚动条跳动
+                //tmd,>=ie10的滚动条不需要做此修正
+                if ($('body').height() > screenH & GtIE10) {
+                    $body.css({
+                        'border-right': scrollBarWidth + 'px transparent solid',
+                        'overflow': 'hidden'
+                    });
+                }
+
                 target.removeClass('hide');
                 target.find('.IUI-alert-main').addClass('alert-opening');
                 $.alertBackdrop.removeClass('hide').fadeIn(animateTime, function() {
@@ -514,12 +522,12 @@
 
     /**
      * tip 组件
-     * @param {String}		                obj  		被提示的对象，可传 id 或 jQuery 对象
-     * @param {String}						text 		文本
-     * @param {Number}						timeout 	多少毫秒后隐藏提示
-     * @param {Boolean}						status 		状态，success or error
-     * @param {Array}						offset 		自定义位置微调值，offset[0] = x, offset[1] = y
-     * @param {Function}					callback    回调函数 - hide 时触发
+     * @param {String}                 obj                 被提示的对象，可传 id 或 jQuery 对象
+     * @param {String}                 text                文本信息
+     * @param {Number}                 timeout             多少毫秒后隐藏提示
+     * @param {Boolean}                status              状态，success or error
+     * @param {Array}                  offset              自定义位置微调值，offset[0] = x, offset[1] = y
+     * @param {Function}               callback            回调函数 - hide 时触发
      *
      */
     $.extend({
@@ -531,6 +539,7 @@
                 timeout: 1000,
                 status: true,
                 offset: false,
+                customClass: 'tip-part',
                 callback: null
             }, options);
             // 判断传入的是id还是class
@@ -560,7 +569,7 @@
                 //判断局部提示的caller是否第一次调用
                 if (typeof obj.attr('data-tip') === 'undefined') {
 
-                    $('<div class="tip-part" id="tip_' + id + '" style="left:' + (x + param.offset[0]) + 'px;top:' + (y + objHeight + param.offset[1]) + 'px"></div>').appendTo(param.container);
+                    $('<div class="' + param.customClass + '" id="tip_' + id + '" style="left:' + (x + param.offset[0]) + 'px;top:' + (y + objHeight + param.offset[1]) + 'px"></div>').appendTo(param.container);
                     obj.attr('data-tip', id);
 
                 }
@@ -591,7 +600,6 @@
     /**
      * layer 组件
      * @param  {String}            container           组件的执行上下文环境，默认是body
-     * @param  {Boolean}           vertical            是否垂直居中，若 false ,则由 css 控制
      * @param  {Boolean}           cache               是否缓存 ajax 页面
      * @param  {Boolean}           shadow              是否开启阴影层关闭
      * @param  {String}            confirmHandle       确认按钮Class
@@ -600,7 +608,9 @@
      * @param  {String}            offsetHeight        layer 高度
      * @param  {String}            animateClass        弹出动画Class
      * @param  {String}            url                 ajax url
-     * @param  {String}            dataType            ajax dataType
+     * @param  {String}            dataType            ajax dataType : html,json,xml ...
+     * @param  {String}            method              ajax type : get/post
+     * @param  {String}            data                ajax data
      * @param  {Function}          successCall         ajax success callback
      * @param  {Function}          errorCall           ajax error callback
      * @param  {Function}          showCall            回调函数 - 显示触发
@@ -632,15 +642,16 @@
     (function($, window) {
 
         var scrollBarWidth = IUI_UTILS.scrollBarWidth;
-        var $backdrop = $('<div class="layer-backdrop" style="display:none"></div>');
-        var screenH = document.documentElement.clientHeight;
+
         var $body = $('body');
+
+        // 检测是否IE9-
+        // 注：animateTime的时间与 layer-opening css 的 animation-time 必须一致
         var animateTime = document.all && !window.atob ? 0 : 200;
 
         function Layer(config, selector) {
             var defaults = {
                 container: 'body',
-                vertical: true,
                 cache: false,
                 shadow: true,
                 confirmHandle: '.btn-confirm',
@@ -649,6 +660,8 @@
                 offsetHeight: 'auto',
                 url: $(this).attr('data-url') || false,
                 dataType: $(this).attr('data-dataType') || 'html',
+                data: '',
+                method: 'GET',
                 content: '',
                 showCall: function() {},
                 hideCall: function() {},
@@ -659,7 +672,8 @@
             };
             this.$selector = selector;
             this.config = $.extend(defaults, config);
-            this.$backdrop = $backdrop;
+            //创建遮罩层
+            this.$backdrop = $('<div class="layer-backdrop" style="display:none"></div>');
 
             this.init();
             this.event();
@@ -668,8 +682,8 @@
         Layer.prototype.init = function() {
             var self = this;
             var config = self.config;
-            var template = '<div class="layer-box hide" id="{layerName}"><div class="layer-content">' + config.content + '</div></div>';
-            var $selector = this.$selector = self.$selector.length ? self.$selector : $(template.replace('{layerName}', self.$selector.selector.replace('#', ''))).appendTo(config.container);
+            var template = '<div class="layer-box hide" id="{{layerName}}"><div class="layer-content">' + config.content + '</div></div>';
+            var $selector = this.$selector = self.$selector.length ? self.$selector : $(template.replace('{{layerName}}', self.$selector.selector.replace('#', ''))).appendTo(config.container);
             var $container = config.container === 'body' ? $body : $(config.container);
             var closeHandle = config.closeHandle;
             var $content = this.$content = $selector.find('.layer-content');
@@ -687,7 +701,7 @@
             var config = self.config;
             var $selector = self.$selector;
             var requestUrl = config.url || '?';
-            var method = $selector.attr('data-method') || 'GET';
+            var method = ($selector.attr('data-method') || config.method).toUpperCase();
             var dataType = config.dataType;
 
             if (config.cache && $selector.data('success')) {
@@ -752,24 +766,46 @@
                 config.cancelCall.apply($selector, [event, this]);
                 return false;
             });
+
+            // 绑定 esc 键盘控制
+            $(document).off('keyup.iui-layer').on('keyup.iui-layer', function(event) {
+                if (event.keyCode === 27) {
+                    $selector.trigger('click.iui-layer', config.closeHandle);
+                }
+            });
         };
 
         Layer.prototype.showLayer = function() {
             var self = this;
             var config = self.config;
-            $body.css({
-                'border-right': scrollBarWidth + 'px transparent solid',
-                'overflow': 'hidden'
-            });
+            var $backdrop = self.$backdrop;
+            var screenH = document.documentElement.clientHeight;
+            var GtIE10 = document.body.style.msTouchAction === undefined;
+            // 当body高度大于可视高度，修正滚动条跳动
+            // >=ie10的滚动条不需要做此修正,tmd :(
+            if ($('body').height() > screenH & GtIE10) {
+                $body.css({
+                    'border-right': scrollBarWidth + 'px transparent solid',
+                    'overflow': 'hidden'
+                });
+            }
+            //显示层
             self.$selector.removeClass('hide');
+            //插入-遮罩-dom
             self.$selector.after($backdrop);
+            //插入-弹层-css3显示动画
             self.$content.addClass('layer-opening');
+            //插入-遮罩-显示动画
             $backdrop.fadeIn(animateTime, function() {
+                //注：animateTime的时间与 layer-opening css 的 animation-time 必须一致
+                //移除-弹层-css3显示动画
                 self.$content.removeClass('layer-opening');
             });
-            $body.addClass('layer-open');
+            //触发show事件
             self.$selector.trigger('layer.show', [self]);
+            //触发showCall回调
             config.showCall.apply(self.$selector, [self]);
+            //返回Layer对象
             return self;
         };
 
@@ -777,14 +813,22 @@
         Layer.prototype.hideLayer = function() {
             var self = this;
             var config = self.config;
+            //插入-弹层-隐藏动画
             self.$content.addClass('layer-closing');
+            //插入-遮罩-隐藏动画
             self.$backdrop.fadeOut(animateTime, function() {
+                //隐藏弹层
                 self.$selector.addClass('hide');
+                //移除css3隐藏动画
                 self.$content.removeClass('layer-closing');
+                //恢复 body 滚动条
+                $body.removeAttr('style');
+                //移除遮罩dom
                 $(this).remove();
             });
-            $body.removeClass('layer-open').removeAttr('style');
+            //触发hide事件
             self.$selector.trigger('layer.hide', [this]);
+            //触发hideCall回调
             config.hideCall.apply(self.$selector, [self]);
 
             return self;
@@ -798,59 +842,6 @@
         });
 
     }(jQuery, window));
-
-    /**
-     * returnTop 组件
-     * @param {String}          target              需绑定点击事件的对象
-     * @param {Number}          showTop             滚动 showTop 后出现
-     * @param {Number}          bottom              距离窗口底部 bottom px
-     * @param {Number}          delay               动画时长
-     */
-    $.fn.IUI({
-        returnTop: function(options) {
-            var defaults = {
-                target: '.returnTop-btn',
-                showTop: 100,
-                bottom: 50,
-                delay: 300
-            };
-            var $selector = $(this);
-            var $window = $(window);
-            var config = $.extend({}, defaults, options);
-            var $target = $selector.find(config.target);
-            var scrollPosition = function(obj, target) {
-
-                if (target > config.showTop && obj.hasClass('hide')) {
-                    obj.removeClass('hide');
-                }
-
-                if (target < config.showTop && !obj.hasClass('hide')) {
-                    obj.addClass('hide');
-                }
-
-                return false;
-
-            };
-
-            scrollPosition($target, $window.scrollTop());
-
-            $selector.css({
-                'bottom': config.bottom
-            });
-
-            $window.on('scroll', function(event) {
-                scrollPosition($target, $(window).scrollTop());
-            });
-
-            $selector.on('click', config.target, function(event) {
-                $("body,html").stop().animate({
-                    scrollTop: 0
-                }, config.delay);
-                return false;
-            });
-
-        }
-    });
 
     /**
      * tab 组件
@@ -1830,167 +1821,6 @@
                     }
                 };
             });
-        }
-    });
-
-    /**
-     * fadeSlide 组件
-     * @param {String}      interval        轮播时间，单位毫秒
-     *
-     * @example : http://jeep.vrm.cn/index.html
-     */
-    $.fn.IUI({
-        fadeSlide: function(options) {
-            return this.each(function() {
-                var $this = $(this),
-                    settings = $.extend({
-                        interval: 5000
-                    }, options),
-                    time = null,
-                    current = 0,
-                    $ul = $this.find('ul');
-
-                if ($ul.find('li').length <= 1) {
-                    return false;
-                }
-                $this.append(createSerialNumber($ul.find('li').length, '●'));
-
-                $ul.find('li').eq(0).addClass('current');
-
-                $this.on({
-                    mouseenter: function(event) {
-                        $this.find('.ficon').removeClass('none');
-                    },
-                    mouseleave: function(event) {
-                        $this.find('.ficon').addClass('none');
-                    }
-                });
-
-                $this.find('.next').on('click', function(event) {
-                    event.preventDefault();
-
-                    var li = $this.find('ol li');
-
-                    if (!$this.data('animate')) {
-
-                        $this.data('animate', 1);
-
-                        if (current < li.length - 1) {
-                            current++;
-                        } else {
-                            current = 0;
-                        }
-
-                        li.removeClass('current');
-
-                        li.eq(current).addClass('current');
-
-                        $ul.find('li').fadeOut(500).eq(current).fadeIn(500, function() {
-                            $this.data('animate', 0);
-                        });
-
-                        $ul.find('li').eq(current).addClass('current').siblings('.current').removeClass('current');
-                    }
-                });
-
-
-                $this.find('.prev').on('click', function(event) {
-
-                    event.preventDefault();
-
-                    var li = $this.find('ol li');
-
-                    if (!$this.data('animate')) {
-
-                        $this.data('animate', 1);
-
-                        if (current > 0) {
-
-                            current--;
-
-                        } else {
-
-                            current = li.length - 1;
-                        }
-
-                        li.removeClass('current');
-
-                        li.eq(current).addClass('current');
-
-                        $ul.find('li').fadeOut(500).eq(current).fadeIn(500, function() {
-                            $this.data('animate', 0);
-                        });
-                        $ul.find('li').eq(current).addClass('current').siblings('.current').removeClass('current');
-                    }
-                });
-
-
-                $this.on({
-                    mouseenter: function(event) {
-                        clearTimeout(time);
-                    },
-                    mouseleave: function(event) {
-                        time = setTimeout(autoPlay, settings.interval);
-                    }
-                }, '.prev,.next');
-
-                $this.find('ol').on({
-                    mouseenter: function(event) {
-                        clearTimeout(time);
-                        current = $(this).index();
-                        if ($(this).hasClass('current')) {
-                            return false;
-                        }
-
-                        $(this).addClass('current').siblings('.current').removeClass('current');
-
-                        $ul.find('li').fadeOut(500).eq(current).fadeIn(500);
-
-                        $ul.find('li').eq(current).addClass('current').siblings('.current').removeClass('current');
-                    },
-                    mouseleave: function(event) {
-                        time = setTimeout(autoPlay, settings.interval);
-                    }
-                }, 'li');
-
-                time = setTimeout(autoPlay, settings.interval);
-
-                function autoPlay() {
-                    clearTimeout(time);
-                    var li = $this.find('ol li');
-
-                    if (current < li.length - 1) {
-                        current++;
-                    } else {
-                        current = 0;
-                    }
-
-                    li.removeClass('current');
-                    li.eq(current).addClass('current');
-                    $ul.find('li').fadeOut(500).eq(current).fadeIn(500);
-                    $ul.find('li').eq(current).addClass('current').siblings('.current').removeClass('current');
-
-                    time = setTimeout(autoPlay, settings.interval);
-                }
-
-                function createSerialNumber(len, placeholder) {
-                    var i, _len = len,
-                        str = '',
-                        text = placeholder || '&nbsp;';
-                    str += "<ol>";
-                    for (i = 0; i < _len; i++) {
-                        if (i === 0) {
-                            str += '<li class="current">' + text + '</li>';
-                        } else {
-                            str += '<li>' + text + '</li>';
-                        }
-                    }
-                    str += "</ol>";
-                    return str;
-                }
-
-            });
-
         }
     });
 

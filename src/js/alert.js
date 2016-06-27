@@ -17,7 +17,7 @@
  */
 $.extend({
   alert: function(options) {
-    var scrollBarWidth = IUI_UTILS.scrollBarWidth();
+    var scrollBarWidth = IUI_UTILS.scrollBarWidth;
     var $body = $('body');
     var animateTime = document.all && !window.atob ? 0 : 200;
     var defaults = {
@@ -98,27 +98,35 @@ $.extend({
     });
 
 
+
     if (config.keyboard) {
-      if (config.keyboard) {
-        $(window).on('keyup.iui-alert', function(event) {
-          // keyCode => esc
-          if (event.keyCode === 27) {
-            container.find('.IUI-alert-cancel,.IUI-alert-close').trigger('click.iui-alert');
-          }
-          // keyCode => enter
-          if (event.keyCode === 13) {
-            container.find('.IUI-alert-confirm').trigger('click.iui-alert');
-          }
-        });
-      }
+
+      $(document).off('keyup.iui-alert').on('keyup.iui-alert', function(event) {
+        // keyCode => esc
+        if (event.keyCode === 27) {
+          container.find('.IUI-alert-cancel,.IUI-alert-close').trigger('click.iui-alert');
+        }
+        // keyCode => enter
+        if (event.keyCode === 13) {
+          container.find('.IUI-alert-confirm').trigger('click.iui-alert');
+        }
+      });
     }
+
 
     /**
      * [show description]
      * @param  {jQuery object} target 需要显示的对象
      */
-    function show(target) {
-        $body.css({'border-right':scrollBarWidth+'px transparent solid','overflow':'hidden'});
+    function show(target) {    
+        var screenH = document.documentElement.clientHeight;
+        var GtIE10 = document.body.style.msTouchAction === undefined;
+        //当body高度大于可视高度，修正滚动条跳动
+        //tmd,>=ie10的滚动条不需要做此修正
+        if ($('body').height() > screenH & GtIE10) {
+             $body.css({'border-right':scrollBarWidth+'px transparent solid','overflow':'hidden'});
+        }
+       
         target.removeClass('hide');
         target.find('.IUI-alert-main').addClass('alert-opening');
         $.alertBackdrop.removeClass('hide').fadeIn(animateTime, function() {

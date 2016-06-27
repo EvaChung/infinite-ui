@@ -32,7 +32,6 @@ var pcComponents = [
   './src/js/tooltip.js',
   './src/js/emailSuffix.js',    //活动pc这边用到的
   './src/js/placeholder.js',    //活动pc这边用到的
-  './src/js/fadeSlide.js',
   './src/js/typeCount.js',
   './src/js/lrselect.js',
   './src/js/iselector.js',    //活动pc这边用到的
@@ -57,7 +56,6 @@ var mobileComponents = [
  */
 var commonComponents = [
   './src/js/layer.js',        //活动这边用到的
-  './src/js/returnTop.js',
   './src/js/tab.js',
   './src/js/share.js',        //活动这边用到的
   './src/js/exist.js',        //活动这边用到的

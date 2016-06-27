@@ -30,55 +30,6 @@
                         <td>@mdo</td>
                     </tr>
                     <tr>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@TwBootstrap</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Jacob</td>
-                        <td>Thornton</td>
-                        <td>@fat</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td colspan="2">Larry the Bird</td>
-                        <td>@twitter</td>
-                    </tr>
-                    <tr>
-                        <td rowspan="2">1</td>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
-                    </tr>
-                    <tr>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@TwBootstrap</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Jacob</td>
-                        <td>Thornton</td>
-                        <td>@fat</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td colspan="2">Larry the Bird</td>
-                        <td>@twitter</td>
-                    </tr>
-                    <tr>
-                        <td rowspan="2">1</td>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
-                    </tr>
-                    <tr>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@TwBootstrap</td>
-                    </tr>
-                    <tr>
                         <td>2</td>
                         <td>Jacob</td>
                         <td>Thornton</td>
@@ -393,35 +344,17 @@
                 </tbody>
             </table>
         <a href="javascript:;" class="btn btn-primary">click me</a>
-    <script src="//cdn.bootcss.com/jquery/1.8.1/jquery.min.js"></script>
-    <script type="text/javascript" src="../dist/iui.js"></script>
+        <script src="//cdn.bootcss.com/jquery/1.8.1/jquery.min.js"></script>
+        <script type="text/javascript" src="../dist/iui.js"></script>
+        <script type="text/javascript" src="../dist/iui.js"></script>
         <script type="text/javascript">
-        var staticLayer = $('#demoOne').IUI('layer', {
-            offsetWidth: 500,
-            content: $('#demoOne-template').html()
-        });
-
-        var staticModals = $('#demoTwo').IUI('layer',{
-            offsetWidth: 500,
-            content: $('#demoOne-template').html()
-        });
-        //staticModals.showLayer();
-        // setInterval(function(){
-        // 	$('#demoTwo').find('.layer-content').append('<p>123123</p>');
-        // 	staticModals.resize();
-        // 	staticModals.showLayer().hideLayer();
-        // }, 500);
-
-        var ajaxLayer = $('#demoThree').IUI('layer',{
-        	url:'./ext/layer-ajaxPage.html',
-            offsetWidth:600,
-        	successCall:function(res,ajax,deferred){
-        		deferred.$content.html(res);
-        	}
-        });
-        $('.btn-primary').on('click', function(event) {
-        staticModals.showLayer();
-        });
+            var staticLayer = $('#demoOne').IUI('layer', {
+                offsetWidth: 500,
+                content: $('#demoOne-template').html()
+            });
+            $('.btn-primary').on('click', function(event) {
+                staticLayer.showLayer();
+            });
         </script>
     </div>
 </body>
