@@ -17,7 +17,7 @@ $.fn.IUI({
                 url: $selector.attr('action'),
                 method: $selector.attr('method') || 'POST',
                 type: $selector.attr('data-type') || 'json',
-                data: $selector.attr('data-ajaxType') || 'ajax',
+                ajax2:false,
                 before: function() {},
                 success: function() {},
                 error: function() {},
@@ -49,7 +49,7 @@ $.fn.IUI({
                 };
 
                 // ajax2
-                if (config.data !== 'ajax') {
+                if (config.ajax2) {
                     args.data = new FormData($selector[0]);
                     args.cache = false;
                     args.contentType = false;

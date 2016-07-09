@@ -21,6 +21,7 @@
  * @method [showLayer]  显示层
  * @method [hideLayer]  隐藏层
  * @method [ajaxLoad]   ajax 弹层
+ * @method [cutTo]      切换层
  *
  * @event
  *
@@ -45,10 +46,20 @@
   var scrollBarWidth = IUI_UTILS.scrollBarWidth;
 
   var $body = $('body');
-
+  var backdrop = $('<div class="layer-backdrop" style="display:none"></div>');
   // 检测是否IE9-
   // 注：animateTime的时间与 layer-opening css 的 animation-time 必须一致
   var animateTime = document.all && !window.atob ? 0 : 200;
+
+  function hideCall(obj) {
+    var self = obj;
+    //隐藏弹层
+    self.$selector.addClass('hide');
+    //移除css3隐藏动画
+    self.$content.removeClass('layer-closing');
+    //恢复 body 滚动条
+    $body.removeAttr('style');
+  }
 
   function Layer(config, selector) {
     var defaults = {
@@ -61,8 +72,8 @@
       offsetHeight: 'auto',
       url: $(this).attr('data-url') || false,
       dataType: $(this).attr('data-dataType') || 'html',
-      data:'',
-      method:'GET',
+      data: '',
+      method: 'GET',
       content: '',
       showCall: function() {},
       hideCall: function() {},
@@ -74,7 +85,7 @@
     this.$selector = selector;
     this.config = $.extend(defaults, config);
     //创建遮罩层
-    this.$backdrop =  $('<div class="layer-backdrop" style="display:none"></div>');
+    this.$backdrop = backdrop;
 
     this.init();
     this.event();
@@ -95,6 +106,9 @@
       width: layerWidth,
       height: layerHeight
     });
+
+    $selector.data('layer', self);
+
   };
 
   Layer.prototype.ajaxLoad = function() {
@@ -145,21 +159,19 @@
 
     // 阴影层事件
     $selector.on('click.iui-layer', function(event) {
-      if (!config.shadow) {
-        return false;
+      if ($(event.target).is($selector)) {
+
+        if (!config.shadow) {
+          return false;
+        }
+        if ($body.find('.layer-loading').length) {
+          return false;
+        }
+        self.hideLayer();
+        config.cancelCall.apply($selector, [event, this]);
       }
-      if ($body.find('.layer-loading').length) {
-        return false;
-      }
-      self.hideLayer();
-      config.cancelCall.apply($selector, [event, this]);
-      return false;
     });
 
-    //阻止事件冒泡
-    $selector.on('click.iui-layer', '.layer-content', function(event) {
-      event.stopPropagation();
-    });
 
     //绑定关闭事件
     $selector.on('click.iui-layer', config.closeHandle, function(event) {
@@ -176,29 +188,40 @@
     });
   };
 
-  Layer.prototype.showLayer = function() {
+  Layer.prototype.showLayer = function(cutto) {
     var self = this;
     var config = self.config;
     var $backdrop = self.$backdrop;
     var screenH = document.documentElement.clientHeight;
     var GtIE10 = document.body.style.msTouchAction === undefined;
+    var isCutto = cutto;
     // 当body高度大于可视高度，修正滚动条跳动
     // >=ie10的滚动条不需要做此修正,tmd :(
     if ($('body').height() > screenH & GtIE10) {
-        $body.css({'border-right': scrollBarWidth + 'px transparent solid','overflow':'hidden'});
+      $body.css({ 'border-right': scrollBarWidth + 'px transparent solid', 'overflow': 'hidden' });
     }
     //显示层
     self.$selector.removeClass('hide');
-    //插入-遮罩-dom
-    self.$selector.after($backdrop);
+    if (isCutto) {
+      setTimeout(animateTime, function() {
+        //注：animateTime的时间与 layer-opening css 的 animation-time 必须一致
+        //移除-弹层-css3显示动画
+        self.$content.removeClass('layer-opening');
+      });
+    } else {
+      //插入-遮罩-dom
+      self.$selector.after($backdrop);
+      //插入-遮罩-显示动画
+      $backdrop.fadeIn(animateTime, function() {
+        //注：animateTime的时间与 layer-opening css 的 animation-time 必须一致
+        //移除-弹层-css3显示动画
+        self.$content.removeClass('layer-opening');
+      });
+    }
+
     //插入-弹层-css3显示动画
     self.$content.addClass('layer-opening');
-    //插入-遮罩-显示动画
-    $backdrop.fadeIn(animateTime, function() {
-      //注：animateTime的时间与 layer-opening css 的 animation-time 必须一致
-      //移除-弹层-css3显示动画
-      self.$content.removeClass('layer-opening');
-    });
+
     //触发show事件
     self.$selector.trigger('layer.show', [self]);
     //触发showCall回调
@@ -208,28 +231,40 @@
   };
 
 
-  Layer.prototype.hideLayer = function() {
+  Layer.prototype.hideLayer = function(cutto) {
     var self = this;
     var config = self.config;
+    var isCutto = cutto;
+
     //插入-弹层-隐藏动画
     self.$content.addClass('layer-closing');
-    //插入-遮罩-隐藏动画
-    self.$backdrop.fadeOut(animateTime, function() {
-      //隐藏弹层
-      self.$selector.addClass('hide');
-      //移除css3隐藏动画
-      self.$content.removeClass('layer-closing');
-      //恢复 body 滚动条
-      $body.removeAttr('style');
-      //移除遮罩dom
-      $(this).remove();
-    });
+
+    if (isCutto) {
+      hideCall(self);
+    } else {
+      //插入-遮罩-隐藏动画
+      self.$backdrop.fadeOut(animateTime, function() {
+        hideCall(self);
+        //移除遮罩dom
+        $(this).remove();
+      });
+    }
+
     //触发hide事件
     self.$selector.trigger('layer.hide', [this]);
     //触发hideCall回调
     config.hideCall.apply(self.$selector, [self]);
 
     return self;
+  };
+
+  Layer.prototype.cutTo = function(nextId, currentId) {
+    var nextLayer = $(nextId).data('layer');
+    var currentLayer = (currentId ? $(currentId) : this.$selector).data('layer');
+
+    currentLayer.hideLayer(true);
+    nextLayer.showLayer(true);
+
   };
 
 

@@ -1,7 +1,44 @@
+/**
+ * iselector 组件
+ * [defaults description]         定义参数
+ * dataJson               传入json数据
+ * container              父节点
+ * template               自定义html模板
+ * placeholder              列默认显示的文字
+ * field                input的字段名 [省，市，区]
+ * iscity               是否是用于城市下拉(默认是城市下拉)
+ * iselect                是否用于select,默认是false，用于自定义
+ * iscode               是否输出区号值,默认false, 开启就传字段名，例如：'quhao'
+ * isvalue                value存的是id 还是 name 默认true.是存id
+ * shorthand              是否开启简写功能,默认不开启 false
+ * level                多少列  默认是一列(级) 1
+ * values                 返回选中的值
+ * joinHtml               拼接html的函数，用于json数据自定义的，里面有4个传值
+                  [data-json数据, pid-json数据的父id, level-列数（级数）, placeholder-默认显示的文字]
+*/
+
+/**
+ * 关于 template
+ * data-caller={{caller}} ： 必填，用于呼出下来列表，select时是change事件，自定义标签是click
+ * data-item              ： 自定义标签时必填，因为【项】需要绑定click事件
+ * role="name"            ： 自定义标签时必填，用于声明【name】 显示选中的选项名称
+ * role="content"         ： 自定义标签时必填，用于声明【容器】 选项列表
+ * role="input"       :  自定义标签时必填，用于声明【input】隐藏域
+ * name="{{field}}"     :  input字段名称，必填
+ * 自定义的html
+ * <div class="selector-level selector-level-{{level}}">
+ *    <a href="javascript:;" role="name" class="selector-name selector-name-dcolor" data-caller="{{caller}}">{{name}}</a>
+ *    <input type="hidden" name="{{field}}" role="input" value="">
+ *    <ul role="content" class="selector-list hide">{{content}}</ul>
+ * </div>
+ * select标签
+ * <select name="{{field}}" role="content" data-caller="{{caller}}" class="selector-control selector-control-{{level}}">{{content}}</select>
+ */
+
 ;(function($, window, document, undefined) {
 
   /**
-   * [iSelector description]              构造器
+   * [Iselector description]              构造器
    * @param {[type]} selector [description]   selector
    * @param {[type]} options  [description]   参数
    */
@@ -13,38 +50,15 @@
     this.event();
   }
 
-  /**
-   * [defaults description]         定义参数
-   * dataJson               传入json数据
-   * container              父节点
-   * template               自定义html模板
-   * placeholder              列默认显示的文字
-   * field                input的字段名 [省，市，区]
-   * iselect                是否用于select,默认是false，用于自定义
-   * isvalue                value存的是id 还是 name 默认true.是存id
-   * shorthand              是否开启简写功能,默认不开启 false
-   * level                多少列  默认是一列(级) 1
-   * values                 返回选中的值
-   * joinHtml               拼接html的函数，用于json数据自定义的，里面有4个传值
-                      [data-json数据, pid-json数据的父id, level-列数（级数）, placeholder-默认显示的文字]
-   */
-
-  /**
-   * 关于 template
-   * data-caller={{caller}} ： 必填，用于呼出下来列表，select时是change事件，自定义标签是click
-   * data-item              ： 自定义标签时必填，因为【项】需要绑定click事件
-   * role="name"            ： 自定义标签时必填，用于声明【name】 显示选中的选项名称
-   * role="content"         ： 自定义标签时必填，用于声明【容器】 选项列表
-   * role="input"       :  自定义标签时必填，用于声明【input】隐藏域
-   * name="{{field}}"     :  input字段名称，必填
-   */
   iSelector.defaults = {
     dataJson: null,
     container: 'body',
-    template: '<div class="selector-level selector-level-{{level}}"><a href="javascript:;" role="name" class="selector-name selector-name-dcolor" data-caller="{{caller}}">{{name}}</a><input type="hidden" name="{{field}}" role="input" value=""><ul role="content" class="selector-list hide">{{content}}</ul></div>',
+    template: '<div class="selector-level selector-level-{{level}} {{csname}}"><a href="javascript:;" role="name" class="selector-name selector-name-dcolor" data-caller="{{caller}}">{{name}}</a><input type="hidden" name="{{field}}" role="input" value=""><ul role="content" class="selector-list hide">{{content}}</ul></div>',
     placeholder: ['请选择省份', '请选择市', '请选择区'],
     field: ['userProvinceId', 'userCityId', 'userAreaId'],
+    iscity: true,
     iselect: false,
+    iscode: false,
     isvalue: true,
     shorthand: false,
     values: [],
@@ -53,28 +67,40 @@
       var _data = data;
       var _len = _data.length;
       var _pid = pid || '100000';
-      var _html = this.options.iselect ? '<option>' + placeholder + '</option>' : '';
+      var _html = this.options.iselect ? '<option>'+ placeholder +'</option>' : '';
+      var _jhtml = this.options.iselect ? '<option>'+ placeholder +'</option>' : '';
 
-      if (level < 0) {
+      if( level < 0) {
         return _html;
       }
 
       for (var i = 0; i < _len; i++) {
         var _name = this.options.shorthand ? _data[i].shortName : _data[i].name;
         var _val = this.options.isvalue ? _data[i].id : _data[i].name;
+        var _code = this.options.iscode && _data[i].cityCode !== "" ? 'data-code='+_data[i].cityCode : '';
 
-        if (_data[i].parentId === _pid) {
+        if (this.options.iscity && _data[i].parentId === _pid) {
           if (this.options.iselect) {
-            _html += '<option data-item="' + level + '" value="' + _val + '">' + _name + '</option>';
-          } else {
-            _html += '<li data-item="' + level + '" data-id="' + _data[i].id + '" data-value="' + _val + '">' + _name + '</li>';
+            _html += '<option data-item="'+ level +'" value="'+ _val +'">'+ _name +'</option>';
+          }else {
+            _html += '<li data-item="'+ level +'" data-id="'+ _data[i].id +'" '+ _code +'>'+ _name +'</li>';
+          }
+        } else {
+          if (this.options.iselect) {
+            _jhtml += '<option data-item="'+ level +'" value="'+ _val +'">'+ _name +'</option>';
+          }else {
+            _jhtml += '<li data-item="'+ level +'" data-id="'+ _data[i].id +'" '+ _code +'>'+ _name +'</li>';
           }
         }
       }
 
-      return _html;
+      if (this.options.iscity) {
+        return _html;
+      }
+
+      return _jhtml;
     },
-    startClick: null //自定义标签一开始点击的回调
+    startClick: null        //自定义标签一开始点击的回调
   };
 
   iSelector.prototype.init = function() {
@@ -105,9 +131,9 @@
       }
 
       //自定义标签的时候会要求有这个{{field}},要把这个替换成要传的字段名称
-      if (html.indexOf('{{field}}') !== -1) {
+      if (html.indexOf('{{field}}') !== -1 || html.indexOf('{{csname}}') !== -1) {
         field = config.field[i] || '';
-        html = html.replace('{{field}}', field);
+        html = html.replace('{{field}}', field).replace('{{csname}}', field);
       }
 
       //把html添加到对应的级别去

@@ -467,13 +467,15 @@
 
     /**
      * loading 组件
-     * @param {Boolean} 		display  		显示或隐藏 true/false
-     * @param {Boolean} 		type 		选择 css3 或 git
-     * @param {jQuery Object} 	context     loading所在的上下文，
+     * @param {Boolean}     display  	    显示或隐藏 true/false
+     * @param {String} 	    type 		    选择 css 或 img
+     * @param {String}      animateHtml     穿入的css动画,type为css有效
+     * @param {String}      src             图片地址，type不为css有效
+     * @param {Boolean} 	shadow          是否显示阴影
      *
      * @example
      *
-     * $.loading(true)
+     * $.loading(true,'css')或$(selector).loading(true,'css')或
      *
      */
 
@@ -620,6 +622,7 @@
      * @method [showLayer]  显示层
      * @method [hideLayer]  隐藏层
      * @method [ajaxLoad]   ajax 弹层
+     * @method [cutTo]      切换层
      *
      * @event
      *
@@ -644,10 +647,20 @@
         var scrollBarWidth = IUI_UTILS.scrollBarWidth;
 
         var $body = $('body');
-
+        var backdrop = $('<div class="layer-backdrop" style="display:none"></div>');
         // 检测是否IE9-
         // 注：animateTime的时间与 layer-opening css 的 animation-time 必须一致
         var animateTime = document.all && !window.atob ? 0 : 200;
+
+        function hideCall(obj) {
+            var self = obj;
+            //隐藏弹层
+            self.$selector.addClass('hide');
+            //移除css3隐藏动画
+            self.$content.removeClass('layer-closing');
+            //恢复 body 滚动条
+            $body.removeAttr('style');
+        }
 
         function Layer(config, selector) {
             var defaults = {
@@ -673,7 +686,7 @@
             this.$selector = selector;
             this.config = $.extend(defaults, config);
             //创建遮罩层
-            this.$backdrop = $('<div class="layer-backdrop" style="display:none"></div>');
+            this.$backdrop = backdrop;
 
             this.init();
             this.event();
@@ -694,6 +707,9 @@
                 width: layerWidth,
                 height: layerHeight
             });
+
+            $selector.data('layer', self);
+
         };
 
         Layer.prototype.ajaxLoad = function() {
@@ -744,21 +760,19 @@
 
             // 阴影层事件
             $selector.on('click.iui-layer', function(event) {
-                if (!config.shadow) {
-                    return false;
+                if ($(event.target).is($selector)) {
+
+                    if (!config.shadow) {
+                        return false;
+                    }
+                    if ($body.find('.layer-loading').length) {
+                        return false;
+                    }
+                    self.hideLayer();
+                    config.cancelCall.apply($selector, [event, this]);
                 }
-                if ($body.find('.layer-loading').length) {
-                    return false;
-                }
-                self.hideLayer();
-                config.cancelCall.apply($selector, [event, this]);
-                return false;
             });
 
-            //阻止事件冒泡
-            $selector.on('click.iui-layer', '.layer-content', function(event) {
-                event.stopPropagation();
-            });
 
             //绑定关闭事件
             $selector.on('click.iui-layer', config.closeHandle, function(event) {
@@ -775,12 +789,13 @@
             });
         };
 
-        Layer.prototype.showLayer = function() {
+        Layer.prototype.showLayer = function(cutto) {
             var self = this;
             var config = self.config;
             var $backdrop = self.$backdrop;
             var screenH = document.documentElement.clientHeight;
             var GtIE10 = document.body.style.msTouchAction === undefined;
+            var isCutto = cutto;
             // 当body高度大于可视高度，修正滚动条跳动
             // >=ie10的滚动条不需要做此修正,tmd :(
             if ($('body').height() > screenH & GtIE10) {
@@ -791,16 +806,26 @@
             }
             //显示层
             self.$selector.removeClass('hide');
-            //插入-遮罩-dom
-            self.$selector.after($backdrop);
+            if (isCutto) {
+                setTimeout(animateTime, function() {
+                    //注：animateTime的时间与 layer-opening css 的 animation-time 必须一致
+                    //移除-弹层-css3显示动画
+                    self.$content.removeClass('layer-opening');
+                });
+            } else {
+                //插入-遮罩-dom
+                self.$selector.after($backdrop);
+                //插入-遮罩-显示动画
+                $backdrop.fadeIn(animateTime, function() {
+                    //注：animateTime的时间与 layer-opening css 的 animation-time 必须一致
+                    //移除-弹层-css3显示动画
+                    self.$content.removeClass('layer-opening');
+                });
+            }
+
             //插入-弹层-css3显示动画
             self.$content.addClass('layer-opening');
-            //插入-遮罩-显示动画
-            $backdrop.fadeIn(animateTime, function() {
-                //注：animateTime的时间与 layer-opening css 的 animation-time 必须一致
-                //移除-弹层-css3显示动画
-                self.$content.removeClass('layer-opening');
-            });
+
             //触发show事件
             self.$selector.trigger('layer.show', [self]);
             //触发showCall回调
@@ -810,28 +835,40 @@
         };
 
 
-        Layer.prototype.hideLayer = function() {
+        Layer.prototype.hideLayer = function(cutto) {
             var self = this;
             var config = self.config;
+            var isCutto = cutto;
+
             //插入-弹层-隐藏动画
             self.$content.addClass('layer-closing');
-            //插入-遮罩-隐藏动画
-            self.$backdrop.fadeOut(animateTime, function() {
-                //隐藏弹层
-                self.$selector.addClass('hide');
-                //移除css3隐藏动画
-                self.$content.removeClass('layer-closing');
-                //恢复 body 滚动条
-                $body.removeAttr('style');
-                //移除遮罩dom
-                $(this).remove();
-            });
+
+            if (isCutto) {
+                hideCall(self);
+            } else {
+                //插入-遮罩-隐藏动画
+                self.$backdrop.fadeOut(animateTime, function() {
+                    hideCall(self);
+                    //移除遮罩dom
+                    $(this).remove();
+                });
+            }
+
             //触发hide事件
             self.$selector.trigger('layer.hide', [this]);
             //触发hideCall回调
             config.hideCall.apply(self.$selector, [self]);
 
             return self;
+        };
+
+        Layer.prototype.cutTo = function(nextId, currentId) {
+            var nextLayer = $(nextId).data('layer');
+            var currentLayer = (currentId ? $(currentId) : this.$selector).data('layer');
+
+            currentLayer.hideLayer(true);
+            nextLayer.showLayer(true);
+
         };
 
 
@@ -844,62 +881,101 @@
     }(jQuery, window));
 
     /**
-     * tab 组件
-     * @param {String}			item 			项 class
-     * @param {String}  		content 		内容 class
-     * @param {String}			current 		当前状态 className
-     * @param {String}			handle 			事件类型
-     * @param {Function}		afterShow       回调函数 - handle后触发
-     * @param {Function} 		beforeShow 		回调函数 - handle前触发
+     * tabs 组件
+     *
+     * @Options
+     *
+     * @param {[String]}         [event]                        事件名称
+     * @param {[String]}         [animateBefore]                前动画，因transition动画需要两个class支持，因此区分before和after
+     * @param {[String]}         [animateAfter]                 后动画，具体参考bootstrap tab的动画效果 fade & in
+     * @param {[Boolean]}        [isCache]                      是否缓存，ajax请求内容时使用，默认缓存
+     * @param {[Object]}         [ajaxSetup]                    ajax 请求配置
+     *
+     *
+     * @Events
+     *
+     * $('selctor').on('tabsAjaxBefore',function(){});
+     * $('selctor').on('tabsAjaxSuccess',function(){});
+     *
+     *
+     * @Usage
+     *
+     * $('selector').IUI('tabs',{
+     *    event:'mouseenter',
+     *    animateBefore:'fade',
+     *    animateAfter:'in'
+     * });
+     *
      */
-    $.fn.IUI({
-        tab: function(options) {
-            return this.each(function() {
-                var defaults = {
-                    item: '.tab-item',
-                    content: '.tab-content',
-                    current: 'active',
-                    handle: 'click',
-                    afterShow: function() {},
-                    beforeShow: function() {}
-                };
 
-                var $selector = $(this);
-                var config = $.extend({}, defaults, options);
-                var $items = $selector.find(config.item);
-                var $contents = $selector.find(config.content);
-                var time = null;
-                var index = 0;
-                if (!$items.length) {
-                    return;
-                }
-
-
-                init($items.eq(0));
-
-                $selector.on(config.handle, config.item, function(event) {
-                    event.preventDefault();
-                    var _this = $(this);
-                    config.beforeShow.apply(_this, [event, config]);
-                    init(_this);
-                    config.afterShow.apply(_this, [event, config]);
-                });
-
-
-                function init(current, isLoop) {
-                    var _items = $selector.find(config.item);
-                    _contents = $selector.find(config.content);
-                    index = _items.index(current);
-                    _items.removeClass(config.current);
-                    _contents.removeClass(config.current);
-                    _items.eq(index).addClass(config.current);
-                    _contents.eq(index).addClass(config.current);
-
-                }
-
-            });
+    ;
+    (function($) {
+        /**
+         * [show description]
+         * @param  {[jQuery Object]}            target              目标元素
+         * @param  {[Object]}                   config              配置
+         */
+        function show(target, config) {
+            var $target = target;
+            $target.addClass('active ' + config.animateBefore);
+            setTimeout(function() {
+                $target.addClass(config.animateAfter);
+            }, 100);
         }
-    });
+        $.fn.IUI({
+            tabs: function(options) {
+                return this.each(function() {
+                    var defaults = {
+                        event: 'click',
+                        animateBefore: 'fade',
+                        animateAfter: 'in',
+                        isCache: true,
+                        ajaxSetup: null
+                    };
+
+                    var $selector = $(this);
+                    //避免与tabs嵌套tabs时冲突
+                    var $items = $selector.find('[role="tabs-item"]');
+                    var config = $.extend({}, defaults, options);
+
+                    $selector.on(config.event + '.iui-tabs', '[role="tabs-item"]', function(event) {
+                        event.preventDefault();
+                        var $this = $(this);
+                        var $parent = $this.parent();
+                        var $target = $($this.attr('href'));
+                        $target.trigger('tabsAjaxBefore', [config]);
+                        // switch tabs-item class
+                        $parent.addClass('active').siblings('.active').removeClass('active');
+                        // switch tabs-content class
+                        $target.siblings('[role="tabs-content"]').removeClass('active ' + config.animateBefore + ' ' + config.animateAfter);
+
+                        show($target, config);
+
+                        if ($this.data('loaded') && config.isCache) {
+                            return false;
+                        }
+
+                        if ($this.data('ajax')) {
+                            $.ajax($.extend({
+                                url: $this.data('ajax'),
+                                type: 'GET',
+                                dataType: 'html'
+                            }, config.ajaxSetup)).then(function(res) {
+                                $this.data('loaded', true);
+                                $target.trigger('tabsAjaxSuccess', [res]);
+                            }, function(err) {
+                                console.log(err);
+                            });
+                        }
+
+                        show($target, config);
+
+                    });
+
+                });
+            }
+        });
+    }(jQuery));
 
     /**
      * share 分享组件
@@ -939,6 +1015,7 @@
             $(param.copybtn).val(param.url + '&share=copy');
         }
     });
+
     /**
      * 判断是否显示/隐藏邮箱、手机
      * @param  [description]             obj             传body进来;  $('body')
@@ -979,6 +1056,7 @@
             });
         }
     });
+
     /**
      * 错误提示组件
      * @param {String,jQuery Object}        obj         被提示的对象，可传 id 或 jQuery 对象
@@ -1043,6 +1121,7 @@
             }
         }
     });
+
     /**
      * ajaxForm 组件
      * @param {String}  	url
@@ -1062,7 +1141,7 @@
                     url: $selector.attr('action'),
                     method: $selector.attr('method') || 'POST',
                     type: $selector.attr('data-type') || 'json',
-                    data: $selector.attr('data-ajaxType') || 'ajax',
+                    ajax2: false,
                     before: function() {},
                     success: function() {},
                     error: function() {},
@@ -1094,7 +1173,7 @@
                     };
 
                     // ajax2
-                    if (config.data !== 'ajax') {
+                    if (config.ajax2) {
                         args.data = new FormData($selector[0]);
                         args.cache = false;
                         args.contentType = false;
@@ -1125,7 +1204,6 @@
          *
          * *** options ***
          *
-         * @param {Boolean}                      ajaxValidate        启动ajax验证
          * @param {Element selector}             globalMessage       全局提示id，若为false，则逐项提示
          * @param {Element selector}             errorClass          验证信息 - 错误 class
          * @param {Element selector}             infoClass           验证信息 - 提示 class  若为false，则无info提示
@@ -1281,7 +1359,6 @@
                 }
             };
             var defaults = {
-                ajaxValidate: false,
                 globalMessage: false,
                 errorClass: '.validate-error',
                 infoClass: '.validate-info',
@@ -1298,7 +1375,6 @@
                 this.$selector = selector;
                 this.cache = {};
                 this.init();
-                this.behavior();
             }
 
 
@@ -1307,22 +1383,8 @@
              */
             Validate.prototype.init = function() {
                 var self = this;
-                var collections = self.options.collections;
                 var statusArr = ['info', 'success', 'error'];
-                for (var i = 0; i < collections.length; i++) {
-                    var target = self.$selector.find('[data-required="' + collections[i].required + '"]');
-                    var msg = "iui-validate:cannot find element by data-required=\"" + collections[i].required + "\"";
-                    if (target.length) {
-                        self.add(collections[i]);
-                    } else {
-                        if (window.console) {
-                            console.warn(msg);
-                        } else {
-                            throw msg;
-                        }
-                    }
-
-                }
+                self.add();
                 $.each(self.cache, function(name, fields) {
                     if (fields.context.length === 0) {
                         return;
@@ -1336,14 +1398,21 @@
                 });
             };
 
+
             /**
-             * add方法      参数修正，将传入进来的数据转化另一种格式，并插入到cache中
+             * mapping方法      参数修正，将传入进来的数据转化另一种格式，并插入到cache中
              * @param {Object} options      每一项需要验证的配置参数
              *
              */
-            Validate.prototype.add = function(options) {
+            Validate.prototype.mapping = function(options) {
                 var $dom = this.$selector.find('[data-required=' + options.required + ']');
                 var $context = $dom.parents(options.context).eq(0);
+
+                //防止重复
+                if (this.cache[options.required]) {
+                    return false;
+                }
+
                 $.extend(true, this.cache, (function() {
                     var item = {};
                     var target = item[options.required] = {};
@@ -1359,32 +1428,105 @@
 
 
             /**
-             * behavior     行为方法，如：focus、blur、change
+             * remove方法                  传入 data-required 的值，删除对应的验证
+             * @param {String}  target     data-required值
+             *
              */
-            Validate.prototype.behavior = function() {
+            Validate.prototype.remove = function(target) {
                 var self = this;
-                var handle = handler.call(this);
-                this.$selector.on('focus', handle, function(event) {
-                    var $this = $(this);
-                    var _name = $this.data('required');
-                    var collections = self.cache[_name];
-                    if (self.options.infoClass) {
-                        self.message(0, collections);
-                    }
-                    $this.trigger('validate.focus', collections);
-                });
+                var options = self.options;
+                var cache = self.cache;
+                var queue, i = 0,
+                    len, name, src, required, type, $target;
 
-                this.$selector.on('blur', handle, function(event) {
-                    var $this = $(this);
-                    var requiredName = $this.data('required');
-                    if (self.cache[requiredName].options.unblur) {
-                        return false;
-                    }
-                    self.verify.call(this, self, 'blur');
-                });
+                if (typeof target !== 'string') {
+                    return false;
+                }
 
-                this.$selector.on('change', 'input[type=radio][data-required],input[type=checkbox][data-required],input[type="file"][data-required]', function(event) {
-                    self.verify.call(this, self, 'change');
+                queue = target.split(' ');
+
+                len = queue.length;
+
+                for (name in cache) {
+                    src = cache[name].self;
+                    required = src.data('required');
+                    type = src[0].type;
+                    $target = self.$selector.find('[data-required=' + required + ']');
+
+                    if ($.inArray(required, queue) !== -1) {
+                        if ($.inArray(type, ['checkbox', 'file', 'radio']) !== -1) {
+                            $target.off('change.iui-validate');
+                        } else {
+                            $target.off('focus.iui-validate blur.iui-validate');
+                        }
+                        $target.data('event.iui-validate', false);
+                        delete cache[name];
+                    }
+                }
+
+            };
+
+
+            Validate.prototype.add = function(options) {
+                var self = this;
+                var collections = options || self.options.collections;
+
+                for (var i = 0; i < collections.length; i++) {
+                    var target = self.$selector.find('[data-required="' + collections[i].required + '"]');
+                    var msg = "iui-validate:cannot find element by data-required=\"" + collections[i].required + "\"";
+
+                    if (target.length) {
+                        self.mapping(collections[i]);
+                    } else {
+                        if (window.console) {
+                            console.warn(msg);
+                        } else {
+                            throw msg;
+                        }
+                    }
+                }
+                this.bindEvent();
+            };
+
+
+            /**
+             * bindEvent     行为方法，如：focus、blur、change
+             */
+            Validate.prototype.bindEvent = function() {
+                var self = this;
+                var handleArr = handler.call(this);
+                var $selector = self.$selector;
+                var changeHandleArr = ['select-one', 'select-multiple', 'radio', 'checkbox', 'file'];
+
+                $.each(handleArr, function(key, value) {
+                    var $target = $selector.find(value);
+                    var type = $target[0].type;
+                    var requiredName = value.replace('[', '').replace(']', '').split('=')[1];
+
+                    if ($target.data('event.iui-validate')) {
+                        return;
+                    }
+
+                    if ($.inArray(type, changeHandleArr) !== -1) {
+                        $target.on('change.iui-validate', {
+                            self: self
+                        }, changeEmitter);
+                        $target.data('event.iui-validate', true);
+                        return;
+                    }
+
+                    $target.on('focus.iui-validate', {
+                        self: self
+                    }, focusEmitter);
+
+                    if (self.cache[requiredName].options.unblur !== true) {
+                        $target.on('blur.iui-validate', {
+                            self: self
+                        }, blurEmitter);
+                    }
+
+                    $target.data('event.iui-validate', true);
+
                 });
 
             };
@@ -1486,18 +1628,37 @@
              * @return {String}     事件委托目标
              */
             function handler() {
-                var str = '';
+                var queue = [];
                 var collections = this.options.collections;
                 for (var i = 0; i < collections.length; i++) {
-                    var key = collections[i].required;
-                    var target = this.cache[key];
-                    if (target && /checkbox|radio|file/.test(target.self[0].type)) {
-                        continue;
-                    }
-                    str += '[data-required=' + collections[i].required + '],';
-                }
-                return str.slice(0, str.length - 1);
 
+                    queue.push('[data-required=' + collections[i].required + ']');
+                }
+                return queue;
+
+            }
+
+            function focusEmitter(event) {
+                var self = event.data.self;
+                var $this = $(this);
+                var _name = $this.data('required');
+                var collections = self.cache[_name];
+                if (self.options.infoClass) {
+                    self.message(0, collections);
+                }
+                $this.trigger('validate.focus', collections);
+            }
+
+            function blurEmitter(event) {
+                var $this = $(this);
+                var self = event.data.self;
+                var requiredName = $this.data('required');
+                self.verify.call(this, self, 'blur');
+            }
+
+            function changeEmitter(event) {
+                var self = event.data.self;
+                self.verify.call(this, self, 'change');
             }
 
             return new Validate(options);
@@ -1507,7 +1668,6 @@
     /**
      * tooltip 组件
      * @param {String}  target          需要绑定的元素，支持css选择器语法
-     * @param {String}  animateClass    动画类
      * @param {String}  event           事件，支持符合逻辑的鼠标类事件，如 click,dblclick,hover
      * @param {String}  template        html模板
      *
@@ -1515,26 +1675,48 @@
      * @example
      * $(context).IUI('tooltip',{options...});
      */
-    $.fn.IUI({
-        tooltip: function(options) {
 
+    ;
+    (function($) {
+        function tooltip(options, $selector) {
             var defaults = {
-                target: '[data-tooltip]',
-                animateClass: 'fadeIn',
-                event: 'hover',
-                template: '<div class="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-body"></div></div>'
+                showHandle: 'mouseenter',
+                hideHandle: 'mouseleave',
+                custom: false,
+                customHtml: '',
+                direc: 'top',
+                leftOffset: 0,
+                topOffset: 0,
+                className: '',
+                template: '<div class="tooltip {{className}}"><div class="tooltip-arrow">{{customHtml}}</div><div class="tooltip-body"></div></div>',
+                showCallback: function() {},
+                hideCallback: function() {}
             };
 
-            var config = $.extend(defaults, options);
-            var showHandle = config.event === 'hover' ? 'mouseenter' : 'click';
-            var hideHandle = config.event === 'hover' ? 'mouseleave' : 'click';
+            $.extend(defaults, options);
 
-            return this.each(function(index, ele) {
-                var target = config.target;
-                var animateClass = config.animateClass;
-                $(ele).on(showHandle, target, function() {
-                    $('.tooltip').remove();
+            this.$selector = $selector;
+            this.options = defaults;
+            this.init();
+        }
+
+        tooltip.prototype = {
+            init: function() {
+                this.addEvent();
+            },
+            addEvent: function() {
+                var config = this.options;
+                var $selector = this.$selector;
+
+                $selector.on(config.showHandle, '[data-tooltip]', function(event) {
+                    if (event.type === 'click') {
+                        event.stopPropagation();
+                    }
+
                     var $ele = $(this);
+                    var id = $ele.attr('data-tooltip');
+                    var tipConfig = config.list[id];
+
                     var _ele = this;
                     var _elePosi = _ele.getBoundingClientRect();
                     var _eleLeft = _elePosi.left;
@@ -1542,29 +1724,84 @@
                     var _eleWidth = _ele.offsetWidth;
                     var _eleHeight = _ele.offsetHeight;
 
-                    var _tipDirec = $ele.attr('data-direction') || 'top',
-                        distance = $ele.attr('data-distance') * 1 || 5,
-                        title = $ele.attr('data-title');
-                    var $tip = $ele.after($(config.template)).next('.tooltip').addClass(_tipDirec + ' ' + animateClass);
-                    $tip.find('.tooltip-body').text(title);
-                    var _tipWidth = $tip[0].offsetWidth;
-                    var _tipHeight = $tip[0].offsetHeight;
+                    var direc = tipConfig && tipConfig.direc || config.direc,
+                        leftOffset = tipConfig && tipConfig.leftOffset || config.leftOffset,
+                        topOffset = tipConfig && tipConfig.topOffset || config.topOffset,
+                        content = tipConfig && tipConfig.content,
+                        custom = tipConfig && tipConfig.custom || config.custom,
+                        customHtml = tipConfig && tipConfig.customHtml || config.customHtml,
+                        className = tipConfig && tipConfig.className || config.className || '',
+                        showCallback = tipConfig && tipConfig.showCallback || config.showCallback,
+                        hideCallback = tipConfig && tipConfig.hideCallback || config.hideCallback;
 
-
+                    var $tip;
+                    var _tipWidth;
+                    var _tipHeight;
                     var left, top;
 
-                    if (_tipDirec == 'top') {
-                        left = _eleLeft + (_eleWidth - _tipWidth) / 2;
-                        top = _eleTop - _tipHeight - distance;
-                    } else if (_tipDirec == 'right') {
-                        left = _eleLeft + _eleWidth + distance;
-                        top = _eleTop + (_eleHeight - _tipHeight) / 2;
-                    } else if (_tipDirec == 'bottom') {
-                        left = _eleLeft + (_eleWidth - _tipWidth) / 2;
-                        top = _eleTop + _eleHeight + distance;
-                    } else if (_tipDirec == 'left') {
-                        left = _eleLeft - _tipWidth - distance;
-                        top = _eleTop + (_eleHeight - _tipHeight) / 2;
+                    var $arrow;
+                    var arrowWidth, arrowHeight;
+
+                    var str = config.template.replace('{{className}}', className);
+
+                    if (custom) {
+                        str = str.replace('{{customHtml}}', customHtml);
+                    } else {
+                        str = str.replace('{{customHtml}}', '');
+                    }
+
+
+                    $('.tooltip').remove();
+                    $ele.after(str);
+                    $tip = $ele.next('.tooltip');
+                    $arrow = $tip.find('.tooltip-arrow');
+
+                    if (!custom) {
+                        $arrow.addClass(direc);
+                    }
+
+                    arrowWidth = $arrow[0].offsetWidth;
+                    arrowHeight = $arrow[0].offsetHeight;
+
+
+
+                    $tip.find('.tooltip-body').html(content);
+                    _tipWidth = $tip[0].offsetWidth;
+                    _tipHeight = $tip[0].offsetHeight;
+
+                    switch (direc) {
+                        case 'top':
+                            left = _eleLeft + (_eleWidth - _tipWidth) / 2;
+                            top = _eleTop - _tipHeight - topOffset - arrowHeight;
+                            break;
+                        case 'right':
+                            left = _eleLeft + _eleWidth + leftOffset + arrowWidth;
+                            top = _eleTop + (_eleHeight - _tipHeight) / 2;
+                            break;
+                        case 'bottom':
+                            left = _eleLeft + (_eleWidth - _tipWidth) / 2;
+                            top = _eleTop + _eleHeight + topOffset + arrowHeight;
+                            break;
+                        case 'left':
+                            left = _eleLeft - _tipWidth - leftOffset - arrowWidth;
+                            top = _eleTop + (_eleHeight - _tipHeight) / 2;
+                            break;
+                        case 'topLeft':
+                            left = _eleLeft - _tipWidth - leftOffset - arrowWidth / 2;
+                            top = _eleTop - _tipHeight - topOffset - arrowHeight / 2;
+                            break;
+                        case 'topRight':
+                            left = _eleLeft + _eleWidth + leftOffset + arrowWidth / 2;
+                            top = _eleTop - _tipHeight - topOffset - arrowHeight / 2;
+                            break;
+                        case 'bottomLeft':
+                            left = _eleLeft - _tipWidth - leftOffset - arrowWidth / 2;
+                            top = _eleTop + _eleHeight + topOffset + arrowHeight / 2;
+                            break;
+                        case 'bottomRight':
+                            left = _eleLeft + _eleWidth + leftOffset + arrowWidth / 2;
+                            top = _eleTop + _eleHeight + topOffset + arrowHeight / 2;
+                            break;
                     }
 
                     $tip.css({
@@ -1572,23 +1809,45 @@
                         'left': left
                     });
 
-                    return false;
+                    showCallback.call(tipConfig, config);
                 });
 
-
-                if (config.event === 'hover') {
-                    $(ele).on(hideHandle, target, function() {
-                        $(this).next('.tooltip').remove();
+                if (config.hideHandle === 'mouseleave') {
+                    $selector.on(config.hideHandle, '[data-tooltip]', function() {
+                        var $ele = $(this);
+                        var id = $ele.attr('data-tooltip');
+                        var tipConfig = config.list[id];
+                        var hideCallback = tipConfig && tipConfig.hideCallback || config.hideCallback;
+                        $('.tooltip').remove();
+                        hideCallback.call(config);
                     });
                 } else {
-                    $(document).on(hideHandle, function(event) {
+                    $(document).on(config.hideHandle, function(event) {
+                        var $ele = $(this);
+                        var id = $ele.attr('data-tooltip');
+                        var tipConfig = config.list[id];
+                        var hideCallback = tipConfig && tipConfig.hideCallback || config.hideCallback;
                         $('.tooltip').remove();
+                        hideCallback.call(config);
                     });
                 }
 
-            });
-        }
-    });
+            }
+        };
+
+
+        // //
+        // $.fn.tooltip = function(options){
+        //   return new tooltip(options, this);
+        // };
+
+        $.fn.IUI({
+            tooltip: function(options) {
+                return new tooltip(options, this);
+            }
+        });
+
+    })(jQuery);
 
     /**
      * emailSuffix 组件
@@ -1632,8 +1891,8 @@
                     var prefix = val ? val.split('@')[0] : false;
                     var suffix = val ? val.split('@')[1] : false;
 
-                    for (var i = 0, email; email < arr.length; i++) {
-
+                    for (var i = 0; i < arr.length; i++) {
+                        email = arr[i];
                         if ((prefix && !suffix) || suffix && email.indexOf(suffix) !== -1) {
                             str += '<li class="' + config.item + '" data-value="' + prefix + '@' + email + '">' + prefix + '@' + email + '</li>';
                         }
@@ -1723,7 +1982,7 @@
                     }, config.delay);
                 });
 
-                $list.on('click', config.item, function(event) {
+                $list.on('click', '.' + config.item, function(event) {
                     event.preventDefault();
                     clearTimeout(time);
                     $selector.val($(this).attr('data-value')).focus();
@@ -1737,47 +1996,55 @@
         }
     });
 
+
     /**
      * placeholder 组件
      * @param {color}     color           placeholder color
      * @param {String}    zIndex          placeholder z-index 需高于input
+     * @param {Number}    top             placeholder 相对input父元素定位top值
+     * @param {Number}    left            placeholder 相对input父元素定位top值
      *
      * @example
-     * $('body').IUI('placeholder',{color:'#999',zIndex:2});
+     * $('body').IUI('placeholder',{color:'#999',zIndex:1});
      */
+
     $.fn.IUI({
-        placeholder: function(option) {
+        placeholder: function(options) {
             if ('placeholder' in document.createElement('input')) {
                 return;
             }
 
             var defaults = {
-                color: "#999", //placeholder color
-                zIndex: 2 //针对position:absolute的input元素，label覆盖在input之上
-            };
-            var param = $.extend({}, defaults, option || {});
-            var $eles = $(this).find('input[type="text"],input[type="password"],input[type="tel"],input[type="email"]');
+                    color: '#999', //placeholder color
+                    zIndex: 1, //针对position:absolute的input元素，label覆盖在input之上
+                    top: 0, //placeholder相对父元素绝对定位
+                    left: 0 //placeholder相对父元素绝对定位
+                },
+                param = $.extend({}, defaults, options || {}),
+                $eles = $(this).find('input[type="text"],input[type="password"],input[type="tel"],input[type="email"]');
 
             return $eles.each(function(i, n) {
                 var $ele = $(n),
                     ele = n, //ele供原生事件onpropertychange调用
-                    placeholder = $ele.attr('placeholder'),
-                    $elel = $('<label></label>').css({
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        height: 0,
-                        lineHeight: $ele.css("height"),
-                        fontSize: $ele.css("fontSize"),
-                        paddingLeft: $ele.css("textIndent") ? $ele.css("textIndent") : $ele.css('paddingLeft'),
-                        background: "none",
-                        cursor: "text",
-                        color: param.color,
-                        zIndex: param.zIndex
-                    }).text(placeholder).insertBefore($ele);
+                    placeholder = $ele.attr('placeholder');
+
+                var $elel = $('<label></label>').css({
+                    position: 'absolute',
+                    top: param.top,
+                    left: param.left,
+                    color: param.color,
+                    zIndex: param.zIndex,
+                    height: 0,
+                    lineHeight: $ele.css('height'),
+                    fontSize: $ele.css('fontSize'),
+                    paddingLeft: $ele.css('textIndent') ? $ele.css('textIndent') : $ele.css('paddingLeft'),
+                    background: 'none',
+                    cursor: 'text'
+
+                }).text(placeholder).insertBefore($ele);
 
                 $ele.parent().css({
-                    "position": "relative"
+                    'position': 'relative'
                 });
 
                 if ($ele.val()) {
@@ -1785,22 +2052,22 @@
                 }
 
                 //事件绑定
-                $elel.bind({
-                    "click": function() {
+                $elel.on({
+                    click: function() {
                         $elel.hide();
                         $ele.focus();
                     }
                 });
-                $ele.bind({
-                    "focus": function() {
+                $ele.on({
+                    focus: function() {
                         $elel.hide();
                     },
-                    "blur": function() {
+                    blur: function() {
                         if (!$ele.val()) {
                             $elel.show();
                         }
                     },
-                    "input": function() {
+                    input: function() {
                         if ($ele.val()) {
                             $elel.hide();
                         } else {
@@ -1811,7 +2078,7 @@
                 //IE6-8不支持input事件，另行绑定
                 ele.onpropertychange = function(event) {
                     event = event || window.event;
-                    if (event.propertyName == "value") {
+                    if (event.propertyName === 'value') {
                         var $this = $(this);
                         if ($this.val()) {
                             $(this).prev('label').hide();
@@ -2397,11 +2664,48 @@
         }
     });
 
+    /**
+     * iselector 组件
+     * [defaults description]         定义参数
+     * dataJson               传入json数据
+     * container              父节点
+     * template               自定义html模板
+     * placeholder              列默认显示的文字
+     * field                input的字段名 [省，市，区]
+     * iscity               是否是用于城市下拉(默认是城市下拉)
+     * iselect                是否用于select,默认是false，用于自定义
+     * iscode               是否输出区号值,默认false, 开启就传字段名，例如：'quhao'
+     * isvalue                value存的是id 还是 name 默认true.是存id
+     * shorthand              是否开启简写功能,默认不开启 false
+     * level                多少列  默认是一列(级) 1
+     * values                 返回选中的值
+     * joinHtml               拼接html的函数，用于json数据自定义的，里面有4个传值
+                      [data-json数据, pid-json数据的父id, level-列数（级数）, placeholder-默认显示的文字]
+    */
+
+    /**
+     * 关于 template
+     * data-caller={{caller}} ： 必填，用于呼出下来列表，select时是change事件，自定义标签是click
+     * data-item              ： 自定义标签时必填，因为【项】需要绑定click事件
+     * role="name"            ： 自定义标签时必填，用于声明【name】 显示选中的选项名称
+     * role="content"         ： 自定义标签时必填，用于声明【容器】 选项列表
+     * role="input"       :  自定义标签时必填，用于声明【input】隐藏域
+     * name="{{field}}"     :  input字段名称，必填
+     * 自定义的html
+     * <div class="selector-level selector-level-{{level}}">
+     *    <a href="javascript:;" role="name" class="selector-name selector-name-dcolor" data-caller="{{caller}}">{{name}}</a>
+     *    <input type="hidden" name="{{field}}" role="input" value="">
+     *    <ul role="content" class="selector-list hide">{{content}}</ul>
+     * </div>
+     * select标签
+     * <select name="{{field}}" role="content" data-caller="{{caller}}" class="selector-control selector-control-{{level}}">{{content}}</select>
+     */
+
     ;
     (function($, window, document, undefined) {
 
         /**
-         * [iSelector description]              构造器
+         * [Iselector description]              构造器
          * @param {[type]} selector [description]   selector
          * @param {[type]} options  [description]   参数
          */
@@ -2413,38 +2717,15 @@
             this.event();
         }
 
-        /**
-         * [defaults description]         定义参数
-         * dataJson               传入json数据
-         * container              父节点
-         * template               自定义html模板
-         * placeholder              列默认显示的文字
-         * field                input的字段名 [省，市，区]
-         * iselect                是否用于select,默认是false，用于自定义
-         * isvalue                value存的是id 还是 name 默认true.是存id
-         * shorthand              是否开启简写功能,默认不开启 false
-         * level                多少列  默认是一列(级) 1
-         * values                 返回选中的值
-         * joinHtml               拼接html的函数，用于json数据自定义的，里面有4个传值
-                            [data-json数据, pid-json数据的父id, level-列数（级数）, placeholder-默认显示的文字]
-         */
-
-        /**
-         * 关于 template
-         * data-caller={{caller}} ： 必填，用于呼出下来列表，select时是change事件，自定义标签是click
-         * data-item              ： 自定义标签时必填，因为【项】需要绑定click事件
-         * role="name"            ： 自定义标签时必填，用于声明【name】 显示选中的选项名称
-         * role="content"         ： 自定义标签时必填，用于声明【容器】 选项列表
-         * role="input"       :  自定义标签时必填，用于声明【input】隐藏域
-         * name="{{field}}"     :  input字段名称，必填
-         */
         iSelector.defaults = {
             dataJson: null,
             container: 'body',
-            template: '<div class="selector-level selector-level-{{level}}"><a href="javascript:;" role="name" class="selector-name selector-name-dcolor" data-caller="{{caller}}">{{name}}</a><input type="hidden" name="{{field}}" role="input" value=""><ul role="content" class="selector-list hide">{{content}}</ul></div>',
+            template: '<div class="selector-level selector-level-{{level}} {{csname}}"><a href="javascript:;" role="name" class="selector-name selector-name-dcolor" data-caller="{{caller}}">{{name}}</a><input type="hidden" name="{{field}}" role="input" value=""><ul role="content" class="selector-list hide">{{content}}</ul></div>',
             placeholder: ['请选择省份', '请选择市', '请选择区'],
             field: ['userProvinceId', 'userCityId', 'userAreaId'],
+            iscity: true,
             iselect: false,
+            iscode: false,
             isvalue: true,
             shorthand: false,
             values: [],
@@ -2454,6 +2735,7 @@
                 var _len = _data.length;
                 var _pid = pid || '100000';
                 var _html = this.options.iselect ? '<option>' + placeholder + '</option>' : '';
+                var _jhtml = this.options.iselect ? '<option>' + placeholder + '</option>' : '';
 
                 if (level < 0) {
                     return _html;
@@ -2462,17 +2744,28 @@
                 for (var i = 0; i < _len; i++) {
                     var _name = this.options.shorthand ? _data[i].shortName : _data[i].name;
                     var _val = this.options.isvalue ? _data[i].id : _data[i].name;
+                    var _code = this.options.iscode && _data[i].cityCode !== "" ? 'data-code=' + _data[i].cityCode : '';
 
-                    if (_data[i].parentId === _pid) {
+                    if (this.options.iscity && _data[i].parentId === _pid) {
                         if (this.options.iselect) {
                             _html += '<option data-item="' + level + '" value="' + _val + '">' + _name + '</option>';
                         } else {
-                            _html += '<li data-item="' + level + '" data-id="' + _data[i].id + '" data-value="' + _val + '">' + _name + '</li>';
+                            _html += '<li data-item="' + level + '" data-id="' + _data[i].id + '" ' + _code + '>' + _name + '</li>';
+                        }
+                    } else {
+                        if (this.options.iselect) {
+                            _jhtml += '<option data-item="' + level + '" value="' + _val + '">' + _name + '</option>';
+                        } else {
+                            _jhtml += '<li data-item="' + level + '" data-id="' + _data[i].id + '" ' + _code + '>' + _name + '</li>';
                         }
                     }
                 }
 
-                return _html;
+                if (this.options.iscity) {
+                    return _html;
+                }
+
+                return _jhtml;
             },
             startClick: null //自定义标签一开始点击的回调
         };
@@ -2505,9 +2798,9 @@
                 }
 
                 //自定义标签的时候会要求有这个{{field}},要把这个替换成要传的字段名称
-                if (html.indexOf('{{field}}') !== -1) {
+                if (html.indexOf('{{field}}') !== -1 || html.indexOf('{{csname}}') !== -1) {
                     field = config.field[i] || '';
-                    html = html.replace('{{field}}', field);
+                    html = html.replace('{{field}}', field).replace('{{csname}}', field);
                 }
 
                 //把html添加到对应的级别去
@@ -2681,6 +2974,8 @@
      * @param  {function} overLimitCount 选择超过限制个数触发
      * @return {function}   existToken 已经存在标签触发
      * @return {function}   searchCallback 搜索后的回调函数
+     * @return {function}   choiceCallback 选择token回调
+     * @return {function}   removeCallback 移除token回调
      * .tokenize > select + ul + .token > .token-item
      */
     /*
@@ -2695,7 +2990,9 @@
             maxLength: 20,
             overLimitCount: function() {},
             existToken: function() {},
-            searchCallback: function() {}
+            searchCallback: function() {},
+            choiceCallback: function() {},
+            removeCallback: function() {}
         };
 
         var KEY_CODE = {
@@ -2717,12 +3014,20 @@
             inputTemplate: '<div class="token"> <span> <input type="text" maxlength="{{maxlength}}" style="width: {{width}}px"> </span> </div>'
         };
 
+        var addChoiceCurrent = function(event, defaults) {
+            if (!$(this).hasClass('tokenize-level')) {
+                var $this = $(this);
+                $this.parents(defaults.contain).find('li').removeClass('current');
+                $this.addClass('current');
+            }
+        };
+
         var tokenize = $.fn.tokenize = function(options) {
             var defaults = $.extend({}, settings, options);
 
-            htmlTemplate.inputTemplate = htmlTemplate.inputTemplate.replace('{{maxlength}}', defaults.maxLength).replace('{{width}}', defaults.maxLength * 16);
+            htmlTemplate.inputTemplate = htmlTemplate.inputTemplate.replace('{{maxlength}}', defaults.maxLength).replace('{{width}}', defaults.maxLength * 12);
 
-            this.each(function(index, el) {
+            return this.each(function(index, el) {
                 var $this = $(this);
                 var limitCount = $this.attr('data-limitCount') * 1;
 
@@ -2793,6 +3098,7 @@
                     $this.parent('.token-item').remove();
 
                     tokenize.hideToken($contain);
+                    defaults.removeCallback.call($contain);
                 });
 
                 //聚焦输入
@@ -2826,17 +3132,19 @@
                     var keycode = event.keyCode;
                     var KC = KEY_CODE;
                     if (keycode === KC.bottom || keycode === KC.top) {
+                        $contain.off('mouseenter.tokenize');
                         tokenize.turnToken.call(this, keycode);
+                        $contain.one('mousemove', '>ul', function(event) {
+                            $contain.on('mouseenter.tokenize', 'li', function(event) {
+                                addChoiceCurrent.call(this, event, defaults);
+                            });
+                        });
                     }
                 });
 
                 //鼠标样式
-                $contain.on('mouseenter', 'li', function(event) {
-                    if (!$(this).hasClass('tokenize-level')) {
-                        var $this = $(this);
-                        $this.parents(defaults.contain).find('li').removeClass('current');
-                        $this.addClass('current');
-                    }
+                $contain.on('mouseenter.tokenize', 'li', function(event) {
+                    addChoiceCurrent.call(this, event, defaults);
                 });
             } else {
                 $contain.find('input').attr('readonly', 'readonly');
@@ -2916,9 +3224,6 @@
                 //改变select
                 index = $tokens.index($selectedTokens);
                 $contain.find('option').eq(index).attr('selected', 'selected');
-
-                // 隐藏父ul
-                tokenize.hideTitle.call($contain);
             } else {
                 var $ul = $contain.find('ul');
 
@@ -2935,19 +3240,33 @@
                 }
             }
             tokenize.hideToken($contain);
+            defaults.choiceCallback.call($contain);
         };
 
         //按下上下键切换token
         tokenize.turnToken = function(keycode) {
-            var $tokens = $(this).find('li').not('.tokenize-level');
+            var $this = $(this);
+            var $ul = $this.find('>ul');
+            var $tokens = $this.find('li').not('.tokenize-level');
+            var height = $tokens.height();
             var $visibleTokens = $tokens.filter(':visible');
             var $selectedTokens = $visibleTokens.filter('.current');
             var index = $visibleTokens.index($selectedTokens);
             var length = $visibleTokens.length;
+
             if (length) {
-                index = keycode === 40 ? (index + 1) % length : (index !== -1 ? index - 1 : index) % length;
+                if (keycode === 40) {
+                    index = (index + 1) % length;
+                } else {
+                    if (index !== 0) {
+                        index = --index;
+                    } else {
+                        index = --length;
+                    }
+                }
                 $selectedTokens.removeClass('current');
                 $visibleTokens.eq(index).addClass('current');
+                $ul.scrollTop(index * height);
             }
         };
 
@@ -3012,6 +3331,7 @@
         });
 
     })(jQuery);
+
     /**
      * hideNavbar 组件
      * @description  滚动隐藏导航

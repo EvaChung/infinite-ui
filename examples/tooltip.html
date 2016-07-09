@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    	<meta charset="UTF-8">
+        <!-- External CSS -->
+        <link rel="stylesheet" href="../dist/style-pc.css">
+        <!-- In-document CSS -->
+        <style>
+
+			.J_tip a{
+				display: inline-block;
+				padding: 5px;
+				text-decoration: none;
+				color:#000;
+				border-radius: 5px;
+				border:1px solid #000;
+			}
+
+			pre{
+				background-color: #f6f6f6;
+	          	padding: 15px;
+	          	line-height: 1.4
+			}
+		</style>
+    </head>
+    <body>
+    	<pre>
+            var defaults = {
+                showHandle: 'mouseenter',
+                hideHandle: 'mouseleave',
+                custom: false,
+                customHtml: '',
+                direc: 'top',
+                leftOffset: 0,
+                topOffset: 0,
+                className: '',
+                showCallback: function(){},
+                hideCallback: function(){},
+                list: {
+                    'tip1': {
+                        custom: false,
+                        customHtml: '',
+                        direc: 'top',
+                        leftOffset: 0,
+                        topOffset: 0,
+                        className: '',
+                        showCallback: function(){},
+                        hideCallback: function(){}
+                    }
+                }
+            };
+        </pre>
+    	<div class="J_tip">
+    		tooltip插件，包括
+    		<a href="javascript:;" data-tooltip="tip1">上面弹出</a>
+    		<a href="javascript:;" data-tooltip="tip2">右面弹出</a>
+    		<a href="javascript:;" data-tooltip="tip3">下面弹出</a>
+    		<a href="javascript:;" data-tooltip="tip4">左面弹出</a>
+            <a href="javascript:;" data-tooltip="tip5">左上弹出</a>
+            <a href="javascript:;" data-tooltip="tip6">右上弹出</a>
+            <a href="javascript:;" data-tooltip="tip7">左下弹出</a>
+            <a href="javascript:;" data-tooltip="tip8">右下弹出</a>
+    	</div>
+
+        <!-- JavaScript -->
+        <script src="../src/jquery.js"></script>
+        <!-- <script src="../src/js/tooltip.js"></script> -->
+		<script src="../dist/iui.js"></script>
+        <script>
+        	var options = {
+                className: 'zoomIn',
+            	list: {
+                    'tip1': {
+                        content: '两级参数控制<br>可以给tooltip添加自定义类名'
+                    },
+                   'tip2': {
+                        direc: 'right',
+                        className: 'fadeIn',
+                        custom: true,
+                        customHtml: '<span style="position: relative;left:-21px;color:#fff;background-color:#000">&lt;&lt;&lt;</span>',
+                        content: '可以自定义arrow'
+                    },'tip3': {
+                        content: 'data-tooltip的值和list的键名是对应的',
+                        leftOffset: 0,
+                        topOffset: 0,
+                        direc: 'bottom',
+                        className: ''
+                    },'tip4': {
+                        content: '设置了偏移',
+                        leftOffset: 10,
+                        topOffset: 10,
+                        direc: 'left',
+                        className: 'fadeIn'
+                    },'tip5': {
+                        content: '偏移量20px',
+                        leftOffset: 20,
+                        topOffset: 20,
+                        direc: 'topLeft',
+                        className: ''
+                    },'tip6': {
+                        content: 'tip1',
+                        leftOffset: 20,
+                        topOffset: 20,
+                        direc: 'topRight',
+                        className: ''
+                    },'tip7': {
+                        content: 'tip1',
+                        leftOffset: 20,
+                        topOffset: 20,
+                        direc: 'bottomLeft',
+                        className: ''
+                    },'tip8': {
+                        content: '，支持动态元素，可以调节提示的位置（距离），鼠标移到左边的四个按钮可以看到效果。',
+                        leftOffset: 20,
+                        topOffset: 20,
+                        direc: 'bottomRight',
+                        className: ''
+                    }
+                }
+        	};
+	    	//$('.J_tip').tooltip(options);
+            $('.J_tip').IUI('tooltip', options);
+    	</script>
+    </body>
+</html>

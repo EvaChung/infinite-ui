@@ -6,19 +6,39 @@
 	<link rel="stylesheet" type="text/css" href="../dist/style-pc.css">
 </head>
 <body>
-	<h3>实例化自定义标签城市</h3>
+	<h3>实例化城市</h3>
 	<div class="selector-container clearfix city-container"></div><!-- end .city-container -->
-	<h3>实例化select</h3>
+
+	<h3>实例化自定义json</h3>
+	<div class="selector-container clearfix json-container"></div><!-- end .city-container -->
+
+	<h3>select标签</h3>
 	<div class="selector-container clearfix city-select"></div><!-- end .city-select -->
+
+	<h3>select自定义json标签</h3>
+	<div class="selector-container clearfix age-select"></div><!-- end .city-select -->
 	<script type="text/javascript" src="../src/jquery.js"></script>
 	<script type="text/javascript" src="../src/js/citydata.js"></script>
 	<script type="text/javascript" src="../dist/iui.js"></script>
 	<script type="text/javascript">
 	$(function(){
 		//实例化城市
-		$('.city-container').IUI('iselector',{
+		$('.city-container').IUI('iselector', {
 			dataJson: cityData,			//json数据
 			level: 3,					//多少级联动
+			startClick: function(self, target, config) {
+				console.log(self, target, config);
+			}
+		});
+
+		//实例化json
+		var jsonData = [{name: '18-21', id: '1'},{name: '21-25', id: '2'}];
+		$('.json-container').IUI('iselector',{
+			dataJson: jsonData,			//json数据
+			placeholder: ['请选择年龄'],
+			field: ['age'],
+			iscity: false,				//是否是用于城市
+			level: 1,					//多少级联动
 			startClick: function(self, target, config) {
 				console.log(self, target, config);
 			}
@@ -64,9 +84,20 @@
 		$('.city-select').IUI('iselector',{
 			dataJson: cityData,
 			level: 3,
-			template: '<select name="{{field}}" role="content" data-caller="{{caller}}" class="selector-control selector-control-{{level}}">{{content}}</select>',
+			template: '<select name="{{field}}" role="content" data-caller="{{caller}}" class="selector-control selector-control-{{level}} {{csname}}">{{content}}</select>',
 			iselect: true,
 			shorthand: true
+		});
+
+		//json原生select实例化
+		$('.age-select').IUI('iselector',{
+			dataJson: jsonData,
+			level: 1,
+			placeholder: ['请选择年龄'],
+			field: ['age'],
+			template: '<select name="{{field}}" role="content" data-caller="{{caller}}" class="selector-control selector-control-{{level}} {{csname}}">{{content}}</select>',
+			iscity: false,
+			iselect: true
 		});
 
 	});

@@ -25,3 +25,31 @@
         }
     }
 }
+
+.tooltip.zoomIn {
+    @include animation(zoomIn 0.2s);
+    @include keyframes (zoomIn) {
+        from {
+            opacity: 0;
+            -webkit-transform: scale3d(.3, .3, .3);
+            transform: scale3d(.3, .3, .3);
+          }
+
+          50% {
+            opacity: 1;
+          }
+    }
+}
+
+.tooltip.fadeIn {
+    @include animation(fadeIn 0.5s);
+    @include keyframes (fadeIn) {
+         from {
+            opacity: 0;
+          }
+
+          to {
+            opacity: 1;
+          }
+    }
+}

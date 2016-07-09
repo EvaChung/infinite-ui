@@ -40,8 +40,8 @@ $.fn.IUI({
                 var prefix = val ? val.split('@')[0] : false;
                 var suffix = val ? val.split('@')[1] : false;
 
-                for (var i = 0, email; email < arr.length; i++) {
-
+                for (var i = 0; i < arr.length; i++) {
+                    email = arr[i];
                     if ((prefix && !suffix) || suffix && email.indexOf(suffix) !== -1) {
                         str += '<li class="' + config.item + '" data-value="' + prefix + '@' + email + '">' + prefix + '@' + email + '</li>';
                     }
@@ -131,7 +131,7 @@ $.fn.IUI({
                 }, config.delay);
             });
 
-            $list.on('click', config.item, function(event) {
+            $list.on('click', '.'+config.item, function(event) {
                 event.preventDefault();
                 clearTimeout(time);
                 $selector.val($(this).attr('data-value')).focus();

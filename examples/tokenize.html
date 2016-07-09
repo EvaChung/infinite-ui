@@ -25,6 +25,8 @@
 			 * @param  {function} overLimitCount 选择超过限制个数触发 <br>
 			 * @return {function}   existToken 已经存在标签触发 <br>
 			 * @return {function}   searchCallback 搜索后的回调函数 <br>
+			 * @return {function}   choiceCallback 选择token回调 <br>
+ 			 * @return {function}   removeCallback 移除token回调 <br>
 			 * .tokenize > select + ul + .token > .token-item <br>
 			 */ <br>
 			 /* <br>
@@ -32,6 +34,7 @@
 			 */
 		</p>
 	</div>
+	<p>请打开控制台查看输出信息！</p>
 	<h2>示例一</h2>
 	<div class="tokenize">
 		<select multiple name="tokenize-demo" id="" class="hide">
@@ -69,14 +72,20 @@
 		var sc = 0;
 		$('.tokenize').IUI('tokenize', {
 			overLimitCount: function($err){
-				alert('只能选择' + $err.data('limitCount') + '个token')
+				console.log('只能选择' + $err.data('limitCount') + '个token')
 			},
 			existToken: function($err){
 				var value = $err.find('input').val();
-				alert(value + '已经存在')
+				console.log(value + '已经存在')
 			},
 			searchCallback: function(){
 				console.log('搜索了' + (++sc) + '次')
+			},
+			choiceCallback: function(){
+				console.log('选择了')
+			},
+			removeCallback: function(){
+				console.log('移除了')
 			}
 		});
 

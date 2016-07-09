@@ -24,13 +24,12 @@
 <body>
 	<div>
 		<pre>
-	var defaults = { <br>
-            display: false, <br>
-            type: true, <br>
-            animateHtml: '&lt;div class="ball-clip-rotate"&gt;&lt;div&gt;&lt;/div&gt;&lt;/div>', <br>
-            src: 'http://img.yi114.com/201571121314_382.gif', <br>
-            context: $('body'), <br>
-            shadow: true <br>
+	var defaults = {
+            display: false,
+            type: 'css',
+            animateHtml: '&lt;div class="ball-clip-rotate"&gt;&lt;div&gt;&lt;/div&gt;&lt;/div&gt;',
+            src: 'http://img.yi114.com/201571121314_382.gif',
+            shadow: true
         };
 		</pre>
 	</div>
@@ -48,13 +47,13 @@
 	</div>
 
 
-	<h2>示例二（有阴影，git图片动画）</h2>
+	<h2>示例二（有阴影，img动画）</h2>
     <pre>
         $('.loading2').loading(true, 'css');
         或者
         $('.loading2').loading({
             display: true,
-            type: 'git'
+            type: 'img'
         });
     </pre>
 	<div class="loading2 loading">
@@ -86,7 +85,7 @@
     </div>
 	<script>
         $('.loading1').loading(true, 'css');
-        $('.loading2').loading(true, 'git');
+        $('.loading2').loading(true, 'img');
 		$('.loading3').loading({
 			display: true,
 			type: 'css',
@@ -97,7 +96,7 @@
             type: 'css',
             shadow: false
         })
-        $.loading(true, 'css');
+       // $.loading(true, 'css');
 	</script>
 </body>
 </html>

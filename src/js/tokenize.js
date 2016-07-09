@@ -7,6 +7,8 @@
  * @param  {function} overLimitCount 选择超过限制个数触发
  * @return {function}   existToken 已经存在标签触发
  * @return {function}   searchCallback 搜索后的回调函数
+ * @return {function}   choiceCallback 选择token回调
+ * @return {function}   removeCallback 移除token回调
  * .tokenize > select + ul + .token > .token-item
  */
  /*
@@ -20,7 +22,9 @@
         maxLength: 20,
         overLimitCount: function(){},
         existToken: function(){},
-        searchCallback: function(){}
+        searchCallback: function(){},
+        choiceCallback: function(){},
+        removeCallback: function(){}
     };
 
     var KEY_CODE = {
@@ -41,12 +45,20 @@
         inputTemplate: '<div class="token"> <span> <input type="text" maxlength="{{maxlength}}" style="width: {{width}}px"> </span> </div>'
     };
 
+    var addChoiceCurrent = function(event, defaults) {
+        if (!$(this).hasClass('tokenize-level')) {
+            var $this = $(this);
+            $this.parents(defaults.contain).find('li').removeClass('current');
+            $this.addClass('current');
+        }
+    };
+
     var tokenize = $.fn.tokenize = function(options){
         var defaults = $.extend({}, settings, options);
 
-        htmlTemplate.inputTemplate = htmlTemplate.inputTemplate.replace('{{maxlength}}', defaults.maxLength).replace('{{width}}', defaults.maxLength*16);
+        htmlTemplate.inputTemplate = htmlTemplate.inputTemplate.replace('{{maxlength}}', defaults.maxLength).replace('{{width}}', defaults.maxLength*12);
 
-        this.each(function(index, el) {
+        return this.each(function(index, el) {
             var $this = $(this);
             var limitCount = $this.attr('data-limitCount') * 1;
 
@@ -117,6 +129,7 @@
                 $this.parent('.token-item').remove();
 
                 tokenize.hideToken($contain);
+                defaults.removeCallback.call($contain);
             });
 
             //聚焦输入
@@ -150,17 +163,19 @@
                 var keycode = event.keyCode;
                 var KC = KEY_CODE;
                 if (keycode === KC.bottom || keycode === KC.top) {
+                    $contain.off('mouseenter.tokenize');
                     tokenize.turnToken.call(this, keycode);
+                    $contain.one('mousemove', '>ul', function(event){
+                        $contain.on('mouseenter.tokenize', 'li', function(event){
+                            addChoiceCurrent.call(this, event, defaults);
+                        });
+                    });
                 }
             });
 
             //鼠标样式
-            $contain.on('mouseenter', 'li', function(event) {
-                if (!$(this).hasClass('tokenize-level')) {
-                    var $this = $(this);
-                    $this.parents(defaults.contain).find('li').removeClass('current');
-                    $this.addClass('current');
-                }
+            $contain.on('mouseenter.tokenize', 'li', function(event){
+                addChoiceCurrent.call(this, event, defaults);
             });
         }else{
             $contain.find('input').attr('readonly', 'readonly');
@@ -240,9 +255,6 @@
             //改变select
             index = $tokens.index($selectedTokens);
             $contain.find('option').eq(index).attr('selected', 'selected');
-
-            // 隐藏父ul
-            tokenize.hideTitle.call($contain);
         }else{
             var $ul = $contain.find('ul');
 
@@ -259,19 +271,33 @@
             }
         }
         tokenize.hideToken($contain);
+        defaults.choiceCallback.call($contain);
     };
 
     //按下上下键切换token
     tokenize.turnToken = function(keycode){
-        var $tokens = $(this).find('li').not('.tokenize-level');
+        var $this = $(this);
+        var $ul = $this.find('>ul');
+        var $tokens = $this.find('li').not('.tokenize-level');
+        var height = $tokens.height();
         var $visibleTokens = $tokens.filter(':visible');
         var $selectedTokens = $visibleTokens.filter('.current');
         var index = $visibleTokens.index($selectedTokens);
         var length = $visibleTokens.length;
+
         if (length) {
-            index = keycode === 40 ? (index +1)%length : (index !== -1 ? index - 1 : index)%length;
+            if(keycode === 40){
+                index = (index +1)%length;
+            }else{
+                if (index !== 0) {
+                    index = --index;
+                }else{
+                    index = --length;
+                }
+            }
             $selectedTokens.removeClass('current');
             $visibleTokens.eq(index).addClass('current');
+            $ul.scrollTop(index*height);
         }
     };
 

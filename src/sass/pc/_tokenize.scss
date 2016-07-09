@@ -30,6 +30,7 @@
 			border: none;
 			text-indent: 5px;
 			padding: 0;
+			max-width: 100%;
 		}
 
 		.token-close{
@@ -74,6 +75,8 @@
 		z-index: 2;
 		margin: 0;
 		padding: 0;
+		max-height: 250px;
+		overflow-y: auto;
 
 		>li{
 			background-color: #fff;

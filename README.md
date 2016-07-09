@@ -2,6 +2,25 @@
 
 A lightweight jQuery UI library
 
+## Source
+https://github.com/Janking/infinite-ui
+
+## Collaborators
+> This list is in no particular order.
+
+[Janking -- https://github.com/janking](https://github.com/janking)
+
+[Season -- https://github.com/YuxinChou](https://github.com/YuxinChou)
+
+[SamZoo -- https://github.com/SamZoo](https://github.com/SamZoo)
+
+[Kerry -- https://github.com/qiuyaofan](https://github.com/qiuyaofan)
+
+[N-feng -- https://github.com/N-feng](https://github.com/N-feng)
+
+[Chesscai -- https://github.com/chesscai](https://github.com/chesscai)
+
+
 ## Version
 `1.2.0`
 
@@ -29,18 +48,21 @@ $ npm install
 ## Usage
 
 ```shell
-$ gulp build				//编译全部组件及css
+$ gulp build        //编译全部组件及css
 ```
 
 ```shell
-$ gulp build:pc				//编译pc组件及css
+$ gulp build:pc       //编译pc组件及css
 ```
 
 ```shell
-$ gulp build:mobi			//编译mobile组件及css
+$ gulp build:mobi     //编译mobile组件及css
 ```
+
+
+## Develop
 ```shell
-$ gulp watch				//开发及预览
+$ gulp watch        //开发及预览
 
 ```
 ```shell
@@ -48,9 +70,23 @@ http://localhost:3000/examples/index.html
 ```
 
 ##History
+* 日期 更新记录：
+  * `layer`新增`cutTo`方法切换不同的`layer`,
+  * `layer`删除阻止事件冒泡，采用`event.target`方式触发遮罩层关闭
+
+* 2016年07月01日 更新记录：
+  * 解决iselector 自定义json 不能渲染出来的问题
+
+* 2016年06月27日 更新记录：
+  * 移除 `fadeSlider`,`returnTop`组件
+  * **重构 `tabs`组件，不再兼容之前的`tabs`**
+  * 新增 `placeholder` 文档
+
+
 * 2016年06月26日 更新记录：
   * 修复`alert`,`layer`弹出时`body`因`overflow:hidden`而跳动的问题
   * 优化`tip`插件，简化了接口，新增demo及文档
+  * 新增`layer`说明文档
 
 * 2016年06月16日 更新记录：
   * `1.2.0`的 `cookie` 不再向下兼容，升级后请对之前cookie的调用做修改
@@ -136,6 +172,6 @@ http://localhost:3000/examples/index.html
 
 * 2015年08月09日 完成`emailSuffix`组件
 
-* 2015年08月08日 完成`tab`组件
+* 2015年08月08日 完成`tabs`组件
 
 * 2015年08月07日 着手开发`Infinite-UI Library`

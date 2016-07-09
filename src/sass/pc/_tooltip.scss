@@ -25,45 +25,92 @@
 
 .tooltip-arrow{
 	position: absolute;
+
+	/*上边提示样式*/
+	&.top{
+		left: $tooltip-trbl-1;
+		bottom: $tooltip-trbl-2;
+		@extend %wh;
+		border-top:$tooltip-border-1;
+		border-left: $tooltip-border-2;
+		border-right: $tooltip-border-2;
+		margin-left: $tooltip-margin;
+	}
+	/*右边提示样式*/
+	&.right{
+		top:$tooltip-trbl-1;
+		left: $tooltip-trbl-2;
+		@extend %wh;
+		border-right:$tooltip-border-1;
+		border-top: $tooltip-border-2;
+		border-bottom: $tooltip-border-2;
+		margin-top: $tooltip-margin;
+	}
+	/*下边提示样式*/
+	&.bottom{
+		left:$tooltip-trbl-1;
+		top: $tooltip-trbl-2;
+		@extend %wh;
+		border-bottom:$tooltip-border-1;
+		border-left: $tooltip-border-2;
+		border-right: $tooltip-border-2;
+		margin-left: $tooltip-margin;
+	}
+	/*左边提示样式*/
+	&.left{
+		top: $tooltip-trbl-1;
+		right: $tooltip-trbl-2;
+		@extend %wh;
+		border-left:$tooltip-border-1;
+		border-top: $tooltip-border-2;
+		border-bottom: $tooltip-border-2;
+		margin-top: $tooltip-margin;
+	}
+
+	/*左上提示样式*/
+	&.topLeft{
+		right: -3px;
+		bottom: -6px;
+		@extend %wh;
+		border-top:$tooltip-border-1;
+		border-left: $tooltip-border-2;
+		border-right: $tooltip-border-2;
+		margin-left: $tooltip-margin;
+		transform: rotate(-35deg);
+	}
+	/*右上提示样式*/
+	&.topRight{
+		bottom: -3px;
+		left: -6px;
+		@extend %wh;
+		border-right:$tooltip-border-1;
+		border-top: $tooltip-border-2;
+		border-bottom: $tooltip-border-2;
+		margin-top: $tooltip-margin;
+		transform: rotate(-35deg);
+	}
+	/*左下提示样式*/
+	&.bottomLeft{
+		right: -5px;
+		top: -5px;
+		@extend %wh;
+		border-bottom:$tooltip-border-1;
+		border-left: $tooltip-border-2;
+		border-right: $tooltip-border-2;
+		margin-left: $tooltip-margin;
+		transform: rotate(45deg);
+	}
+	/*右下提示样式*/
+	&.bottomRight{
+		left: -3px;
+		top: 0;
+		@extend %wh;
+		border-left:$tooltip-border-2;
+		border-right: $tooltip-border-2;
+		border-bottom: $tooltip-border-1;
+		margin-top: $tooltip-margin;
+		transform: rotate(-35deg);
+	}
+
 }
 
-/*上边提示样式*/
-.tooltip.top .tooltip-arrow{
-	left: $tooltip-trbl-1;
-	bottom: $tooltip-trbl-2;
-	@extend %wh;
-	border-top:$tooltip-border-1;
-	border-left: $tooltip-border-2;
-	border-right: $tooltip-border-2;
-	margin-left: $tooltip-margin;
-}
-/*右边提示样式*/
-.tooltip.right .tooltip-arrow{
-	top:$tooltip-trbl-1;
-	left: $tooltip-trbl-2;
-	@extend %wh;
-	border-right:$tooltip-border-1;
-	border-top: $tooltip-border-2;
-	border-bottom: $tooltip-border-2;
-	margin-top: $tooltip-margin;
-}
-/*下边提示样式*/
-.tooltip.bottom .tooltip-arrow{
-	left:$tooltip-trbl-1;
-	top: $tooltip-trbl-2;
-	@extend %wh;
-	border-bottom:$tooltip-border-1;
-	border-left: $tooltip-border-2;
-	border-right: $tooltip-border-2;
-	margin-left: $tooltip-margin;
-}
-/*左边提示样式*/
-.tooltip.left .tooltip-arrow{
-	top: $tooltip-trbl-1;
-	right: $tooltip-trbl-2;
-	@extend %wh;
-	border-left:$tooltip-border-1;
-	border-top: $tooltip-border-2;
-	border-bottom: $tooltip-border-2;
-	margin-top: $tooltip-margin;
-}

@@ -102,7 +102,7 @@
 					min-width: 45px;
 					max-width: 280px;
 					white-space:nowrap;
-					overflow:hidden; 
+					overflow:hidden;
 					text-overflow:ellipsis;
 					text-decoration: none;
 					cursor: pointer;
@@ -120,7 +120,7 @@
 					&.active{
 						background: #90ddff;
 					}
-					
+
 				}
 			}
 		}
@@ -159,7 +159,7 @@
 			padding-left: 5px;
 			box-sizing: border-box;
 			white-space:nowrap;
-			overflow:hidden; 
+			overflow:hidden;
 			text-overflow:ellipsis;
 		}
 		i{
@@ -170,7 +170,7 @@
 			font-style: normal;
 			box-sizing: border-box;
 			white-space:nowrap;
-			overflow:hidden; 
+			overflow:hidden;
 			text-overflow:ellipsis;
 		}
 		&.cityNotFound{
@@ -187,5 +187,5 @@
 			background: #90ddff;
 		}
 	}
-	
+
 }

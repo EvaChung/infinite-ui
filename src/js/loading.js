@@ -1,12 +1,14 @@
 /**
  * loading 组件
- * @param {Boolean} 		display  		显示或隐藏 true/false
- * @param {Boolean} 		type 		选择 css3 或 git
- * @param {jQuery Object} 	context     loading所在的上下文，
+ * @param {Boolean}     display  	    显示或隐藏 true/false
+ * @param {String} 	    type 		    选择 css 或 img
+ * @param {String}      animateHtml     穿入的css动画,type为css有效
+ * @param {String}      src             图片地址，type不为css有效
+ * @param {Boolean} 	shadow          是否显示阴影
  *
  * @example
  *
- * $.loading(true)
+ * $.loading(true,'css')或$(selector).loading(true,'css')或
  *
  */
 

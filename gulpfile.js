@@ -56,7 +56,7 @@ var mobileComponents = [
  */
 var commonComponents = [
   './src/js/layer.js',        //活动这边用到的
-  './src/js/tab.js',
+  './src/js/tabs.js',
   './src/js/share.js',        //活动这边用到的
   './src/js/exist.js',        //活动这边用到的
   './src/js/ajaxError.js',    //活动这边用到的

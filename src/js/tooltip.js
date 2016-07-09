@@ -1,7 +1,6 @@
 /**
  * tooltip 组件
  * @param {String}  target          需要绑定的元素，支持css选择器语法
- * @param {String}  animateClass    动画类
  * @param {String}  event           事件，支持符合逻辑的鼠标类事件，如 click,dblclick,hover
  * @param {String}  template        html模板
  *
@@ -9,77 +8,175 @@
  * @example
  * $(context).IUI('tooltip',{options...});
  */
-$.fn.IUI({
-  tooltip: function(options) {
 
+;(function($){
+    function tooltip(options, $selector){
       var defaults = {
-          target: '[data-tooltip]',
-          animateClass: 'fadeIn',
-          event: 'hover',
-          template: '<div class="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-body"></div></div>'
+          showHandle: 'mouseenter',
+          hideHandle: 'mouseleave',
+          custom: false,
+          customHtml: '',
+          direc: 'top',
+          leftOffset: 0,
+          topOffset: 0,
+          className: '',
+          template: '<div class="tooltip {{className}}"><div class="tooltip-arrow">{{customHtml}}</div><div class="tooltip-body"></div></div>',
+          showCallback: function(){},
+          hideCallback: function(){}
       };
 
-      var config = $.extend(defaults, options);
-      var showHandle = config.event === 'hover' ? 'mouseenter' : 'click';
-      var hideHandle = config.event === 'hover' ? 'mouseleave' : 'click';
+      $.extend(defaults, options);
 
-      return this.each(function(index, ele) {
-          var target = config.target;
-          var animateClass = config.animateClass;
-          $(ele).on(showHandle, target, function() {
-              $('.tooltip').remove();
-              var $ele = $(this);
-              var _ele = this;
-              var _elePosi = _ele.getBoundingClientRect();
-              var _eleLeft = _elePosi.left;
-              var _eleTop = _elePosi.top;
-              var _eleWidth = _ele.offsetWidth;
-              var _eleHeight = _ele.offsetHeight;
+      this.$selector = $selector;
+      this.options = defaults;
+      this.init();
+    }
 
-              var _tipDirec = $ele.attr('data-direction') || 'top',
-                  distance = $ele.attr('data-distance') * 1 || 5,
-                  title = $ele.attr('data-title');
-              var $tip = $ele.after($(config.template)).next('.tooltip').addClass(_tipDirec + ' ' + animateClass);
-              $tip.find('.tooltip-body').text(title);
-              var _tipWidth = $tip[0].offsetWidth;
-              var _tipHeight = $tip[0].offsetHeight;
+    tooltip.prototype = {
+      init: function(){
+        this.addEvent();
+      },
+      addEvent: function(){
+        var config = this.options;
+        var $selector = this.$selector;
+
+        $selector.on(config.showHandle, '[data-tooltip]', function(event) {
+            if (event.type === 'click') {
+                event.stopPropagation();
+            }
+
+            var $ele = $(this);
+            var id = $ele.attr('data-tooltip');
+            var tipConfig = config.list[id];
+
+            var _ele = this;
+            var _elePosi = _ele.getBoundingClientRect();
+            var _eleLeft = _elePosi.left;
+            var _eleTop = _elePosi.top;
+            var _eleWidth = _ele.offsetWidth;
+            var _eleHeight = _ele.offsetHeight;
+
+            var direc = tipConfig && tipConfig.direc || config.direc,
+                leftOffset = tipConfig && tipConfig.leftOffset || config.leftOffset,
+                topOffset = tipConfig && tipConfig.topOffset || config.topOffset,
+                content = tipConfig && tipConfig.content,
+                custom = tipConfig && tipConfig.custom || config.custom,
+                customHtml = tipConfig && tipConfig.customHtml || config.customHtml,
+                className = tipConfig && tipConfig.className || config.className || '',
+                showCallback = tipConfig && tipConfig.showCallback || config.showCallback,
+                hideCallback = tipConfig && tipConfig.hideCallback || config.hideCallback;
+
+            var $tip;
+            var _tipWidth;
+            var _tipHeight;
+            var left, top;
+
+            var $arrow;
+            var arrowWidth, arrowHeight;
+
+            var str = config.template.replace('{{className}}', className);
+
+            if (custom) {
+                str = str.replace('{{customHtml}}', customHtml);
+            }else{
+                str = str.replace('{{customHtml}}', '');
+            }
 
 
-              var left, top;
+            $('.tooltip').remove();
+            $ele.after(str);
+            $tip = $ele.next('.tooltip');
+            $arrow = $tip.find('.tooltip-arrow');
 
-              if (_tipDirec == 'top') {
-                  left = _eleLeft + (_eleWidth - _tipWidth) / 2;
-                  top = _eleTop - _tipHeight - distance;
-              } else if (_tipDirec == 'right') {
-                  left = _eleLeft + _eleWidth + distance;
-                  top = _eleTop + (_eleHeight - _tipHeight) / 2;
-              } else if (_tipDirec == 'bottom') {
-                  left = _eleLeft + (_eleWidth - _tipWidth) / 2;
-                  top = _eleTop + _eleHeight + distance;
-              } else if (_tipDirec == 'left') {
-                  left = _eleLeft - _tipWidth - distance;
-                  top = _eleTop + (_eleHeight - _tipHeight) / 2;
-              }
+            if (!custom) {
+                $arrow.addClass(direc);
+            }
 
-              $tip.css({
-                  'top': top,
-                  'left': left
-              });
-
-              return false;
-          });
+            arrowWidth = $arrow[0].offsetWidth;
+            arrowHeight = $arrow[0].offsetHeight;
 
 
-          if (config.event === 'hover') {
-              $(ele).on(hideHandle, target, function() {
-                  $(this).next('.tooltip').remove();
-              });
-          } else {
-              $(document).on(hideHandle, function(event) {
-                  $('.tooltip').remove();
-              });
-          }
 
-      });
-  }
-});
+            $tip.find('.tooltip-body').html(content);
+            _tipWidth = $tip[0].offsetWidth;
+            _tipHeight = $tip[0].offsetHeight;
+
+            switch(direc){
+                case 'top':
+                    left = _eleLeft + (_eleWidth - _tipWidth) / 2;
+                    top = _eleTop - _tipHeight - topOffset - arrowHeight;
+                    break;
+                case 'right':
+                    left = _eleLeft + _eleWidth + leftOffset + arrowWidth;
+                    top = _eleTop + (_eleHeight - _tipHeight) / 2;
+                    break;
+                case 'bottom':
+                    left = _eleLeft + (_eleWidth - _tipWidth) / 2;
+                    top = _eleTop + _eleHeight + topOffset + arrowHeight;
+                    break;
+                case 'left':
+                    left = _eleLeft - _tipWidth - leftOffset - arrowWidth;
+                    top = _eleTop + (_eleHeight - _tipHeight) / 2;
+                    break;
+                case 'topLeft':
+                    left = _eleLeft - _tipWidth - leftOffset - arrowWidth/2;
+                    top = _eleTop - _tipHeight - topOffset - arrowHeight/2;
+                    break;
+                case 'topRight':
+                    left = _eleLeft + _eleWidth + leftOffset + arrowWidth/2;
+                    top = _eleTop - _tipHeight - topOffset - arrowHeight/2;
+                    break;
+                case 'bottomLeft':
+                    left = _eleLeft - _tipWidth - leftOffset - arrowWidth/2;
+                    top = _eleTop + _eleHeight + topOffset + arrowHeight/2;
+                    break;
+                case 'bottomRight':
+                    left = _eleLeft + _eleWidth + leftOffset + arrowWidth/2;
+                    top = _eleTop + _eleHeight + topOffset + arrowHeight/2;
+                    break;
+            }
+
+            $tip.css({
+                'top': top,
+                'left': left
+            });
+
+            showCallback.call(tipConfig, config);
+        });
+
+        if (config.hideHandle === 'mouseleave') {
+            $selector.on(config.hideHandle, '[data-tooltip]', function() {
+                var $ele = $(this);
+                var id = $ele.attr('data-tooltip');
+                var tipConfig = config.list[id];
+                var hideCallback = tipConfig && tipConfig.hideCallback || config.hideCallback;
+                $('.tooltip').remove();
+                hideCallback.call(config);
+            });
+        } else {
+            $(document).on(config.hideHandle, function(event) {
+                var $ele = $(this);
+                var id = $ele.attr('data-tooltip');
+                var tipConfig = config.list[id];
+                var hideCallback = tipConfig && tipConfig.hideCallback || config.hideCallback;
+                $('.tooltip').remove();
+                hideCallback.call(config);
+            });
+        }
+
+      }
+    };
+
+
+    // //
+    // $.fn.tooltip = function(options){
+    //   return new tooltip(options, this);
+    // };
+
+    $.fn.IUI({
+     tooltip: function(options){
+      return new tooltip(options, this);
+     }
+    });
+
+})(jQuery);
