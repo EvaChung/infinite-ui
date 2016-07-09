@@ -22,7 +22,7 @@ https://github.com/Janking/infinite-ui
 
 
 ## Version
-`1.2.0`
+`1.2.1`
 
 ##Support
 * Internet Explorer 8+
@@ -73,6 +73,7 @@ http://localhost:3000/examples/index.html
 * 日期 更新记录：
   * `layer`新增`cutTo`方法切换不同的`layer`,
   * `layer`删除阻止事件冒泡，采用`event.target`方式触发遮罩层关闭
+  * `version 1.2.1`
 
 * 2016年07月01日 更新记录：
   * 解决iselector 自定义json 不能渲染出来的问题
