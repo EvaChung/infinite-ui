@@ -185,10 +185,6 @@
   vertical-align: middle;
 }
 
-body .IUI-loading {
-  position: fixed;
-}
-
 .ball-clip-rotate {
   height: 100%;
   vertical-align: middle;
@@ -775,10 +771,10 @@ body .IUI-loading {
   margin-right: 0;
 }
 
-[role="tabs-content"] {
+.tabs-content {
   display: none;
 }
 
-[role="tabs-content"].active {
+.tabs-content.active {
   display: block;
 }

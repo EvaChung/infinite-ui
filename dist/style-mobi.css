@@ -599,10 +599,10 @@
   pointer-events: none;
 }
 
-[role="tabs-content"] {
+.tabs-content {
   display: none;
 }
 
-[role="tabs-content"].active {
+.tabs-content.active {
   display: block;
 }

@@ -69,11 +69,11 @@
   }
 
   /*=========== 强制声明 =============*/
-  [role="tabs-content"] {
+  .tabs-content {
     display: none;
   }
 
-  [role="tabs-content"].active {
+  .tabs-content.active {
     display: block;
   }
   /*================================*/
@@ -88,11 +88,11 @@
     <br>
     <div id="J-tabs">
       <ul class="tabs-header clearfix">
-        <li class="active"><a role="tabs-item" href="#home">Home</a></li>
-        <li><a role="tabs-item" href="#profile">Profile</a></li>
-        <li><a role="tabs-item" href="#ajax" data-ajax="./ext/layer-ajaxPage.html">Ajax Page</a></li>
+        <li class="active"><a class="tabs-item" href="#home">Home</a></li>
+        <li><a class="tabs-item" href="#profile">Profile</a></li>
+        <li><a class="tabs-item" href="#ajax" data-ajax="./ext/layer-ajaxPage.html">Ajax Page</a></li>
       </ul>
-      <div role="tabs-content" id="home" class="active">
+      <div class="tabs-content active" id="home">
         <p>Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terry richardson ex squid. Aliquip placeat salvia cillum iphone. Seitan aliquip quis cardigan american apparel, butcher voluptate nisi qui.</p>
         <p>Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terry richardson ex squid. Aliquip placeat salvia cillum iphone. Seitan aliquip quis cardigan american apparel, butcher voluptate nisi qui.</p>
         <div style="padding:0 30px">
@@ -101,24 +101,24 @@
             <li><a role="tabs-item" href="#profile-nested">Profile-nested</a></li>
             <li><a role="tabs-item" href="#ajax-nested" data-ajax="./ext/layer-ajaxPage.html">Ajax Page-nested</a></li>
           </ul>
-          <div role="tabs-content" id="home-nested" class="active">
+          <div class="tabs-content active" id="home-nested">
             <p>全局调用，千层tabs，感觉叼叼的……文字还不够呢，随便粘贴点文字来吧………………</p>
             <p>每年的7月下旬到8月上旬，是北京的主汛期，这段时间是全国一年中降雨最多的时期，期间难免会在雨中行车。在雨中行车会出现很多意想不到的情况，下面就详解一些雨天行车的注意事项。一、检查雨刷雨刷器算是平时不...</p>
           </div>
-          <div role="tabs-content" id="profile-nested">
+          <div class="tabs-content" id="profile-nested">
             <p>民用汽车轮胎都会有花纹，轮胎花纹一个重要功能就是排水，不把水排走就不会有抓地力。一般轮胎都会有多条纵向沟槽，作用就是排水，横向沟槽起到刺穿水膜的作用，胎肩沟槽作用是将轮胎与地面间的水挤出。如果轮胎磨损到磨损极限，其排水的功能就会丧失，雨天行驶就会产生滑水效应非常危险。所谓滑水效应是指当路面水膜形成一定厚度时，轮胎供水量大于排水量，汽车车轮有可能部分或全部浮起，此时产生轮胎在水面滑过，称为滑水效应。</p>
           </div>
-          <div role="tabs-content" id="ajax-nested"></div>
+          <div class="tabs-content" id="ajax-nested"></div>
         </div>
         <p>Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terry richardson ex squid. Aliquip placeat salvia cillum iphone. Seitan aliquip quis cardigan american apparel, butcher voluptate nisi qui.</p>
         <p>Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terry richardson ex squid. Aliquip placeat salvia cillum iphone. Seitan aliquip quis cardigan american apparel, butcher voluptate nisi qui.</p>
       </div>
-      <div role="tabs-content" id="profile">
+      <div class="tabs-content" id="profile">
         <p>Food truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid. Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko farm-to-table craft beer twee. Qui photo booth letterpress, commodo enim craft beer mlkshk aliquip jean shorts ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda labore aesthetic magna delectus mollit. Keytar helvetica VHS salvia yr, vero magna velit sapiente labore stumptown. Vegan fanny pack odio cillum wes anderson 8-bit, sustainable jean shorts beard ut DIY ethical culpa terry richardson biodiesel. Art party scenester stumptown, tumblr butcher vero sint qui sapiente accusamus tattooed echo park.</p>
         <p>Food truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid. Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko farm-to-table craft beer twee. Qui photo booth letterpress, commodo enim craft beer mlkshk aliquip jean shorts ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda labore aesthetic magna delectus mollit. Keytar helvetica VHS salvia yr, vero magna velit sapiente labore stumptown. Vegan fanny pack odio cillum wes anderson 8-bit, sustainable jean shorts beard ut DIY ethical culpa terry richardson biodiesel. Art party scenester stumptown, tumblr butcher vero sint qui sapiente accusamus tattooed echo park.</p>
         <p>Food truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid. Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko farm-to-table craft beer twee. Qui photo booth letterpress, commodo enim craft beer mlkshk aliquip jean shorts ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda labore aesthetic magna delectus mollit. Keytar helvetica VHS salvia yr, vero magna velit sapiente labore stumptown. Vegan fanny pack odio cillum wes anderson 8-bit, sustainable jean shorts beard ut DIY ethical culpa terry richardson biodiesel. Art party scenester stumptown, tumblr butcher vero sint qui sapiente accusamus tattooed echo park.</p>
       </div>
-      <div role="tabs-content" id="ajax"></div>
+      <div class="tabs-content" id="ajax"></div>
     </div>
   </div>
   <script src="//cdn.bootcss.com/jquery/1.8.1/jquery.min.js"></script>

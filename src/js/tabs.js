@@ -52,10 +52,10 @@
 
         var $selector = $(this);
         //避免与tabs嵌套tabs时冲突
-        var $items = $selector.find('[role="tabs-item"]');
+        var $items = $selector.find('.tabs-item');
         var config = $.extend({}, defaults, options);
 
-        $selector.on(config.event + '.iui-tabs', '[role="tabs-item"]', function(event) {
+        $selector.on(config.event + '.iui-tabs', '.tabs-item', function(event) {
           event.preventDefault();
           var $this = $(this);
           var $parent = $this.parent();
@@ -64,7 +64,7 @@
           // switch tabs-item class
           $parent.addClass('active').siblings('.active').removeClass('active');
           // switch tabs-content class
-          $target.siblings('[role="tabs-content"]').removeClass('active ' + config.animateBefore + ' ' + config.animateAfter);
+          $target.siblings('.tabs-content').removeClass('active ' + config.animateBefore + ' ' + config.animateAfter);
 
           show($target, config);
 
