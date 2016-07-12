@@ -17,16 +17,15 @@ $.fn.IUI({
                 url: $selector.attr('action'),
                 method: $selector.attr('method') || 'POST',
                 type: $selector.attr('data-type') || 'json',
+                data:null,
                 ajax2:false,
                 before: function() {},
                 success: function() {},
                 error: function() {},
                 pending: function() {},
                 always: function(){}
-
             };
 
-            var $fields = $selector.find('input');
             var config = $.extend({}, defaults, options);
 
             $selector.data('deferred', config);
@@ -45,7 +44,7 @@ $.fn.IUI({
                 var args = {
                     url: config.url,
                     type: config.method,
-                    data: $selector.serialize()
+                    data: config.data || $selector.serialize()
                 };
 
                 // ajax2
