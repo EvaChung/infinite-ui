@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Dialog</title>
+    <link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/dist/style-pc.css">
+    <script type="text/html" id="tpl-one">
+		你确定要执行操作吗？
+    </script>
+</head>
+<body>
+<br>
+<br>
+<br>
+<br>
+<br>
+<a href="javascript:;" class="btn btn-sm btn-primary" data-dialog="#tpl-one" data-dialogid="1">call  dialog</a>
+
+<a href="javascript:;" class="btn btn-sm btn-primary pull-right" data-dialog="#tpl-one" data-dialogid="2">call  dialog</a>
+<div style="text-align:center">
+	<a href="javascript:;" class="btn btn-sm btn-primary" data-dialog="#tpl-one" data-dialogid="3">call  dialog</a>
+</div>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<script src="//cdn.bootcss.com/jquery/1.8.1/jquery.min.js"></script>
+<script type="text/javascript" src="../dist/iui.js"></script>
+<script type="text/javascript" src="../src/js/dialog.js" ></script>
+<script type="text/javascript">
+$.dialog();
+
+$('body').on('confirm.dialog-1', '[role="confirm"]', function(event) {
+	event.preventDefault();
+	console.log('dialog id = 1');
+});
+
+$('body').on('confirm.dialog-2', '[role="confirm"]', function(event) {
+	event.preventDefault();
+	console.log('dialog id = 2');
+});
+
+$('body').on('confirm.dialog-3', '[role="confirm"]', function(event) {
+	event.preventDefault();
+	console.log('dialog id = 3');
+});
+</script>
+</body>
+</html>

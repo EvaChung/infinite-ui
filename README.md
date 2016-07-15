@@ -70,7 +70,11 @@ http://localhost:3000/examples/index.html
 ```
 
 ##History
-* 日期 更新记录：
+* 2016年07月15日 更新记录：
+  * `validate` 修复一些 bug
+  * 新增`dialog`组件
+
+* 2016年07月9日 更新记录：
   * `layer`新增`cutTo`方法切换不同的`layer`,
   * `layer`删除阻止事件冒泡，采用`event.target`方式触发遮罩层关闭
   * `version 1.2.1`

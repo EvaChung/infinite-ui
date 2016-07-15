@@ -67,7 +67,6 @@
       collections: [{
           required: 'city',
           context: '.form-group',
-          type: 'checkbox',
           matches: {
             isChecked: {
               errMsg: '请选择城市范围'
@@ -80,7 +79,7 @@
 
         {
           required: 'email',
-          context: '.form-group',
+          context: '.asdasdsa',
           infoMsg: '请输入您的邮箱',
           matches: {
             isNonEmpty: {
@@ -143,25 +142,23 @@
 
     // validate.remove('email');
 
-    validate.add([{
-      required: 'email',
-      context: '.form-group',
-      infoMsg: '请输入您的邮箱',
-      matches: {
-        isNonEmpty: {
-          errMsg: '邮件不能为空'
-        },
-        between: {
-          errMsg: '字符长度必须在3-16之间',
-          range: [6, 16]
-        },
-        isEmail: {
-          errMsg: '邮箱格式不正确'
-        }
-      }
-    }]);
-
-
+    // validate.add([{
+    //   required: 'email',
+    //   context: '.form-group',
+    //   infoMsg: '请输入您的邮箱',
+    //   matches: {
+    //     isNonEmpty: {
+    //       errMsg: '邮件不能为空'
+    //     },
+    //     between: {
+    //       errMsg: '字符长度必须在3-16之间',
+    //       range: [6, 16]
+    //     },
+    //     isEmail: {
+    //       errMsg: '邮箱格式不正确'
+    //     }
+    //   }
+    // }]);
     </script>
   </div>
 </body>

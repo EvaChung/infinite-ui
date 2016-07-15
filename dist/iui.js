@@ -1406,7 +1406,15 @@
             Validate.prototype.mapping = function(options) {
                 var $dom = this.$selector.find('[data-required=' + options.required + ']');
                 var $context = $dom.parents(options.context).eq(0);
-
+                var msg;
+                if ($context.length === 0) {
+                    msg = '{context:' + options.context + '} is invalid , it may prevent the triggering event';
+                    if (window.console) {
+                        console.warn(msg);
+                    } else {
+                        throw msg;
+                    }
+                }
                 //防止重复
                 if (this.cache[options.required]) {
                     return false;
@@ -1483,6 +1491,9 @@
                             throw msg;
                         }
                     }
+                }
+                if (options) {
+                    $.merge(self.options.collections, options);
                 }
                 this.bindEvent();
             };
@@ -1630,7 +1641,6 @@
                 var queue = [];
                 var collections = this.options.collections;
                 for (var i = 0; i < collections.length; i++) {
-
                     queue.push('[data-required=' + collections[i].required + ']');
                 }
                 return queue;

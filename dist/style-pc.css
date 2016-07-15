@@ -778,3 +778,55 @@
 .tabs-content.active {
   display: block;
 }
+
+/**
+ * 对话框组件样式
+ */
+.IUI-dialog-container {
+  width: 300px;
+  background-color: #fff;
+  border: 1px #d9dadc solid;
+  position: absolute;
+  left: 50%;
+  top: 20%;
+  z-index: 999;
+}
+.IUI-dialog-container:after, .IUI-dialog-container:before {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 10px 10px 10px;
+  content: ' ';
+  position: absolute;
+  left: 50%;
+  margin-left: -10px;
+}
+.IUI-dialog-container:after {
+  border-color: transparent transparent #fff transparent;
+  top: -9px;
+}
+.IUI-dialog-container:before {
+  border-color: transparent transparent #d9dadc transparent;
+  top: -10px;
+}
+.IUI-dialog-container.right:after, .IUI-dialog-container.right:before {
+  left: 90%;
+}
+.IUI-dialog-container.left:after, .IUI-dialog-container.left:before {
+  left: 10%;
+}
+.IUI-dialog-container [role="content"] {
+  padding: 30px;
+}
+.IUI-dialog-container [role="operate"] {
+  padding: 0 15px;
+  text-align: center;
+  text-align: center;
+  padding-bottom: 30px;
+}
+.IUI-dialog-container [role="operate"] a {
+  width: 110px;
+}
+.IUI-dialog-container [role="operate"] a:first-child {
+  margin-right: 10px;
+}
