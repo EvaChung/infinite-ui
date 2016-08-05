@@ -179,13 +179,6 @@
       config.cancelCall.apply($selector, [event, this]);
       return false;
     });
-
-    // 绑定 esc 键盘控制
-    $(document).off('keyup.iui-layer').on('keyup.iui-layer', function(event) {
-      if (event.keyCode === 27) {
-        $selector.trigger('click.iui-layer', config.closeHandle);
-      }
-    });
   };
 
   Layer.prototype.showLayer = function(cutto) {
@@ -221,7 +214,12 @@
 
     //插入-弹层-css3显示动画
     self.$content.addClass('layer-opening');
-
+    // 绑定 esc 键盘控制
+    $(document).on('keyup.iui-layer', function(event) {
+      if (event.keyCode === 27) {
+        self.$selector.trigger('click.iui-layer', config.closeHandle);
+      }
+    });
     //触发show事件
     self.$selector.trigger('layer.show', [self]);
     //触发showCall回调
@@ -249,7 +247,8 @@
         $(this).remove();
       });
     }
-
+    // 绑定 esc 键盘控制
+    $(document).off('keyup.iui-layer');
     //触发hide事件
     self.$selector.trigger('layer.hide', [this]);
     //触发hideCall回调
@@ -265,6 +264,17 @@
     currentLayer.hideLayer(true);
     nextLayer.showLayer(true);
 
+  };
+
+  Layer.prototype.destroy = function() {
+    var self = this;
+    var $selector = self.$selector;
+    var config = self.config;
+    //确认事件
+    $selector.off('click.iui-layer', config.confirmHandle);
+    $selector.off('click.iui-layer');
+    $selector.off('click.iui-layer', config.closeHandle);
+    $selector.remove();
   };
 
 

@@ -35,7 +35,8 @@ var pcComponents = [
   './src/js/typeCount.js',
   './src/js/lrselect.js',
   './src/js/iselector.js',    //活动pc这边用到的
-  './src/js/tokenize.js'
+  './src/js/tokenize.js',
+   './src/js/dialog.js'
 ];
 
 /**
@@ -118,11 +119,11 @@ gulp.task('browser-sync', function() {
 });
 
 gulp.task('fresh', function() {
-  gulp.src(['./examples/*.html', './src/js/*.js']).pipe(reload({
+  gulp.src(['./examples/*.html', './src/js/*.js','./examples/**/*.js']).pipe(reload({
     stream: true
   }));
 });
 gulp.task('watch', ['browser-sync', 'compass', 'fresh'], function() {
   gulp.watch(['./src/sass/**/*.scss'], ['compass']);
-  gulp.watch(['./examples/*.html', './src/js/*.js'], ['fresh']);
+  gulp.watch(['./examples/*.html', './src/js/*.js','./examples/**/*.js'], ['fresh']);
 });

@@ -21,14 +21,16 @@
   <br>
   <div class="container">
     <div id="global-tip"></div>
+
+
     <form>
       <div class="form-group">
-        <label for="exampleInputEmail1">Email address</label>
-        <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email" name="email" data-required="email">
+        <label>Email address</label>iui
+        <input type="email" class="form-control" name="email" data-required="email">
       </div>
       <div class="form-group">
-        <label for="exampleInputPassword1">Password</label>
-        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password" name="password" data-required="password">
+        <label>Password</label>
+        <input type="password" class="form-control" name="password" data-required="password">
       </div>
       <div class="form-group">
         <select class="form-control" data-required="select">
@@ -41,92 +43,81 @@
         </select>
       </div>
       <div class="checkbox form-group">
-        <label>
-          <input type="checkbox" name="multi" data-required="city"> 北京</label>
-        <label>
-          <input type="checkbox" name="multi" data-required="city"> 上海</label>
-        <label>
-          <input type="checkbox" name="multi" data-required="city"> 广州</label>
-        <label>
-          <input type="checkbox" name="multi" data-required="city"> 深圳</label>
-        <label>
-          <input type="checkbox" name="multi"> 全选</label>
+        <label><input type="checkbox" name="multi" data-required="city"> 北京</label>
+        <label><input type="checkbox" name="multi" data-required="city"> 上海</label>
+        <label><input type="checkbox" name="multi" data-required="city"> 广州</label>
+        <label><input type="checkbox" name="multi" data-required="city"> 深圳</label>
+        <label><input type="checkbox" name="multi"> 全选</label>
       </div>
       <div class="form-group">
         <textarea name="" id="" cols="30" rows="10" class="form-control" data-required="text"></textarea>
       </div>
       <button type="submit" class="btn btn-default">Submit</button>
     </form>
-    <script type="text/javascript" chartset="UTF-8">
-    window.validate = $('form').IUI('validate', {
-      strategy: {
-        checked_limit_3: function() {
 
-        }
+
+    <script type="text/javascript" chartset="UTF-8">
+    $('form').IUI('validate', {
+      strategy: {
+        checked_limit_3: function() {}
       },
       collections: [{
-          required: 'city',
-          context: '.form-group',
-          matches: {
-            isChecked: {
-              errMsg: '请选择城市范围'
-            },
-            checked_limit_3: {
-              errMsg: '至少选择两个'
-            }
+        required: 'city',
+        context: '.form-group',
+        matches: {
+          isChecked: {
+            errMsg: '请选择城市范围'
+          },
+          checked_limit_3: {
+            errMsg: '至少选择两个'
           }
-        },
-
-        {
-          required: 'email',
-          context: '.asdasdsa',
-          infoMsg: '请输入您的邮箱',
-          matches: {
-            isNonEmpty: {
-              errMsg: '邮件不能为空'
-            },
-            between: {
-              errMsg: '字符长度必须在3-16之间',
-              range: [6, 16]
-            },
-            isEmail: {
-              errMsg: '邮箱格式不正确'
-            }
-          }
-        }, {
-          required: 'password',
-          context: '.form-group',
-          infoMsg: '请输入您的密码，字符长度为3-16位',
-          matches: {
-            isNonEmpty: {
-              errMsg: '密码不能为空'
-            },
-            between: {
-              errMsg: '密码长度为6-16位',
-              range: [6, 16]
-            }
-          }
-        }, {
-          required: 'select',
-          context: '.form-group',
-          matches: {
-            isNonEmpty: {
-              errMsg: '下拉框还未选择'
-            }
-          }
-
-        }, {
-          required: 'text',
-          context: '.form-group',
-          matches: {
-            isNonEmpty: {
-              errMsg: '文本不能为空'
-            }
-          }
-
         }
-
-      ]
+      }, {
+        required: 'email',
+        context: '.asdasdsa',
+        infoMsg: '请输入您的邮箱',
+        matches: {
+          isNonEmpty: {
+            errMsg: '邮件不能为空'
+          },
+          between: {
+            errMsg: '字符长度必须在3-16之间',
+            range: [6, 16]
+          },
+          isEmail: {
+            errMsg: '邮箱格式不正确'
+          }
+        }
+      }, {
+        required: 'password',
+        context: '.form-group',
+        infoMsg: '请输入您的密码，字符长度为3-16位',
+        matches: {
+          isNonEmpty: {
+            errMsg: '密码不能为空'
+          },
+          between: {
+            errMsg: '密码长度为6-16位',
+            range: [6, 16]
+          }
+        }
+      }, {
+        required: 'select',
+        context: '.form-group',
+        matches: {
+          isNonEmpty: {
+            errMsg: '下拉框还未选择'
+          }
+        }
+      }, {
+        required: 'text',
+        context: '.form-group',
+        matches: {
+          isNonEmpty: {
+            errMsg: '文本不能为空'
+          }
+        }
+      }]
     });
 
     $('form').IUI('ajaxForm', {

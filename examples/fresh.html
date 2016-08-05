@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>上拉／下拉刷新栗子</title>
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+  <script type="text/javascript" src="../src/jquery.js" chartset="UTF-8"></script>
+  <script type="text/javascript" src="../dist/iui.js" chartset="UTF-8"></script>
+  <script type="text/javascript" src="../src/js/fresh.js" chartset="UTF-8"></script>
+  <script type="text/javascript">
+  </script>
+  <style type="text/css">
+      * {
+          margin: 0;
+          padding: 0;
+      }
+
+      html,
+      body {
+          height: 100%;
+          width: 100%;
+      }
+      .text-1{
+          padding:10px 0;
+          text-align: center;
+      }
+      .slide-wapper {
+          height: 100%;
+          overflow-y: scroll;
+      }
+
+      .slide-item {
+          background: #e5e8eb;
+      }
+
+      .dropdown {
+          height: 45px;
+          line-height: 45px;
+          border-top: 1px solid #ccc;
+          text-align: center;
+      }
+      .dropdown i{
+          font-style: normal;
+      }
+
+      .dropdown .loading {
+          display: none;
+      }
+
+      .dropdown.current .loading {
+          display: inline-block;
+      }
+
+      .dropdown.current i {
+          display: none;
+      }
+
+      .loading>div {
+          border-radius: 100%;
+          margin: 2px;
+          margin-top:7px;
+          border: 1px solid #333;
+          border-bottom-color: transparent;
+          height: 25px;
+          width: 25px;
+          background: 0 0!important;
+          display: inline-block;
+          -webkit-animation: rotate .75s 0s linear infinite;
+          animation: rotate .75s 0s linear infinite;
+      }
+
+      @-webkit-keyframes rotate {
+          0% {
+              -webkit-transform: rotate(0deg) scale(1);
+              transform: rotate(0deg) scale(1);
+          }
+          50% {
+              -webkit-transform: rotate(180deg) scale(0.6);
+              transform: rotate(180deg) scale(0.6);
+          }
+          100% {
+              -webkit-transform: rotate(360deg) scale(1);
+              transform: rotate(360deg) scale(1);
+          }
+      }
+
+      @keyframes rotate {
+          0% {
+              -webkit-transform: rotate(0deg) scale(1);
+              transform: rotate(0deg) scale(1);
+          }
+          50% {
+              -webkit-transform: rotate(180deg) scale(0.6);
+              transform: rotate(180deg) scale(0.6);
+          }
+          100% {
+              -webkit-transform: rotate(360deg) scale(1);
+              transform: rotate(360deg) scale(1);
+          }
+      }
+  </style>
+</head>
+    <div class="slide-wapper">
+        <div class="slide-item" role="freshList">
+            <!-- 顶部下拉刷新 -->
+            <div class="dropdown">
+                <i>下拉加载更多</i>
+                <div class="loading"><div></div></div>
+            </div>
+           <div class="image-item">
+               <img src="http://img.yi114.com/201662692919_banner1.jpg" alt="" width="100%">
+               <div class="text-1">这是图片哦</div>
+           </div>
+           <div class="image-item">
+               <img src="http://img.yi114.com/201662692920_banner2.jpg" alt="" width="100%">
+               <div class="text-1">这是图片哦</div>
+           </div>
+           <div class="image-item">
+               <img src="http://img.yi114.com/201662692920_banner3.jpg" alt="" width="100%">
+               <div class="text-1">这是图片哦</div>
+           </div>
+           <div class="image-item">
+               <img src="http://img.yi114.com/201662692919_banner1.jpg" alt="" width="100%">
+               <div class="text-1">这是图片哦</div>
+           </div>
+           <div class="image-item">
+               <img src="http://img.yi114.com/201662692920_banner2.jpg" alt="" width="100%">
+               <div class="text-1">这是图片哦</div>
+           </div>
+           <div class="image-item">
+               <img src="http://img.yi114.com/201662692920_banner3.jpg" alt="" width="100%">
+               <div class="text-1">这是图片哦</div>
+           </div>
+           <div class="image-item">
+               <img src="http://img.yi114.com/201662692919_banner1.jpg" alt="" width="100%">
+               <div class="text-1">这是图片哦</div>
+           </div>
+           <div class="image-item">
+               <img src="http://img.yi114.com/201662692920_banner2.jpg" alt="" width="100%">
+               <div class="text-1">这是图片哦</div>
+           </div>
+           <div class="image-item">
+               <img src="http://img.yi114.com/201662692920_banner3.jpg" alt="" width="100%">
+               <div class="text-1">这是图片哦</div>
+           </div>
+            <!-- 底部上拉刷新 -->
+           <!--  <div class="dropdown" role="freshBottom">
+                <i>上拉加载更多</i>
+                <div class="loading">
+                    <div></div>
+                </div>
+            </div> -->
+        </div>
+    </div>
+<body>
+
+    <script type="text/javascript" chartset="UTF-8">
+        $('.slide-wapper').IUI('fresh',{
+            //默认参数：true  底部上拉刷新
+            // diretion: true,
+
+            //顶部下拉刷新
+            diretion: false,
+
+            startTouch: function() {
+                $('.dropdown').removeClass('current');
+            },
+
+            afterFresh: function() {
+                $('.dropdown').addClass('current');
+                //执行ajax操作
+                $.ajax({
+                    url: '',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {param1: 'value1'},
+                })
+                .done(function() {
+                    console.log("success");
+                    $('.dropdown').removeClass('current');
+                })
+                .fail(function() {
+                    console.log("error");
+                    //$('.dropdown').removeClass('current');
+                })
+
+            }
+        });
+    </script>
+  </div>
+</body>
+
+</html>

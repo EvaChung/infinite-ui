@@ -780,13 +780,6 @@
                 config.cancelCall.apply($selector, [event, this]);
                 return false;
             });
-
-            // 绑定 esc 键盘控制
-            $(document).off('keyup.iui-layer').on('keyup.iui-layer', function(event) {
-                if (event.keyCode === 27) {
-                    $selector.trigger('click.iui-layer', config.closeHandle);
-                }
-            });
         };
 
         Layer.prototype.showLayer = function(cutto) {
@@ -825,7 +818,12 @@
 
             //插入-弹层-css3显示动画
             self.$content.addClass('layer-opening');
-
+            // 绑定 esc 键盘控制
+            $(document).on('keyup.iui-layer', function(event) {
+                if (event.keyCode === 27) {
+                    self.$selector.trigger('click.iui-layer', config.closeHandle);
+                }
+            });
             //触发show事件
             self.$selector.trigger('layer.show', [self]);
             //触发showCall回调
@@ -853,7 +851,8 @@
                     $(this).remove();
                 });
             }
-
+            // 绑定 esc 键盘控制
+            $(document).off('keyup.iui-layer');
             //触发hide事件
             self.$selector.trigger('layer.hide', [this]);
             //触发hideCall回调
@@ -869,6 +868,17 @@
             currentLayer.hideLayer(true);
             nextLayer.showLayer(true);
 
+        };
+
+        Layer.prototype.destroy = function() {
+            var self = this;
+            var $selector = self.$selector;
+            var config = self.config;
+            //确认事件
+            $selector.off('click.iui-layer', config.confirmHandle);
+            $selector.off('click.iui-layer');
+            $selector.off('click.iui-layer', config.closeHandle);
+            $selector.remove();
         };
 
 
@@ -1199,54 +1209,54 @@
     });
 
     /**
-         * validate 组件
-         *
-         * *** options ***
-         *
-         * @param {Element selector}             globalMessage       全局提示id，若为false，则逐项提示
-         * @param {Element selector}             errorClass          验证信息 - 错误 class
-         * @param {Element selector}             infoClass           验证信息 - 提示 class  若为false，则无info提示
-         * @param {Element selector}             successClass        验证信息 - 成功 class  若为false，则无info提示
-         * @param {Array}                        collections         验证规则配置
-         * @param {Object}                       strategy            新增验证规则
-         *
-         *
-         * collections 语法：[{验证项},{验证项},{验证项},{验证项}]
-         *
-         * 验证项 语法：
-         *
-            {
-                required: 'password',                                 // 对应 input[data-required]
-                context: '.form-group',                               // data-required的执行上下文
-                infoMsg: '请输入您的密码，字符长度为3-16位',             // 提示信息
-                matches: {                                           // 组合验证
-                    isNonEmpty: {                                    // 对应 strategy 中存在的验证方法
-                        errMsg: '密码不能为空'                        //  验证错误的返回信息
-                    },
-                    between: {
-                        errMsg: '密码长度为6-16位',
-                        range:[6,16]                                //可自定义字段
-                    }
+     * validate 组件
+     *
+     * *** options ***
+     *
+     * @param {Element selector}             globalMessage       全局提示id，若为false，则逐项提示
+     * @param {Element selector}             errorClass          验证信息 - 错误 class
+     * @param {Element selector}             infoClass           验证信息 - 提示 class  若为false，则无info提示
+     * @param {Element selector}             successClass        验证信息 - 成功 class  若为false，则无info提示
+     * @param {Array}                        collections         验证规则配置
+     * @param {Object}                       strategy            新增验证规则
+     *
+     *
+     * collections 语法：[{验证项},{验证项},{验证项},{验证项}]
+     *
+     * 验证项 语法：
+     *
+        {
+            required: 'password',                                 // 对应 input[data-required]
+            context: '.form-group',                               // data-required的执行上下文
+            infoMsg: '请输入您的密码，字符长度为3-16位',             // 提示信息
+            matches: {                                           // 组合验证
+                isNonEmpty: {                                    // 对应 strategy 中存在的验证方法
+                    errMsg: '密码不能为空'                        //  验证错误的返回信息
+                },
+                between: {
+                    errMsg: '密码长度为6-16位',
+                    range:[6,16]                                //可自定义字段
                 }
             }
+        }
 
-         *
-         *
-         * *** events ***
-         *
-         * $('any element').on('validate.focus',function(event,matches){});
-         *
-         * $('any element').on('validate.blur',function(event,matches){});
-         *
-         *
-         *
-         * *** methods ***
-         *
-         *  batch           详情请查阅源码部分
-         *  message         详情请查阅源码部分
-         *  verify          详情请查阅源码部分
-         *
-         */
+     *
+     *
+     * *** events ***
+     *
+     * $('any element').on('validate.focus',function(event,matches){});
+     *
+     * $('any element').on('validate.blur',function(event,matches){});
+     *
+     *
+     *
+     * *** methods ***
+     *
+     *  batch           详情请查阅源码部分
+     *  message         详情请查阅源码部分
+     *  verify          详情请查阅源码部分
+     *
+     */
     $.fn.IUI({
         validate: function(options) {
             /**
@@ -1362,7 +1372,7 @@
                 errorClass: '.validate-error',
                 infoClass: '.validate-info',
                 successClass: '.validate-success',
-                collections: null,
+                collections: [],
                 strategy: GLOB_STRATEGY
             };
 
@@ -1373,6 +1383,7 @@
                 this.options = $.extend(true, {}, defaults, options);
                 this.$selector = selector;
                 this.cache = {};
+                this.result = null;
                 this.init();
             }
 
@@ -1383,6 +1394,11 @@
             Validate.prototype.init = function() {
                 var self = this;
                 var statusArr = ['info', 'success', 'error'];
+
+                if (self.options.collections.length === 0) {
+                    return false;
+                }
+
                 self.add();
                 $.each(self.cache, function(name, fields) {
                     if (fields.context.length === 0) {
@@ -1457,7 +1473,7 @@
                 for (name in cache) {
                     src = cache[name].self;
                     required = src.data('required');
-                    type = src[0].type;
+                    type = src[0] ? src[0].type : '';
                     $target = self.$selector.find('[data-required=' + required + ']');
 
                     if ($.inArray(required, queue) !== -1) {
@@ -1510,8 +1526,15 @@
 
                 $.each(handleArr, function(key, value) {
                     var $target = $selector.find(value);
-                    var type = $target[0].type;
-                    var requiredName = value.replace('[', '').replace(']', '').split('=')[1];
+                    var type, requiredName;
+
+                    if ($target[0] === void 0) {
+                        return;
+                    }
+
+                    type = $target[0].type;
+
+                    requiredName = value.replace('[', '').replace(']', '').split('=')[1];
 
                     if ($target.data('event.iui-validate')) {
                         return;
@@ -3341,6 +3364,129 @@
 
     })(jQuery);
 
+    (function() {
+
+        var template = '<div class="IUI-dialog-container hide">' +
+            '<div role="content"></div>' +
+            '<div role="operate">' +
+            '<a href="javascript:;" role="confirm" class="btn btn-primary">确定</a>' +
+            '<a href="javascript:;" class="btn btn-default" role="cancel">取消</a>' +
+            '</div>' +
+            '</div>';
+        var defaults = {
+            handle: '[data-dialog]', //绑定监听对象
+            container: 'body', //全局作用域
+            offsetX: 0, //全局微调 X 位置
+            offsetY: 10, //全局微调 Y 位置
+            compiler: null, //有无模板引擎
+            data: {} //传参，当compiler存在时有效
+        };
+
+        function Dialog(config) {
+            this.$selector = $(config.handle);
+            this.$template = $(template);
+            this.$container = $(config.container);
+            this.config = config;
+            this.containerPos = $(config.container)[0].getBoundingClientRect();
+            this.init();
+        }
+
+        Dialog.prototype.init = function() {
+            var self = this;
+
+
+            // show
+            this.$container.on('click.IUI-dialog', this.config.handle, function(event) {
+                var $this = $(this);
+                var eventSpace = $this.data('dialogid') ? ('.dialog-' + $this.data('dialogid')) : '.dialog';
+                $this.trigger('show' + eventSpace, [self]);
+                self.show($this);
+                $this.trigger('after' + eventSpace, [self]);
+                event.stopPropagation();
+            });
+
+            // hide
+            this.$container.on('click.IUI-dialog', function(event) {
+                var $this = $(this);
+                $this.trigger('hide.dialog', [self]);
+                self.hide();
+            });
+
+            // cut bubbling
+            this.$container.on('click', '.IUI-dialog-container', function(event) {
+                event.stopPropagation();
+            });
+
+            // cancel
+            this.$container.on('click', '.IUI-dialog-container [role="cancel"]', function(event) {
+                var $this = $(this);
+                var id = self.$template.data('caller').data('dialogid');
+                var eventSpace = id ? ('.dialog-' + id) : '.dialog';
+                self.hide();
+                $this.trigger('cancel' + eventSpace, [self]);
+            });
+
+            // confirm
+            this.$container.on('click', '.IUI-dialog-container [role="confirm"]', function(event) {
+                event.preventDefault();
+                var $this = $(this);
+                var id = self.$template.data('caller').data('dialogid');
+                var eventSpace = id ? ('.dialog-' + id) : '.dialog';
+                $this.trigger('confirm' + eventSpace, [self]);
+
+            });
+        };
+
+        Dialog.prototype.show = function(handle) {
+            var config = this.config;
+            var $handle = handle;
+            var pos = handle[0].getBoundingClientRect();
+            var handlePosX = pos.left;
+            var handlePosY = pos.top;
+            var containerPosX = this.containerPos.left;
+            var containerPosY = this.containerPos.top;
+            var handleWidth = $handle.outerWidth() / 2;
+            var handleHeight = $handle.outerHeight();
+            var $template = this.$template;
+            var $content = $($handle.attr('data-dialog'));
+            var content = config.compiler ? config.compiler($handle.attr('data-dialog').replace(/\#|\./, ''), config.data) : $content.html();
+            var screenWidth = $(document).width();
+            var screenHeight = $(document).height();
+            var triPos = '';
+            this.$container.css({
+                'position': 'relative'
+            });
+            $template.find('[role="content"]').html(content);
+            $template.appendTo(config.container).removeClass('hide');
+            handlePosX -= $template.outerWidth() / 2 - handleWidth + config.offsetX;
+            handlePosY -= containerPosY - handleHeight - this.$container.scrollTop() - config.offsetY;
+
+            if (screenWidth - pos.left < $template.outerWidth() / 2) {
+                handlePosX = pos.left - ($template.outerWidth() - handleWidth * 2);
+                triPos = 'right';
+            } else if (pos.left === 0) {
+                handlePosX = pos.left;
+                triPos = 'left';
+            }
+
+            $template.removeClass('left right').addClass(triPos).css({
+                left: handlePosX,
+                top: handlePosY
+            }).data('caller', $handle).data('dialog', this);
+        };
+
+        Dialog.prototype.hide = function() {
+            this.$container.removeAttr('style');
+            this.$template.remove();
+        };
+
+        $.extend({
+            dialog: function(config) {
+                return new Dialog($.extend({}, defaults, config));
+            }
+        });
+    }());
+
     /**
      * hideNavbar 组件
      * @description  滚动隐藏导航
@@ -3420,6 +3566,197 @@
         }
     });
 
+    /**
+     * mPicker 组件
+     *
+     * *** options ***
+     *
+     * @param {Str}                                 display    显示的方式，默认是显示在底部    'bottom'/'modal'
+     * @param {Boolean}                             shadow     点击遮罩隐藏组件 - 默认为false;若为false，则禁止点击遮罩隐藏组件
+     * @param {Number}                              level      显示的层级，默认：1
+     * @param {Number}                              rows       picker显示的行数，默认：4
+     * @param {Boolean}                             Linkage    选择联动 - 若为false，则不联动
+     * @param {Array}                               dataJson   渲染picker的json - 有规定的格式，可查看json文件。不联动默认遍历获取第一个json
+     * @param {Number}                              height     每一行的高度
+     * @param {Boolean}                             idDefault  匹配默认值 - 若为false，则不匹配
+     * @param {Str}                                 splitStr   设置分割value的符号，与默认值和显示在input里的值有关
+     * @param {Boolean}                             isshort    是否开启简写，默认是关闭的
+     * @param {Element selector}                    header     picker头部html
+     *@param {function}                             confirm: function() {}
+     *@param {function}                             cancel: function() {}
+     *
+     * *** 关于json格式 ***
+     *jsonChange.js是针对campaign里的json做的格式转换
+     *
+     * *** 关于value值 ***
+     *
+     *$('.select-value').data('value1')：第一级的value值
+     *$('.select-value').data('value2')：第二级的value值
+     *
+     *
+     * *** methods ***
+     *
+     *  show                详情请查阅源码部分
+     *  hide                详情请查阅源码部分
+     *  updateData          详情请查阅源码部分
+     *
+     */
+
+    $.fn.IUI({
+        fresh: function(options) {
+            var freshDefaults = {
+                diretion: true,
+                startTouch: function() {},
+                afterFresh: function() {}
+            };
+
+            function Fresh(ele, options) {
+                this.container = ele;
+                this.options = $.extend(true, freshDefaults, options);
+                this.event();
+            }
+            Fresh.prototype.event = function() {
+                var _this = this;
+                var startY, curY, moveY;
+                //上拉刷新是禁止页面滚动
+                document.body.addEventListener('touchmove', function(event) {
+                    if (_this.lock) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                }, false);
+
+                this.container.on({
+
+                    touchstart: function(e) {
+
+                        fnTouches(e);
+
+                        startY = e.touches[0].pageY;
+
+                        changeTime.call(_this, 0);
+
+                        _this.options.startTouch.call(_this);
+
+                    },
+                    touchmove: function(e) {
+
+                        fnTouches(e);
+
+                        var _translate;
+
+                        curY = e.touches[0].pageY;
+
+                        if (_this.options.diretion) {
+                            freshBottom.call(_this, startY, curY, moveY);
+                            //freshBottom();
+                        } else {
+                            freshTop.call(_this, startY, curY, moveY);
+                        }
+
+                    },
+
+                    touchend: function(e) {
+
+                        if (_this.lock) {
+
+                            changeTime.call(_this, 300);
+
+                            _translateY(_this.container, 0);
+
+                            _this.lock = 0;
+
+                            _this.options.afterFresh.call(_this);
+                        }
+                    }
+                });
+            };
+
+            function freshBottom(startY, curY, moveY) {
+                var $this = this.container;
+                var height = $this.height();
+                var childHeight = $this.find('[role="freshList"]').height();
+                //向上
+                if (curY > startY) {
+
+                    this.lock = 0;
+                }
+
+                //向下且滚动到底部了
+                if (curY < startY && $this.scrollTop() + height >= childHeight) {
+
+                    if (!this.lock) {
+
+                        this.lock = 1;
+                    }
+
+                    moveY = curY - startY;
+
+                    _translate = Math.round(moveY * 0.5);
+
+                    if (moveY < -10) {
+
+                        _translate = Math.round((moveY * 0.5 + 10) * 0.3 - 10);
+
+                    }
+
+                    _translateY($this, _translate);
+                }
+            }
+
+            function freshTop(startY, curY, moveY) {
+                var $this = this.container;
+                //向下
+                if (curY < startY) {
+
+                    this.lock = 0;
+                }
+
+                //向上且到顶部
+                if (curY > startY && $this.scrollTop() <= 0) {
+
+                    if (!this.lock) {
+
+                        this.lock = 1;
+                    }
+
+                    moveY = curY - startY;
+
+                    _translate = Math.round(moveY * 0.5);
+
+                    if (moveY > 10) {
+
+                        _translate = Math.round((moveY * 0.5 + 10) * 0.3 - 10);
+
+                    }
+
+                    _translateY($this, _translate);
+                }
+            }
+            // touches
+            function fnTouches(e) {
+
+                if (!e.touches) {
+                    e.touches = e.originalEvent.touches;
+                }
+            }
+
+            function _translateY(obj, y) {
+                obj.css({
+                    "-webkit-transform": 'translateY(' + y + 'px)',
+                    transform: 'translateY(' + y + 'px)'
+                });
+            }
+
+            function changeTime(times) {
+                this.container.css({
+                    '-webkit-transition-duration': times + 'ms',
+                    'transition-duration': times + 'ms'
+                });
+            }
+            return new Fresh(this, options);
+        }
+    });
     /**
      * panel 组件
      * @param {Number}		delay 		动画时间，单位毫秒

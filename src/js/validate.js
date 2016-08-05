@@ -1,52 +1,52 @@
 /**
-     * validate 组件
-     *
-     * *** options ***
-     *
-     * @param {Element selector}             globalMessage       全局提示id，若为false，则逐项提示
-     * @param {Element selector}             errorClass          验证信息 - 错误 class
-     * @param {Element selector}             infoClass           验证信息 - 提示 class  若为false，则无info提示
-     * @param {Element selector}             successClass        验证信息 - 成功 class  若为false，则无info提示
-     * @param {Array}                        collections         验证规则配置
-     * @param {Object}                       strategy            新增验证规则
-     *
-     *
-     * collections 语法：[{验证项},{验证项},{验证项},{验证项}]
-     *
-     * 验证项 语法：
-     *
-        {
-            required: 'password',                                 // 对应 input[data-required]
-            context: '.form-group',                               // data-required的执行上下文
-            infoMsg: '请输入您的密码，字符长度为3-16位',             // 提示信息
-            matches: {                                           // 组合验证
-                isNonEmpty: {                                    // 对应 strategy 中存在的验证方法
-                    errMsg: '密码不能为空'                        //  验证错误的返回信息
-                },
-                between: {
-                    errMsg: '密码长度为6-16位',
-                    range:[6,16]                                //可自定义字段
-                }
+ * validate 组件
+ *
+ * *** options ***
+ *
+ * @param {Element selector}             globalMessage       全局提示id，若为false，则逐项提示
+ * @param {Element selector}             errorClass          验证信息 - 错误 class
+ * @param {Element selector}             infoClass           验证信息 - 提示 class  若为false，则无info提示
+ * @param {Element selector}             successClass        验证信息 - 成功 class  若为false，则无info提示
+ * @param {Array}                        collections         验证规则配置
+ * @param {Object}                       strategy            新增验证规则
+ *
+ *
+ * collections 语法：[{验证项},{验证项},{验证项},{验证项}]
+ *
+ * 验证项 语法：
+ *
+    {
+        required: 'password',                                 // 对应 input[data-required]
+        context: '.form-group',                               // data-required的执行上下文
+        infoMsg: '请输入您的密码，字符长度为3-16位',             // 提示信息
+        matches: {                                           // 组合验证
+            isNonEmpty: {                                    // 对应 strategy 中存在的验证方法
+                errMsg: '密码不能为空'                        //  验证错误的返回信息
+            },
+            between: {
+                errMsg: '密码长度为6-16位',
+                range:[6,16]                                //可自定义字段
             }
         }
+    }
 
-     *
-     *
-     * *** events ***
-     *
-     * $('any element').on('validate.focus',function(event,matches){});
-     *
-     * $('any element').on('validate.blur',function(event,matches){});
-     *
-     *
-     *
-     * *** methods ***
-     *
-     *  batch           详情请查阅源码部分
-     *  message         详情请查阅源码部分
-     *  verify          详情请查阅源码部分
-     *
-     */
+ *
+ *
+ * *** events ***
+ *
+ * $('any element').on('validate.focus',function(event,matches){});
+ *
+ * $('any element').on('validate.blur',function(event,matches){});
+ *
+ *
+ *
+ * *** methods ***
+ *
+ *  batch           详情请查阅源码部分
+ *  message         详情请查阅源码部分
+ *  verify          详情请查阅源码部分
+ *
+ */
 $.fn.IUI({
   validate: function(options) {
     /**
@@ -162,7 +162,7 @@ $.fn.IUI({
       errorClass: '.validate-error',
       infoClass: '.validate-info',
       successClass: '.validate-success',
-      collections: null,
+      collections: [],
       strategy: GLOB_STRATEGY
     };
 
@@ -173,6 +173,7 @@ $.fn.IUI({
       this.options = $.extend(true, {}, defaults, options);
       this.$selector = selector;
       this.cache = {};
+      this.result = null;
       this.init();
     }
 
@@ -183,6 +184,11 @@ $.fn.IUI({
     Validate.prototype.init = function() {
       var self = this;
       var statusArr = ['info', 'success', 'error'];
+
+      if(self.options.collections.length === 0 ){
+        return false;
+      }
+
       self.add();
       $.each(self.cache, function(name, fields) {
         if (fields.context.length === 0) {
@@ -207,13 +213,13 @@ $.fn.IUI({
       var $dom = this.$selector.find('[data-required=' + options.required + ']');
       var $context = $dom.parents(options.context).eq(0);
       var msg;
-      if($context.length === 0){
-        msg = '{context:'+ options.context +'} is invalid , it may prevent the triggering event';
+      if ($context.length === 0) {
+        msg = '{context:' + options.context + '} is invalid , it may prevent the triggering event';
         if (window.console) {
-            console.warn(msg);
-          } else {
-            throw msg;
-          }
+          console.warn(msg);
+        } else {
+          throw msg;
+        }
       }
       //防止重复
       if (this.cache[options.required]) {
@@ -257,7 +263,7 @@ $.fn.IUI({
       for (name in cache) {
         src = cache[name].self;
         required = src.data('required');
-        type = src[0].type;
+        type = src[0] ? src[0].type : '';
         $target = self.$selector.find('[data-required=' + required + ']');
 
         if ($.inArray(required, queue) !== -1) {
@@ -310,8 +316,15 @@ $.fn.IUI({
 
       $.each(handleArr, function(key, value) {
         var $target = $selector.find(value);
-        var type = $target[0].type;
-        var requiredName = value.replace('[', '').replace(']', '').split('=')[1];
+        var type,requiredName;
+
+        if($target[0] === void 0){
+          return;
+        }
+
+        type = $target[0].type;
+
+        requiredName = value.replace('[', '').replace(']', '').split('=')[1];
 
         if ($target.data('event.iui-validate')) {
           return;

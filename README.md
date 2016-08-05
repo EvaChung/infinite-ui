@@ -70,6 +70,8 @@ http://localhost:3000/examples/index.html
 ```
 
 ##History
+* 2016年08月05日 更新记录：
+  * `layer` 修复 esc快捷键退出失效的问题
 * 2016年07月15日 更新记录：
   * `validate` 修复一些 bug
   * 新增`dialog`组件

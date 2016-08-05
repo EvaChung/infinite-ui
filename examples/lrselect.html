@@ -5,10 +5,21 @@
     <meta charset="UTF-8">
     <title>select</title>
     <link rel="stylesheet" href="../dist/style-pc.css">
+    <style>
+        .clearfix:before{
+            content: " ";
+            display: table;
+        }
+        /* line 19, ../../sass/bootstrap/mixins/_clearfix.scss */
+        .clearfix:after {
+            clear: both;
+        }
+    </style>
 </head>
 
 <body>
     <div class="main">
+
         <div class="lrselect-main clearfix">
             <select name="multi[]" id="" multiple="multiple"></select>
             <div class="lrselect-box">
