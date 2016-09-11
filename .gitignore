@@ -1,9 +1,9 @@
 .DS_Store
 .svn/*
 .sass-cache/*
-./node_modules/*
-./css-helpers/*
-./exp-om/*
-./exp-pv/*
-./gulp-web/*
-./iui-web/*
+node_modules/*
+css-helpers/*
+exp-om/*
+exp-pv/*
+gulp-web/*
+iui-web/*
