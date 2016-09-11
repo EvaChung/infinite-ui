@@ -20,6 +20,22 @@ $.extend({
     var scrollBarWidth = IUI_UTILS.scrollBarWidth;
     var $body = $('body');
     var animateTime = document.all && !window.atob ? 0 : 200;
+    var isIE = document.all && !window.atob;
+    function animateEnd(el, fn) {
+        if (isIE) {
+            fn();
+        } else {
+            el.on(IUI_UTILS.animateEnd, fn);
+        }
+    }
+
+    function transitionEnd(el,fn){
+      if(isIE){
+        fn();
+      }else{
+        el.on(IUI_UTILS.transitionEnd,fn);
+      }
+    }
     var defaults = {
       title: '',
       content: '',
@@ -54,7 +70,7 @@ $.extend({
     };
 
     if (!$.alertBackdrop) {
-      $.alertBackdrop = $('<div class="IUI-alert-backdrop" style="display:none"></div>');
+      $.alertBackdrop = $('<div class="IUI-alert-backdrop"></div>');
       $body.append($.alertBackdrop);
     }
 
@@ -121,6 +137,8 @@ $.extend({
     function show(target) {    
         var screenH = document.documentElement.clientHeight;
         var GtIE10 = document.body.style.msTouchAction === undefined;
+        target.find('.IUI-alert-main').off(IUI_UTILS.animateEnd);
+        $.alertBackdrop.off(IUI_UTILS.transitionEnd);
         //当body高度大于可视高度，修正滚动条跳动
         //tmd,>=ie10的滚动条不需要做此修正
         if ($('body').height() > screenH & GtIE10) {
@@ -128,9 +146,10 @@ $.extend({
         }
        
         target.removeClass('hide');
+        $.alertBackdrop.attr('style', 'opacity: 1;visibility: visible;');
         target.find('.IUI-alert-main').addClass('alert-opening');
-        $.alertBackdrop.removeClass('hide').fadeIn(animateTime, function() {
-            target.find('.IUI-alert-main').removeClass('alert-opening');
+        animateEnd(target.find('.IUI-alert-main'),function(event){
+          target.find('.IUI-alert-main').removeClass('alert-opening');
         });
     }
     /**
@@ -140,10 +159,10 @@ $.extend({
     function hide(target) {
         $([$body, target]).off('touchstart.iui-alert click.iui-alert');
         target.addClass('alert-closing');
-        $.alertBackdrop.fadeOut(animateTime, function() {
-            $(this).addClass('hide');
+        $.alertBackdrop.removeAttr('style');
+        transitionEnd($.alertBackdrop,function(event){
             target.remove();
-             $body.removeAttr('style');
+            $body.removeAttr('style');
         });
     }
     /**

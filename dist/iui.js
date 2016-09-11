@@ -157,6 +157,23 @@
             var scrollBarWidth = IUI_UTILS.scrollBarWidth;
             var $body = $('body');
             var animateTime = document.all && !window.atob ? 0 : 200;
+            var isIE = document.all && !window.atob;
+
+            function animateEnd(el, fn) {
+                if (isIE) {
+                    fn();
+                } else {
+                    el.on(IUI_UTILS.animateEnd, fn);
+                }
+            }
+
+            function transitionEnd(el, fn) {
+                if (isIE) {
+                    fn();
+                } else {
+                    el.on(IUI_UTILS.transitionEnd, fn);
+                }
+            }
             var defaults = {
                 title: '',
                 content: '',
@@ -191,7 +208,7 @@
             };
 
             if (!$.alertBackdrop) {
-                $.alertBackdrop = $('<div class="IUI-alert-backdrop" style="display:none"></div>');
+                $.alertBackdrop = $('<div class="IUI-alert-backdrop"></div>');
                 $body.append($.alertBackdrop);
             }
 
@@ -258,6 +275,8 @@
             function show(target) {
                 var screenH = document.documentElement.clientHeight;
                 var GtIE10 = document.body.style.msTouchAction === undefined;
+                target.find('.IUI-alert-main').off(IUI_UTILS.animateEnd);
+                $.alertBackdrop.off(IUI_UTILS.transitionEnd);
                 //当body高度大于可视高度，修正滚动条跳动
                 //tmd,>=ie10的滚动条不需要做此修正
                 if ($('body').height() > screenH & GtIE10) {
@@ -268,8 +287,9 @@
                 }
 
                 target.removeClass('hide');
+                $.alertBackdrop.attr('style', 'opacity: 1;visibility: visible;');
                 target.find('.IUI-alert-main').addClass('alert-opening');
-                $.alertBackdrop.removeClass('hide').fadeIn(animateTime, function() {
+                animateEnd(target.find('.IUI-alert-main'), function(event) {
                     target.find('.IUI-alert-main').removeClass('alert-opening');
                 });
             }
@@ -280,8 +300,8 @@
             function hide(target) {
                 $([$body, target]).off('touchstart.iui-alert click.iui-alert');
                 target.addClass('alert-closing');
-                $.alertBackdrop.fadeOut(animateTime, function() {
-                    $(this).addClass('hide');
+                $.alertBackdrop.removeAttr('style');
+                transitionEnd($.alertBackdrop, function(event) {
                     target.remove();
                     $body.removeAttr('style');
                 });
@@ -643,23 +663,28 @@
      */
 
     (function($, window) {
-
+        var version = '3.1.0';
         var scrollBarWidth = IUI_UTILS.scrollBarWidth;
-
+        var isIE = document.all && !window.atob;
         var $body = $('body');
-        var backdrop = $('<div class="layer-backdrop" style="display:none"></div>');
-        // 检测是否IE9-
-        // 注：animateTime的时间与 layer-opening css 的 animation-time 必须一致
-        var animateTime = document.all && !window.atob ? 0 : 200;
+        var backdrop = $('<div class="layer-backdrop"></div>');
 
-        function hideCall(obj) {
-            var self = obj;
-            //隐藏弹层
-            self.$selector.addClass('hide');
-            //移除css3隐藏动画
-            self.$content.removeClass('layer-closing');
-            //恢复 body 滚动条
-            $body.removeAttr('style');
+
+
+        function animateEnd(el, fn) {
+            if (isIE) {
+                fn();
+            } else {
+                el.on(IUI_UTILS.animateEnd, fn);
+            }
+        }
+
+        function transitionEnd(el, fn) {
+            if (isIE) {
+                fn();
+            } else {
+                el.on(IUI_UTILS.transitionEnd, fn);
+            }
         }
 
         function Layer(config, selector) {
@@ -787,43 +812,42 @@
             var config = self.config;
             var $backdrop = self.$backdrop;
             var screenH = document.documentElement.clientHeight;
-            var GtIE10 = document.body.style.msTouchAction === undefined;
+            var gtIE10 = document.body.style.msTouchAction === undefined;
             var isCutto = cutto;
             // 当body高度大于可视高度，修正滚动条跳动
             // >=ie10的滚动条不需要做此修正,tmd :(
-            if ($('body').height() > screenH & GtIE10) {
-                $body.css({
+            if ($('body').height() > screenH & (gtIE10)) {
+                $('body').css({
                     'border-right': scrollBarWidth + 'px transparent solid',
                     'overflow': 'hidden'
                 });
             }
             //显示层
             self.$selector.removeClass('hide');
+            self.$content.off(IUI_UTILS.animateEnd);
+
             if (isCutto) {
-                setTimeout(animateTime, function() {
-                    //注：animateTime的时间与 layer-opening css 的 animation-time 必须一致
-                    //移除-弹层-css3显示动画
-                    self.$content.removeClass('layer-opening');
-                });
+                self.$content.removeClass('layer-opening');
             } else {
                 //插入-遮罩-dom
                 self.$selector.after($backdrop);
                 //插入-遮罩-显示动画
-                $backdrop.fadeIn(animateTime, function() {
-                    //注：animateTime的时间与 layer-opening css 的 animation-time 必须一致
-                    //移除-弹层-css3显示动画
-                    self.$content.removeClass('layer-opening');
-                });
+                $backdrop.attr('style', 'opacity: 1;visibility: visible;');
             }
 
             //插入-弹层-css3显示动画
             self.$content.addClass('layer-opening');
+            animateEnd(self.$content, function(event) {
+                self.$content.removeClass('layer-opening');
+            });
+
             // 绑定 esc 键盘控制
             $(document).on('keyup.iui-layer', function(event) {
                 if (event.keyCode === 27) {
                     self.$selector.trigger('click.iui-layer', config.closeHandle);
                 }
             });
+
             //触发show事件
             self.$selector.trigger('layer.show', [self]);
             //触发showCall回调
@@ -837,27 +861,30 @@
             var self = this;
             var config = self.config;
             var isCutto = cutto;
-
             //插入-弹层-隐藏动画
+            self.$content.off(IUI_UTILS.animateEnd);
             self.$content.addClass('layer-closing');
-
-            if (isCutto) {
-                hideCall(self);
-            } else {
-                //插入-遮罩-隐藏动画
-                self.$backdrop.fadeOut(animateTime, function() {
-                    hideCall(self);
-                    //移除遮罩dom
-                    $(this).remove();
+            if (!isCutto) {
+                self.$backdrop.removeAttr('style');
+                transitionEnd(self.$backdrop, function() {
+                    self.$backdrop.remove();
                 });
             }
+            animateEnd(self.$content, function(event) {
+                //插入-遮罩-隐藏动画
+                self.$content.removeClass('layer-closing');
+                //隐藏弹层
+                self.$selector.addClass('hide');
+            });
+
+            //恢复 body 滚动条
+            $body.removeAttr('style');
             // 绑定 esc 键盘控制
             $(document).off('keyup.iui-layer');
             //触发hide事件
             self.$selector.trigger('layer.hide', [this]);
             //触发hideCall回调
             config.hideCall.apply(self.$selector, [self]);
-
             return self;
         };
 
@@ -1341,13 +1368,13 @@
                 },
                 //数字包含小数
                 onlyNum: function(params) {
-                    if (!/^[0-9]+([.][0-9]+){0,1}$/.test(value)) {
+                    if (!/^[0-9]+([.][0-9]+){0,1}$/.test(this.self[0].value)) {
                         return false;
                     }
                 },
                 //整数
                 onlyInt: function(params) {
-                    if (!/^[0-9]*$/.test(value)) {
+                    if (!/^[0-9]*$/.test(this.self[0].value)) {
                         return false;
                     }
                 },
@@ -1383,7 +1410,7 @@
                 this.options = $.extend(true, {}, defaults, options);
                 this.$selector = selector;
                 this.cache = {};
-                this.result = null;
+                this.errors = {};
                 this.init();
             }
 
@@ -1486,6 +1513,7 @@
                         delete cache[name];
                     }
                 }
+                self.bindEvent();
 
             };
 
@@ -1511,7 +1539,7 @@
                 if (options) {
                     $.merge(self.options.collections, options);
                 }
-                this.bindEvent();
+                self.bindEvent();
             };
 
 
@@ -1584,9 +1612,7 @@
                     status = result === void(0) ? 1 : 2;
                     $this.data('validateStatus', result);
                     glob.message(status, collections, name);
-
                     return status === 2 ? false : true;
-
                 });
 
                 $this.trigger('validate.' + eventName, collections);
@@ -1601,28 +1627,31 @@
              * @param  {String} matchesName 验证函数名
              *
              */
-            Validate.prototype.message = function(status, options, matchesName) {
-
-                var className, contextClass, msg, $target, $msgEl;
-
-                contextClass = ['info', 'success', 'error'];
-
-                $msgEl = this.options.globalMessage ? $(this.options.globalMessage) : options.context;
-
+            Validate.prototype.message = function(status, cache, matchesName) {
+                var className, contextClass, msg, $target, $msgEl, errors = this.errors;
 
                 if (status === 0) {
                     className = this.options.infoClass;
-                    msg = options.infoMsg;
+                    msg = cache.infoMsg;
                 } else if (status === 1) {
                     className = this.options.successClass;
                     msg = '';
                 } else if (status === 2) {
                     className = this.options.errorClass;
-                    msg = options.matches[matchesName].errMsg;
+                    msg = cache.matches[matchesName].errMsg;
                 } else {
                     // 后期再考虑 status === anything ...
                 }
 
+                if (status === 2) {
+                    errors[cache.options.required] = msg;
+                }
+
+                if (!this.options.errorClass) {
+                    return false;
+                }
+                contextClass = ['info', 'success', 'error'];
+                $msgEl = this.options.globalMessage ? $(this.options.globalMessage) : cache.context;
                 className = className.replace(/\./g, ' ').slice(1);
                 $msgEl.removeClass('validate-context-info validate-context-success validate-context-error')
                     .addClass('validate-context-' + contextClass[status]).find('.validate-message').remove();
@@ -1662,13 +1691,13 @@
              */
             function handler() {
                 var queue = [];
-                var collections = this.options.collections;
-                for (var i = 0; i < collections.length; i++) {
-                    queue.push('[data-required=' + collections[i].required + ']');
+                var collections = this.cache;
+                for (var name in collections) {
+                    queue.push('[data-required=' + name + ']');
                 }
                 return queue;
-
             }
+
 
             function focusEmitter(event) {
                 var self = event.data.self;

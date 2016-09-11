@@ -29,14 +29,14 @@ var globWidgets = [
  * @场景：PC端，IE8+
  */
 var pcComponents = [
-  './src/js/tooltip.js',
+  // './src/js/tooltip.js',
   './src/js/emailSuffix.js',    //活动pc这边用到的
   './src/js/placeholder.js',    //活动pc这边用到的
   './src/js/typeCount.js',
-  './src/js/lrselect.js',
-  './src/js/iselector.js',    //活动pc这边用到的
+  // './src/js/lrselect.js',
+  // './src/js/iselector.js',    //活动pc这边用到的
   './src/js/tokenize.js',
-   './src/js/dialog.js'
+   // './src/js/dialog.js'
 ];
 
 /**
@@ -119,11 +119,11 @@ gulp.task('browser-sync', function() {
 });
 
 gulp.task('fresh', function() {
-  gulp.src(['./examples/*.html', './src/js/*.js','./examples/**/*.js']).pipe(reload({
+  gulp.src(['./examples/**/*.html', './src/js/*.js','./examples/**/*.js']).pipe(reload({
     stream: true
   }));
 });
 gulp.task('watch', ['browser-sync', 'compass', 'fresh'], function() {
   gulp.watch(['./src/sass/**/*.scss'], ['compass']);
-  gulp.watch(['./examples/*.html', './src/js/*.js','./examples/**/*.js'], ['fresh']);
+  gulp.watch(['./examples/**/*.html', './src/js/*.js','./examples/**/*.js'], ['fresh']);
 });

@@ -1,27 +1,39 @@
 .layer-opening,.alert-opening {
-    @include animation(zoomIn .2s ease-out forwards);
-    @include keyframes (zoomIn) {
-        from {
+    @include animation(layerIn .3s ease-out forwards);
+    @include keyframes (layerIn) {
+        0% {
             opacity: 0;
-            -webkit-transform: scale3d(.95, .95, .95);
-            transform: scale3d(.95, .95, .95);
+            -webkit-transform: scale3d(1.5, 1.5, 1.5);
+            -moz-transform: scale3d(1.5, 1.5, 1.5);
+            -ms-transform: scale3d(1.5, 1.5, 1.5);
+            transform: scale3d(1.5, 1.5, 1.5);
         }
-        50% {
+        100% {
             opacity: 1;
+            -webkit-transform: scale3d(1, 1, 1);
+            -moz-transform: scale3d(1, 1, 1);
+            -ms-transform: scale3d(1, 1, 1);
+            transform: scale3d(1, 1, 1);
         }
     }
 }
 
 .layer-closing,.alert-closing {
-    @include animation(zoomOut .2s ease-out forwards);
-    @include keyframes (zoomOut) {
-        50% {
+    @include animation(layerOut .2s ease-out forwards);
+    @include keyframes (layerOut) {
+        0% {
             opacity: 1;
+            -webkit-transform: scale3d(1, 1, 1);
+            -moz-transform: scale3d(1, 1, 1);
+            -ms-transform: scale3d(1, 1, 1);
+            transform: scale3d(1, 1, 1);
         }
         100% {
             opacity: 0;
-            -webkit-transform: scale3d(.95, .95, .95);
-            transform: scale3d(.95, .95, .95);
+            -webkit-transform: scale3d(1.5, 1.5, 1.5);
+            -moz-transform: scale3d(1.5, 1.5, 1.5);
+            -ms-transform: scale3d(1.5, 1.5, 1.5);
+            transform: scale3d(1.5, 1.5, 1.5);
         }
     }
 }

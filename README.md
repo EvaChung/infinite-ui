@@ -70,6 +70,12 @@ http://localhost:3000/examples/index.html
 ```
 
 ##History
+* 2016年09月11日 更新记录：
+  * `layer`,`alert` 优化动画效果
+* 2016年08月16日 更新记录：
+  * `validate` 修复一些细节 bug，新增 errors接口
+* 2016年08月10日 更新记录：
+  * `validate` 修复 remove 的bug
 * 2016年08月05日 更新记录：
   * `layer` 修复 esc快捷键退出失效的问题
 * 2016年07月15日 更新记录：

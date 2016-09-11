@@ -8,6 +8,9 @@
     <title>Document</title>
     <link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="/dist/style-pc.css">
+    <style type="text/css">
+
+    </style>
 </head>
 
 <body>
@@ -50,7 +53,8 @@
         </div>
     </script>
     <div class="container">
-         <table class="table table-bordered">
+        <div id="demoTwo-template">
+             <table class="table table-bordered">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -178,8 +182,9 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
         <a href="javascript:;" class="btn btn-primary">click me</a>
-        <script src="//cdn.bootcss.com/jquery/1.8.1/jquery.min.js"></script>
+        <script src="../src/jquery.js"></script>
         <script type="text/javascript" src="../dist/iui.js"></script>
         <script type="text/javascript" src="../src/js/layer.js"></script>
         <script type="text/javascript">
@@ -190,13 +195,14 @@
 
             var layerTwo = $('#demoTwo').IUI('layer', {
                 offsetWidth: 500,
-                content: $('#demoOne-template').html()+ '<a href="javascript:;" class="btn btn-primary btn-sm" id="btn-switch-2">switch layer One</a>'
+                content: $('#demoTwo-template').html()+ '<a href="javascript:;" class="btn btn-primary btn-sm" id="btn-switch-2">switch layer One</a>'
             });
 
 
             $('.btn-primary').on('click', function(event) {
                 layerOne.showLayer();
-            }).trigger('click');
+            });
+            $('.btn-primary').eq(0).trigger('click');
 
             $('#demoOne').on('click','#btn-switch-1',function(){
                 layerOne.cutTo('#demoTwo');

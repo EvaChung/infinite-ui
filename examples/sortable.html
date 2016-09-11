@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <style type="text/css">
+  body.dragging,
+  body.dragging * {
+    cursor: move !important;
+  }
+
+  .dragged {
+    position: absolute;
+    opacity: 0.5;
+    z-index: 2000;
+  }
+
+  ol.example li.placeholder {
+    position: relative;
+    /** More li styles **/
+  }
+
+  ol.example li.placeholder:before {
+    position: absolute;
+    /** Define arrowhead **/
+  }
+
+  .example li {
+    background-color: #26899D;
+    color: #fff;
+    padding: 5px;
+    margin: 10px 0;
+  }
+  </style>
+</head>
+
+<body style="margin:100px;">
+  <ol class='example'>
+    <li>00001</li>
+    <li>00002</li>
+    <li>00003</li>
+    <li>00004</li>
+    <li>00005</li>
+    <li>00006</li>
+    <li>00007</li>
+    <li>00008</li>
+    <li>00009</li>
+    <li>00010</li>
+  </ol>
+  <script src="../src/jquery.js"></script>
+  <script type="text/javascript" src="./ext/jquery-sortable.js"></script>
+  <script type="text/javascript" src="./ext/underscore.js"></script>
+  <script type="text/javascript">
+  // var abc = _.bind(function(){
+  //   console.log(this)
+  //   console.log(arguments)
+  // },{a:123456},1,2,3,4,5);
+  // abc()
+
+  var defg = _.bind.call({
+    x: 1111,
+    y: 222
+  }, function() {
+    console.log(this);
+    console.log(arguments);
+  }, {
+    z: 333
+  }, 5, 4, 3, 2, 2, 1);
+  defg()
+
+
+  </script>
+</body>
+
+</html>

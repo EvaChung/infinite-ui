@@ -1,72 +1,108 @@
 @charset "UTF-8";
 .layer-opening, .alert-opening {
-  -moz-animation: zoomIn 0.2s ease-out forwards;
-  -webkit-animation: zoomIn 0.2s ease-out forwards;
-  animation: zoomIn 0.2s ease-out forwards;
+  -moz-animation: layerIn 0.3s ease-out forwards;
+  -webkit-animation: layerIn 0.3s ease-out forwards;
+  animation: layerIn 0.3s ease-out forwards;
 }
-@-moz-keyframes zoomIn {
-  from {
+@-moz-keyframes layerIn {
+  0% {
     opacity: 0;
-    -webkit-transform: scale3d(0.95, 0.95, 0.95);
-    transform: scale3d(0.95, 0.95, 0.95);
+    -webkit-transform: scale3d(1.5, 1.5, 1.5);
+    -moz-transform: scale3d(1.5, 1.5, 1.5);
+    -ms-transform: scale3d(1.5, 1.5, 1.5);
+    transform: scale3d(1.5, 1.5, 1.5);
   }
-  50% {
+  100% {
     opacity: 1;
-  }
-}
-@-webkit-keyframes zoomIn {
-  from {
-    opacity: 0;
-    -webkit-transform: scale3d(0.95, 0.95, 0.95);
-    transform: scale3d(0.95, 0.95, 0.95);
-  }
-  50% {
-    opacity: 1;
+    -webkit-transform: scale3d(1, 1, 1);
+    -moz-transform: scale3d(1, 1, 1);
+    -ms-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
   }
 }
-@keyframes zoomIn {
-  from {
+@-webkit-keyframes layerIn {
+  0% {
     opacity: 0;
-    -webkit-transform: scale3d(0.95, 0.95, 0.95);
-    transform: scale3d(0.95, 0.95, 0.95);
+    -webkit-transform: scale3d(1.5, 1.5, 1.5);
+    -moz-transform: scale3d(1.5, 1.5, 1.5);
+    -ms-transform: scale3d(1.5, 1.5, 1.5);
+    transform: scale3d(1.5, 1.5, 1.5);
   }
-  50% {
+  100% {
     opacity: 1;
+    -webkit-transform: scale3d(1, 1, 1);
+    -moz-transform: scale3d(1, 1, 1);
+    -ms-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+  }
+}
+@keyframes layerIn {
+  0% {
+    opacity: 0;
+    -webkit-transform: scale3d(1.5, 1.5, 1.5);
+    -moz-transform: scale3d(1.5, 1.5, 1.5);
+    -ms-transform: scale3d(1.5, 1.5, 1.5);
+    transform: scale3d(1.5, 1.5, 1.5);
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: scale3d(1, 1, 1);
+    -moz-transform: scale3d(1, 1, 1);
+    -ms-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
   }
 }
 .layer-closing, .alert-closing {
-  -moz-animation: zoomOut 0.2s ease-out forwards;
-  -webkit-animation: zoomOut 0.2s ease-out forwards;
-  animation: zoomOut 0.2s ease-out forwards;
+  -moz-animation: layerOut 0.2s ease-out forwards;
+  -webkit-animation: layerOut 0.2s ease-out forwards;
+  animation: layerOut 0.2s ease-out forwards;
 }
-@-moz-keyframes zoomOut {
-  50% {
+@-moz-keyframes layerOut {
+  0% {
     opacity: 1;
+    -webkit-transform: scale3d(1, 1, 1);
+    -moz-transform: scale3d(1, 1, 1);
+    -ms-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
   }
   100% {
     opacity: 0;
-    -webkit-transform: scale3d(0.95, 0.95, 0.95);
-    transform: scale3d(0.95, 0.95, 0.95);
+    -webkit-transform: scale3d(1.5, 1.5, 1.5);
+    -moz-transform: scale3d(1.5, 1.5, 1.5);
+    -ms-transform: scale3d(1.5, 1.5, 1.5);
+    transform: scale3d(1.5, 1.5, 1.5);
   }
 }
-@-webkit-keyframes zoomOut {
-  50% {
+@-webkit-keyframes layerOut {
+  0% {
     opacity: 1;
+    -webkit-transform: scale3d(1, 1, 1);
+    -moz-transform: scale3d(1, 1, 1);
+    -ms-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
   }
   100% {
     opacity: 0;
-    -webkit-transform: scale3d(0.95, 0.95, 0.95);
-    transform: scale3d(0.95, 0.95, 0.95);
+    -webkit-transform: scale3d(1.5, 1.5, 1.5);
+    -moz-transform: scale3d(1.5, 1.5, 1.5);
+    -ms-transform: scale3d(1.5, 1.5, 1.5);
+    transform: scale3d(1.5, 1.5, 1.5);
   }
 }
-@keyframes zoomOut {
-  50% {
+@keyframes layerOut {
+  0% {
     opacity: 1;
+    -webkit-transform: scale3d(1, 1, 1);
+    -moz-transform: scale3d(1, 1, 1);
+    -ms-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
   }
   100% {
     opacity: 0;
-    -webkit-transform: scale3d(0.95, 0.95, 0.95);
-    transform: scale3d(0.95, 0.95, 0.95);
+    -webkit-transform: scale3d(1.5, 1.5, 1.5);
+    -moz-transform: scale3d(1.5, 1.5, 1.5);
+    -ms-transform: scale3d(1.5, 1.5, 1.5);
+    transform: scale3d(1.5, 1.5, 1.5);
   }
 }
 .tooltip.zoomIn {
@@ -141,10 +177,17 @@
  */
 .IUI-loading-backdrop, .layer-backdrop, .IUI-alert-backdrop {
   position: fixed;
+  width: 100%;
+  height: 100%;
+  visibility: hidden;
   top: 0;
-  right: 0;
-  bottom: 0;
   left: 0;
+  z-index: 1000;
+  opacity: 0;
+  background: rgba(143, 27, 15, 0.8);
+  -webkit-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  transition: all 0.3s;
   background-color: rgba(0, 0, 0, 0.35);
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#59000000, endColorstr=#59000000);
 }

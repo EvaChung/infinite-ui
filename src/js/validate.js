@@ -131,13 +131,13 @@ $.fn.IUI({
       },
       //数字包含小数
       onlyNum: function(params) {
-        if (!/^[0-9]+([.][0-9]+){0,1}$/.test(value)) {
+        if (!/^[0-9]+([.][0-9]+){0,1}$/.test(this.self[0].value)) {
           return false;
         }
       },
       //整数
       onlyInt: function(params) {
-        if (!/^[0-9]*$/.test(value)) {
+        if (!/^[0-9]*$/.test(this.self[0].value)) {
           return false;
         }
       },
@@ -173,7 +173,7 @@ $.fn.IUI({
       this.options = $.extend(true, {}, defaults, options);
       this.$selector = selector;
       this.cache = {};
-      this.result = null;
+      this.errors = {};
       this.init();
     }
 
@@ -185,7 +185,7 @@ $.fn.IUI({
       var self = this;
       var statusArr = ['info', 'success', 'error'];
 
-      if(self.options.collections.length === 0 ){
+      if (self.options.collections.length === 0) {
         return false;
       }
 
@@ -276,6 +276,7 @@ $.fn.IUI({
           delete cache[name];
         }
       }
+      self.bindEvent();
 
     };
 
@@ -301,7 +302,7 @@ $.fn.IUI({
       if (options) {
         $.merge(self.options.collections, options);
       }
-      this.bindEvent();
+      self.bindEvent();
     };
 
 
@@ -316,9 +317,9 @@ $.fn.IUI({
 
       $.each(handleArr, function(key, value) {
         var $target = $selector.find(value);
-        var type,requiredName;
+        var type, requiredName;
 
-        if($target[0] === void 0){
+        if ($target[0] === void 0) {
           return;
         }
 
@@ -368,9 +369,7 @@ $.fn.IUI({
         status = result === void(0) ? 1 : 2;
         $this.data('validateStatus', result);
         glob.message(status, collections, name);
-
         return status === 2 ? false : true;
-
       });
 
       $this.trigger('validate.' + eventName, collections);
@@ -385,28 +384,31 @@ $.fn.IUI({
      * @param  {String} matchesName 验证函数名
      *
      */
-    Validate.prototype.message = function(status, options, matchesName) {
-
-      var className, contextClass, msg, $target, $msgEl;
-
-      contextClass = ['info', 'success', 'error'];
-
-      $msgEl = this.options.globalMessage ? $(this.options.globalMessage) : options.context;
-
+    Validate.prototype.message = function(status, cache, matchesName) {
+      var className, contextClass, msg, $target, $msgEl,errors = this.errors;
 
       if (status === 0) {
         className = this.options.infoClass;
-        msg = options.infoMsg;
+        msg = cache.infoMsg;
       } else if (status === 1) {
         className = this.options.successClass;
         msg = '';
       } else if (status === 2) {
         className = this.options.errorClass;
-        msg = options.matches[matchesName].errMsg;
+        msg = cache.matches[matchesName].errMsg;
       } else {
         // 后期再考虑 status === anything ...
       }
 
+      if(status === 2){
+        errors[cache.options.required] = msg;
+      }
+
+      if (!this.options.errorClass) {
+        return false;
+      }
+      contextClass = ['info', 'success', 'error'];
+      $msgEl = this.options.globalMessage ? $(this.options.globalMessage) : cache.context;
       className = className.replace(/\./g, ' ').slice(1);
       $msgEl.removeClass('validate-context-info validate-context-success validate-context-error')
         .addClass('validate-context-' + contextClass[status]).find('.validate-message').remove();
@@ -446,13 +448,13 @@ $.fn.IUI({
      */
     function handler() {
       var queue = [];
-      var collections = this.options.collections;
-      for (var i = 0; i < collections.length; i++) {
-        queue.push('[data-required=' + collections[i].required + ']');
+      var collections = this.cache;
+      for (var name in collections) {
+        queue.push('[data-required=' + name + ']');
       }
       return queue;
-
     }
+
 
     function focusEmitter(event) {
       var self = event.data.self;

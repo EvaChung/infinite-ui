@@ -1,0 +1,953 @@
+﻿html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font: inherit;
+    font-size: 100%;
+    vertical-align: baseline
+}
+
+html {
+    line-height: 1
+}
+
+ol,
+ul {
+    list-style: none
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0
+}
+
+caption,
+th,
+td {
+    text-align: left;
+    font-weight: normal;
+    vertical-align: middle
+}
+
+q,
+blockquote {
+    quotes: none
+}
+
+q:before,
+q:after,
+blockquote:before,
+blockquote:after {
+    content: "";
+    content: none
+}
+
+a img {
+    border: none
+}
+
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+menu,
+nav,
+section,
+summary {
+    display: block
+}
+
+body {
+    font: normal 14px/1 "Microsoft Yahei", serif, arial;
+    background-color: #fff;
+    color: #676767
+}
+
+a {
+    text-decoration: none;
+    outline: none
+}
+
+button:focus {
+    outline: none
+}
+
+.fl {
+    float: left;
+    *display: inline
+}
+
+.fr {
+    float: right;
+    *display: inline
+}
+
+.clearfix,
+.main .mainCt,
+.main .mainCt .dianzan {
+    *zoom: 1
+}
+
+.clearfix:after,
+.main .mainCt:after,
+.main .mainCt .dianzan:after {
+    content: " ";
+    display: table;
+    height: 0;
+    clear: both
+}
+
+.none {
+    display: none
+}
+
+.text_center {
+    text-align: center
+}
+
+#header {
+    width: 980px;
+    margin: 0 auto
+}
+
+#header a {
+    display: block
+}
+
+#header p {
+    line-height: 62px;
+    font-size: 14px;
+    font-family: SimSun;
+    color: #5a5754
+}
+
+.main {
+    width: 100%;
+    background: #f0d4ae url(http://img.yi114.com/201589145849_1_banner_2.png) center top no-repeat;
+    margin: 0 auto;
+    position: relative;
+    color: #a16e2e
+}
+
+.main .mainCt {
+    width: 1000px;
+    margin: 0 auto;
+    position: relative
+}
+
+.main .mainCt .banner {
+    padding-top: 283px;
+    padding-left: 30px;
+    width: 553px;
+    *width: 551px
+}
+
+.main .mainCt .banner h1 {
+    color: #fff;
+    font-size: 20px;
+    margin-bottom: 21px
+}
+
+.main .mainCt .banner p {
+    font-family: SimSun;
+    line-height: 20px;
+    font-size: 12px
+}
+
+.main .mainCt .dianzan {
+    margin-top: 81px
+}
+
+.main .mainCt .dianzan li {
+    width: 245px;
+    float: left;
+    font-size: SimSun;
+    font-size: 12px;
+    cursor: pointer
+}
+
+.main .mainCt .dianzan .li_1 {
+    background: url(http://img.yi114.com/20152269409_1_pic_1.png) no-repeat
+}
+
+.main .mainCt .dianzan .li_1 p {
+    padding-left: 16px
+}
+
+.main .mainCt .dianzan .li_1 a {
+    margin-left: 26px
+}
+
+.main .mainCt .dianzan .li_1 h1 {
+    margin-left: 22px
+}
+
+.main .mainCt .dianzan .li_2 {
+    background: url(http://img.yi114.com/201522694010_1_pic_2.png) no-repeat
+}
+
+.main .mainCt .dianzan .li_2 p {
+    padding-left: 23px
+}
+
+.main .mainCt .dianzan .li_2 a {
+    margin-left: 36px
+}
+
+.main .mainCt .dianzan .li_2 h1 {
+    margin-left: 32px
+}
+
+.main .mainCt .dianzan .li_3 {
+    background: url(http://img.yi114.com/201522694010_1_pic_3.png) no-repeat
+}
+
+.main .mainCt .dianzan .li_3 p {
+    padding-left: 33px
+}
+
+.main .mainCt .dianzan .li_3 a {
+    margin-left: 42px
+}
+
+.main .mainCt .dianzan .li_3 h1 {
+    margin-left: 38px
+}
+
+.main .mainCt .dianzan .li_4 {
+    background: url(http://img.yi114.com/201522694010_1_pic_4.png) no-repeat
+}
+
+.main .mainCt .dianzan .li_4 p {
+    padding-left: 47px
+}
+
+.main .mainCt .dianzan .li_4 a {
+    margin-left: 53px;
+    margin-top: 39px
+}
+
+.main .mainCt .dianzan .li_4 h1 {
+    margin-left: 49px
+}
+
+.main .mainCt .dianzan p {
+    margin-top: 233px;
+    width: 182px;
+    line-height: 21px;
+    color: #55524e
+}
+
+.main .mainCt .dianzan a {
+    display: block;
+    width: 150px;
+    height: 42px;
+    background: url(http://img.yi114.com/2015227151121_1_btn_zan.png) no-repeat;
+    margin-top: 61px;
+    position: relative
+}
+
+.main .mainCt .dianzan a img {
+    margin-left: 44px;
+    margin-top: 14px
+}
+
+.main .mainCt .dianzan .current {
+    background-position: -152px 0
+}
+
+.main .mainCt .dianzan h1 {
+    font-size: 16px;
+    margin-top: 13px
+}
+
+.main .mainCt .dianzan h1 span {
+    color: #ff6060
+}
+
+.content {
+    width: 981px;
+    height: 453px;
+    margin: 48px auto 0;
+    padding-top: 54px;
+    background: url(http://img.yi114.com/20152269409_1_info_bg.png) no-repeat;
+    position: relative
+}
+
+.content .info_tag {
+    position: absolute;
+    top: 304px;
+    right: 96px
+}
+
+.content h1 {
+    width: 813px;
+    margin: 0 auto;
+    text-align: center;
+    font-size: 28px;
+    padding-bottom: 31px;
+    border-bottom: 2px dashed #cea46e
+}
+
+.content h1 b {
+    font-size: 27px
+}
+
+.title_1 b {
+    font-weight: bold
+}
+
+.info {
+    width: 825px;
+    position: relative;
+    margin: 44px auto 98px;
+    font-size: 16px
+}
+
+.info td {
+    line-height: 36px;
+    padding-bottom: 10px
+}
+
+.info .text {
+    border: none;
+    border: 1px solid #dfdfdf;
+    background-color: #fff;
+    font-size: 16px;
+    color: #939393;
+    width: 182px;
+    padding: 0 10px;
+    height: 34px;
+    line-height: 34px\9
+}
+
+.info .name {
+    width: 173px
+}
+
+.info .email {
+    width: 261px
+}
+
+.info .input_mobile {
+    width: 350px
+}
+
+.info .form_name,
+.info .sex {
+    float: left
+}
+
+.info .sex {
+    font-size: 0;
+    margin-left: 11px
+}
+
+.info .sex_radio {
+    border: 1px solid #dfdfdf;
+    background-color: #fff;
+    cursor: pointer;
+    display: inline-block;
+    height: 34px;
+    line-height: 34px
+}
+
+.info .sex_radio input {
+    display: none
+}
+
+.info .sex_radio.current span {
+    background-color: #fa7ddb;
+    color: #fff
+}
+
+.info .sex_radio.current:first-child span {
+    background-color: #ce652f
+}
+
+.info .sex_radio:first-child {
+    border-right: none
+}
+
+.info .sex_radio span {
+    display: block;
+    font-size: 16px;
+    padding: 0 10px
+}
+
+.info .birthday {
+    background: #fff url(http://img.yi114.com/2015226115552_1_down.jpg) 345px center no-repeat;
+    width: 350px
+}
+
+.info .padd_l {
+    padding-left: 132px;
+    line-height: 20px
+}
+
+.info .firefox {
+    -moz-user-select: none
+}
+
+.info .left_225 {
+    padding-left: 225px;
+    margin-top: 19px;
+    font-size: 14px
+}
+
+.info .left_100 {
+    padding-left: 100px;
+    font-size: 14px
+}
+
+.info .submit_btn {
+    width: 250px;
+    height: 52px;
+    margin-top: 20px;
+    margin-left: 280px;
+    background: transparent url(http://img.yi114.com/2015226115949_1_btn.png) no-repeat;
+    border: none;
+    cursor: pointer;
+    position: relative
+}
+
+.info .submit_btn:hover {
+    background-position: -252px 0
+}
+
+.info .genre-radio {
+    cursor: pointer;
+    vertical-align: middle
+}
+
+.info .genre-radio input {
+    vertical-align: middle;
+    width: 15px;
+    height: 20px
+}
+
+.loading {
+    position: absolute;
+    top: 13px;
+    left: 35px
+}
+
+.form_content .span_name,
+.form_content .genre_context {
+    vertical-align: middle;
+    float: left
+}
+
+.form_content .genre_context {
+    margin-left: 5px
+}
+
+#message {
+    position: absolute;
+    top: -48px;
+    left: 105px;
+    padding: 8px 15px;
+    border-radius: 10px;
+    background-color: #fff;
+    color: #c01b1a;
+    border: 5px solid #FB6446;
+    text-align: center;
+    z-index: 5
+}
+
+#message .errorTips {
+    background: url(http://img.infinite.net.cn/minisite/Wsi/Images/smilea_thumb.gif) no-repeat center left;
+    padding: 3px 0 3px 25px
+}
+
+#footer {
+    font-size: 12px;
+    font-family: SimSun;
+    text-align: center;
+    padding-bottom: 41px;
+    background: #d39f59
+}
+
+#footer .foot_main {
+    width: 981px;
+    margin: 0 auto;
+    padding-top: 32px;
+    background: url(http://img.yi114.com/20152269409_1_foot_img.png) 0 32px no-repeat
+}
+
+#footer h1 {
+    color: #fff;
+    padding-left: 211px;
+    line-height: 21px;
+    text-align: left;
+    margin-bottom: 18px
+}
+
+#footer img {
+    margin: 0 auto 28px
+}
+
+#footer p {
+    margin-bottom: 8px
+}
+
+#footer p a {
+    color: #f65709
+}
+
+.city_context,
+.filter_context,
+.province,
+.city {
+    float: left
+}
+
+.city {
+    margin-left: 6px
+}
+
+.province .selector_name,
+.city .selector_name {
+    width: 137px
+}
+
+.genre_context {
+    width: 371px
+}
+
+.province,
+.city,
+.genre {
+    height: 32px;
+    position: relative;
+    background: #fff url(http://img.yi114.com/2015226115552_1_down.jpg) 97% center no-repeat;
+    border: 1px #dcdcdc solid
+}
+
+.province .selector_list,
+.city .selector_list,
+.genre .selector_list {
+    position: absolute;
+    left: -1px;
+    top: 30px;
+    width: 100%;
+    max-height: 250px;
+    _height: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: #fff;
+    z-index: 1005;
+    font-size: 14px
+}
+
+.selector_name {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    vertical-align: top;
+    display: block;
+    color: #939393;
+    height: 32px;
+    line-height: 32px;
+    text-align: left;
+    text-indent: 5px;
+    overflow: hidden;
+    font-size: 16px
+}
+
+.selector_name:focus {
+    outline: none
+}
+
+.selector_list {
+    border: 1px solid #dfdfdf
+}
+
+.selector_list li.hover {
+    background-color: #005084;
+    color: #fff;
+    cursor: pointer
+}
+
+.selector_list li {
+    width: 100%;
+    line-height: 25px;
+    height: 25px;
+    overflow: hidden;
+    overflow: hidden;
+    padding: 0 5px;
+    cursor: pointer;
+    color: #005084;
+    border-top: 1px solid #dfdfdf
+}
+
+.selector_list li:hover {
+    background-color: #005084;
+    color: #fff;
+    cursor: pointer
+}
+
+.selector_list li.checked {
+    font-weight: bold;
+    color: #fff;
+    background-color: #005084
+}
+
+.outLayer {
+    padding: 20px;
+    background-color: #D8E9EC;
+    width: 600px;
+    height: 400px;
+    border: 5px solid #9C9;
+    display: none
+}
+
+.outLayer .closeA {
+    display: block;
+    width: 200px;
+    height: 50px;
+    text-align: center;
+    font-size: 36px;
+    text-indent: -9999px;
+    font-weight: bold;
+    color: #002346;
+    background-color: #A2D0FF;
+    border-bottom: 10px solid #6FB7FF;
+    margin: 0 auto
+}
+
+.okLayer,
+.rule,
+.introduce {
+    background: #ffffff;
+    border-radius: 15px;
+    display: none
+}
+
+.okLayer .closeA,
+.rule .closeA,
+.introduce .closeA {
+    position: absolute;
+    right: 10px;
+    top: 20px;
+    display: block;
+    width: 30px;
+    height: 31px;
+    _line-height: 12px;
+    background: transparent url(http://img.infinite.net.cn/minisite/Changan/yafei/Images/share_close.png) 0 0 no-repeat;
+    text-indent: -9999px
+}
+
+.emailist {
+    border: 1px solid #bdbdbd;
+    background-color: #fff;
+    color: #666;
+    font-size: 14px;
+    overflow: hidden;
+    position: absolute
+}
+
+.emailist li {
+    padding: 2px 11px;
+    cursor: pointer
+}
+
+.emailist li:hover {
+    background-color: #eee
+}
+
+.emailist .on {
+    background-color: #eee
+}
+
+.errorMsg {
+    position: absolute;
+    top: -20px;
+    left: 105px;
+    padding: 8px 15px;
+    border-radius: 10px;
+    background-color: #fff;
+    color: #c01b1a;
+    border: 5px solid #FB6446;
+    text-align: center;
+    z-index: 5;
+    display: none
+}
+
+.errorMsg .errorTips {
+    background: url(http://img.infinite.net.cn/minisite/Wsi/Images/smilea_thumb.gif) no-repeat center left;
+    padding: 3px 0 3px 25px
+}
+
+#layer {
+    background-color: #000;
+    filter: progid: DXImageTransform.Microsoft.Alpha(Opacity=25);
+    opacity: 0.25;
+    position: fixed;
+    width: 100%;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    cursor: pointer
+}
+
+#layer_content {
+    position: fixed;
+    z-index: 10002;
+    background-color: #fff;
+    padding: 30px 100px 30px 100px;
+    width: 510px
+}
+
+#layer_content .title {
+    text-align: center;
+    color: #d25e39;
+    font: bold 18px/2 "微软雅黑"
+}
+
+#layer_content .title2 {
+    border-bottom: 1px solid #dddddd;
+    font-family: "Microsoft YaHei", Tahoma, SimSun;
+    font-size: 40px;
+    color: #d25e39;
+    text-align: center;
+    margin-bottom: 20px;
+    line-height: 2
+}
+
+#layer_content .title3 {
+    font-family: "Microsoft YaHei", Tahoma, SimSun;
+    font-size: 40px;
+    height: 65px;
+    line-height: 65px;
+    color: #22ac38;
+    background: transparent url(http://img.yi114.com/2015216132556_imgspirit.png) 55% 0 no-repeat;
+    text-indent: 90px;
+    text-align: center;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #eee
+}
+
+#layer_content p {
+    font-size: 14px;
+    color: #7e7e7e;
+    line-height: 25px
+}
+
+#layer_content .closeA {
+    display: block;
+    width: 12px;
+    height: 12px;
+    _line-height: 12px;
+    background: transparent url(http://img.yi114.com/2015216132556_imgspirit.png) 0 -107px no-repeat;
+    text-indent: -9999px;
+    position: absolute;
+    top: 10px;
+    right: 7px
+}
+
+#copy_url {
+    width: 280px;
+    height: 26px;
+    line-height: 26px\9
+}
+
+#d_clip_container {
+    position: relative;
+    top: 10px;
+    left: 5px;
+    float: left;
+    *display: inline;
+    *zoom: 1
+}
+
+#d_clip_container #d_clip_button {
+    background-color: #79bc29;
+    color: #fff;
+    padding: 5px 15px
+}
+
+.operate {
+    text-align: center
+}
+
+.operate a {
+    display: -moz-inline-stack;
+    display: inline-block;
+    vertical-align: middle;
+    *vertical-align: auto;
+    zoom: 1;
+    *display: inline;
+    width: 150px;
+    text-align: center;
+    color: #fff;
+    background-color: #b7b7b7;
+    height: 30px;
+    line-height: 30px
+}
+
+.operate a.btn_add {
+    background-color: #2f9bd7
+}
+
+.share {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    display: inline;
+    height: 16px;
+    line-height: 16px
+}
+
+.share span {
+    float: left;
+    *display: inline;
+    color: #7e7e7e;
+    font-size: 12px;
+    font-family: SimSun
+}
+
+.share a {
+    float: left;
+    margin-right: 4px;
+    *display: inline;
+    width: 16px;
+    height: 16px;
+    text-indent: -9999px;
+    background: transparent url(http://img.yi114.com/2015216132556_imgspirit.png) 9999px 9999px no-repeat
+}
+
+.share .sweibo {
+    background-position: 0 -131px
+}
+
+.share .sweibo:hover {
+    background-position: 0 -147px
+}
+
+.share .qzone {
+    background-position: -16px -131px
+}
+
+.share .qzone:hover {
+    background-position: -16px -147px
+}
+
+.share .tweibo {
+    background-position: -32px -131px
+}
+
+.share .tweibo:hover {
+    background-position: -32px -147px
+}
+
+.share .douban {
+    background-position: -48px -131px
+}
+
+.share .douban:hover {
+    background-position: -48px -147px
+}
+
+.share .renren {
+    background-position: -64px -131px
+}
+
+.share .renren:hover {
+    background-position: -64px -147px
+}
+
+.animate {
+    -webkit-animation-duration: .5s;
+    animation-duration: .5s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both
+}
