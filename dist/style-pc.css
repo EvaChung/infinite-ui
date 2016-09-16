@@ -1,8 +1,25 @@
 @charset "UTF-8";
-.layer-opening, .alert-opening {
-  -moz-animation: layerIn 0.3s ease-out forwards;
+.layer-opening, .dialog-opening {
   -webkit-animation: layerIn 0.3s ease-out forwards;
+  -moz-animation: layerIn 0.3s ease-out forwards;
+  -o-animation: layerIn 0.3s ease-out forwards;
   animation: layerIn 0.3s ease-out forwards;
+}
+@-webkit-keyframes layerIn {
+  0% {
+    opacity: 0;
+    -webkit-transform: scale3d(1.5, 1.5, 1.5);
+    -moz-transform: scale3d(1.5, 1.5, 1.5);
+    -ms-transform: scale3d(1.5, 1.5, 1.5);
+    transform: scale3d(1.5, 1.5, 1.5);
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: scale3d(1, 1, 1);
+    -moz-transform: scale3d(1, 1, 1);
+    -ms-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+  }
 }
 @-moz-keyframes layerIn {
   0% {
@@ -20,7 +37,7 @@
     transform: scale3d(1, 1, 1);
   }
 }
-@-webkit-keyframes layerIn {
+@-o-keyframes layerIn {
   0% {
     opacity: 0;
     -webkit-transform: scale3d(1.5, 1.5, 1.5);
@@ -52,10 +69,27 @@
     transform: scale3d(1, 1, 1);
   }
 }
-.layer-closing, .alert-closing {
-  -moz-animation: layerOut 0.2s ease-out forwards;
+.layer-closing, .dialog-closing {
   -webkit-animation: layerOut 0.2s ease-out forwards;
+  -moz-animation: layerOut 0.2s ease-out forwards;
+  -o-animation: layerOut 0.2s ease-out forwards;
   animation: layerOut 0.2s ease-out forwards;
+}
+@-webkit-keyframes layerOut {
+  0% {
+    opacity: 1;
+    -webkit-transform: scale3d(1, 1, 1);
+    -moz-transform: scale3d(1, 1, 1);
+    -ms-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+  }
+  100% {
+    opacity: 0;
+    -webkit-transform: scale3d(1.5, 1.5, 1.5);
+    -moz-transform: scale3d(1.5, 1.5, 1.5);
+    -ms-transform: scale3d(1.5, 1.5, 1.5);
+    transform: scale3d(1.5, 1.5, 1.5);
+  }
 }
 @-moz-keyframes layerOut {
   0% {
@@ -73,7 +107,7 @@
     transform: scale3d(1.5, 1.5, 1.5);
   }
 }
-@-webkit-keyframes layerOut {
+@-o-keyframes layerOut {
   0% {
     opacity: 1;
     -webkit-transform: scale3d(1, 1, 1);
@@ -106,9 +140,20 @@
   }
 }
 .tooltip.zoomIn {
-  -moz-animation: zoomIn 0.2s;
   -webkit-animation: zoomIn 0.2s;
+  -moz-animation: zoomIn 0.2s;
+  -o-animation: zoomIn 0.2s;
   animation: zoomIn 0.2s;
+}
+@-webkit-keyframes zoomIn {
+  from {
+    opacity: 0;
+    -webkit-transform: scale3d(0.3, 0.3, 0.3);
+    transform: scale3d(0.3, 0.3, 0.3);
+  }
+  50% {
+    opacity: 1;
+  }
 }
 @-moz-keyframes zoomIn {
   from {
@@ -120,7 +165,7 @@
     opacity: 1;
   }
 }
-@-webkit-keyframes zoomIn {
+@-o-keyframes zoomIn {
   from {
     opacity: 0;
     -webkit-transform: scale3d(0.3, 0.3, 0.3);
@@ -141,9 +186,18 @@
   }
 }
 .tooltip.fadeIn {
-  -moz-animation: fadeIn 0.5s;
   -webkit-animation: fadeIn 0.5s;
+  -moz-animation: fadeIn 0.5s;
+  -o-animation: fadeIn 0.5s;
   animation: fadeIn 0.5s;
+}
+@-webkit-keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 @-moz-keyframes fadeIn {
   from {
@@ -153,7 +207,7 @@
     opacity: 1;
   }
 }
-@-webkit-keyframes fadeIn {
+@-o-keyframes fadeIn {
   from {
     opacity: 0;
   }
@@ -175,7 +229,7 @@
  * @param   $bgOpacity   [opacity]
  * @param   $supportIE   [compact IE]
  */
-.IUI-loading-backdrop, .layer-backdrop, .IUI-alert-backdrop {
+.layer-backdrop, .IUI-dialog-backdrop {
   position: fixed;
   width: 100%;
   height: 100%;
@@ -191,7 +245,7 @@
   background-color: rgba(0, 0, 0, 0.35);
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#59000000, endColorstr=#59000000);
 }
-:root .IUI-loading-backdrop, :root .layer-backdrop, :root .IUI-alert-backdrop {
+:root .layer-backdrop, :root .IUI-dialog-backdrop {
   filter: none;
 }
 
@@ -200,32 +254,32 @@
 }
 
 .IUI-loading-backdrop {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.35);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#59000000, endColorstr=#59000000);
   z-index: 1100;
-  position: absolute;
+}
+:root .IUI-loading-backdrop {
+  filter: none;
 }
 
 .IUI-loading {
   position: absolute;
-  opacity: 0.8;
   border-radius: 5px;
   text-align: center;
   z-index: 1101;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
+  top: 50%;
+  padding: 10px !important;
   vertical-align: middle;
   z-index: 1101;
   overflow: hidden;
-}
-.IUI-loading::after, .IUI-loading:after {
-  height: 100%;
-  content: '';
-  display: inline-block;
-  vertical-align: middle;
-}
-.IUI-loading img {
-  vertical-align: middle;
+  transform: translateY(-50%) translateX(-50%);
+  left: 50%;
+  background-color: #000;
 }
 
 .ball-clip-rotate {
@@ -246,7 +300,7 @@
   margin: 2px;
   -webkit-animation-fill-mode: both;
   animation-fill-mode: both;
-  border: 2px solid #000;
+  border: 2px solid #fff;
   border-bottom-color: transparent;
   height: 25px;
   width: 25px;
@@ -254,6 +308,20 @@
   display: inline-block;
   -webkit-animation: rotate 0.75s 0s linear infinite;
   animation: rotate 0.75s 0s linear infinite;
+}
+@-webkit-keyframes rotate {
+  0% {
+    -webkit-transform: rotate(0deg) scale(1);
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    -webkit-transform: rotate(180deg) scale(0.6);
+    transform: rotate(180deg) scale(0.6);
+  }
+  100% {
+    -webkit-transform: rotate(360deg) scale(1);
+    transform: rotate(360deg) scale(1);
+  }
 }
 @-moz-keyframes rotate {
   0% {
@@ -269,7 +337,7 @@
     transform: rotate(360deg) scale(1);
   }
 }
-@-webkit-keyframes rotate {
+@-o-keyframes rotate {
   0% {
     -webkit-transform: rotate(0deg) scale(1);
     transform: rotate(0deg) scale(1);
@@ -342,113 +410,6 @@
   background: #fff;
   display: inline-block;
   vertical-align: middle;
-}
-
-.IUI-alert-backdrop {
-  z-index: 1010;
-}
-
-.IUI-alert-container {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  overflow: auto;
-  text-align: center;
-  -webkit-overflow-scrolling: touch;
-  z-index: 1011;
-}
-.IUI-alert-container:after {
-  display: inline-block;
-  height: 100%;
-  margin-left: -.05em;
-  content: "";
-  vertical-align: middle;
-}
-
-.IUI-alert-main {
-  position: relative;
-  background-color: #fff;
-  border-radius: 5px;
-  box-shadow: 0 0 10px 0 #333;
-  width: 400px;
-  outline: 0;
-  -moz-text-size-adjust: 100%;
-  -ms-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-  padding: 35px;
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-  color: #2b2e38;
-  background: #fff;
-  display: inline-block;
-  vertical-align: middle;
-}
-
-.IUI-alert-header,
-.IUI-alert-content,
-.IUI-alert-footer {
-  padding: 5px 10px;
-}
-
-.IUI-alert-header {
-  color: #333;
-  font: bold 16px/1.2 "微软雅黑";
-}
-
-.IUI-alert-content {
-  font: normal 14px/1.8 "微软雅黑";
-  color: #666;
-  margin-bottom: 20px;
-}
-
-.IUI-alert-confirm,
-.IUI-alert-cancel {
-  display: inline-block;
-  padding: 5px 0;
-  width: 70px;
-  text-align: center;
-  text-decoration: none;
-  margin-right: 10px;
-  color: #fff;
-  font-size: 14px;
-}
-
-.IUI-alert-confirm {
-  background-color: #666;
-}
-.IUI-alert-confirm:hover {
-  background-color: #888;
-}
-
-.IUI-alert-cancel {
-  background-color: #ccc;
-}
-.IUI-alert-cancel:hover {
-  background-color: #ddd;
-}
-
-.IUI-alert-main.success, .IUI-alert-main.error, .IUI-alert-main.warning {
-  padding-left: 110px;
-  width: 330px;
-}
-
-.IUI-alert-main.success:before {
-  content: '\e632';
-  color: #90bf00;
-}
-
-.IUI-alert-main.error:before {
-  content: '\e68e';
-  color: #f24f00;
-}
-
-.IUI-alert-main.warning:before {
-  content: '\e68e';
-  color: #f3c901;
 }
 
 .email-list {
@@ -822,10 +783,117 @@
   display: block;
 }
 
+.IUI-dialog-backdrop {
+  z-index: 1010;
+}
+
+.IUI-dialog-container {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: auto;
+  text-align: center;
+  -webkit-overflow-scrolling: touch;
+  z-index: 1011;
+}
+.IUI-dialog-container:after {
+  display: inline-block;
+  height: 100%;
+  margin-left: -.05em;
+  content: "";
+  vertical-align: middle;
+}
+
+.IUI-dialog-main {
+  position: relative;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 0 10px 0 #333;
+  width: 400px;
+  outline: 0;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 35px;
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  color: #2b2e38;
+  background: #fff;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.IUI-dialog-header,
+.IUI-dialog-content,
+.IUI-dialog-footer {
+  padding: 5px 10px;
+}
+
+.IUI-dialog-header {
+  color: #333;
+  font: bold 16px/1.2 "微软雅黑";
+}
+
+.IUI-dialog-content {
+  font: normal 14px/1.8 "微软雅黑";
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.IUI-dialog-confirm,
+.IUI-dialog-cancel {
+  display: inline-block;
+  padding: 5px 0;
+  width: 70px;
+  text-align: center;
+  text-decoration: none;
+  margin-right: 10px;
+  color: #fff;
+  font-size: 14px;
+}
+
+.IUI-dialog-confirm {
+  background-color: #666;
+}
+.IUI-dialog-confirm:hover {
+  background-color: #888;
+}
+
+.IUI-dialog-cancel {
+  background-color: #ccc;
+}
+.IUI-dialog-cancel:hover {
+  background-color: #ddd;
+}
+
+.IUI-dialog-main.success, .IUI-dialog-main.error, .IUI-dialog-main.warning {
+  padding-left: 110px;
+  width: 330px;
+}
+
+.IUI-dialog-main.success:before {
+  content: '\e632';
+  color: #90bf00;
+}
+
+.IUI-dialog-main.error:before {
+  content: '\e68e';
+  color: #f24f00;
+}
+
+.IUI-dialog-main.warning:before {
+  content: '\e68e';
+  color: #f3c901;
+}
+
 /**
  * 对话框组件样式
  */
-.IUI-dialog-container {
+.IUI-popover-container {
   width: 300px;
   background-color: #fff;
   border: 1px #d9dadc solid;
@@ -834,7 +902,7 @@
   top: 20%;
   z-index: 999;
 }
-.IUI-dialog-container:after, .IUI-dialog-container:before {
+.IUI-popover-container:after, .IUI-popover-container:before {
   width: 0;
   height: 0;
   border-style: solid;
@@ -844,32 +912,32 @@
   left: 50%;
   margin-left: -10px;
 }
-.IUI-dialog-container:after {
+.IUI-popover-container:after {
   border-color: transparent transparent #fff transparent;
   top: -9px;
 }
-.IUI-dialog-container:before {
+.IUI-popover-container:before {
   border-color: transparent transparent #d9dadc transparent;
   top: -10px;
 }
-.IUI-dialog-container.right:after, .IUI-dialog-container.right:before {
+.IUI-popover-container.right:after, .IUI-popover-container.right:before {
   left: 90%;
 }
-.IUI-dialog-container.left:after, .IUI-dialog-container.left:before {
+.IUI-popover-container.left:after, .IUI-popover-container.left:before {
   left: 10%;
 }
-.IUI-dialog-container [role="content"] {
+.IUI-popover-container [role="content"] {
   padding: 30px;
 }
-.IUI-dialog-container [role="operate"] {
+.IUI-popover-container [role="operate"] {
   padding: 0 15px;
   text-align: center;
   text-align: center;
   padding-bottom: 30px;
 }
-.IUI-dialog-container [role="operate"] a {
+.IUI-popover-container [role="operate"] a {
   width: 110px;
 }
-.IUI-dialog-container [role="operate"] a:first-child {
+.IUI-popover-container [role="operate"] a:first-child {
   margin-right: 10px;
 }

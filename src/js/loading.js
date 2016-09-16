@@ -15,17 +15,24 @@
 $.loading = $.fn.loading = function(options, type) {
     var defaults = {
         display: false,
-        type: 'css',
+        type: 1,
         animateHtml: '<div class="ball-clip-rotate"><div></div></div>',
         src: 'http://img.yi114.com/201571121314_382.gif',
         shadow: true
     };
 
-    var $context = this instanceof $ ? this : $('body');
+    var $context;
+    var callType = this instanceof $;
+    if(callType){
+        $context = this;
+        $context.css('position','relative');
+    }else{
+        $context =  $('body');
+    }
 
 
 
-    var loadingStr = '<div class="IUI-loading">';
+    var loadingStr = '<div class="IUI-loading">{{hook}}</div>';
 
     if (typeof options === 'object') {
         $.extend(defaults, options);
@@ -38,16 +45,14 @@ $.loading = $.fn.loading = function(options, type) {
         }
     }
 
-    if (defaults.type === 'css') {
-        loadingStr += '{{animateHtml}}</div>'.replace('{{animateHtml}}', defaults.animateHtml);
-    }else{
-        loadingStr += '<img src="{{src}}" ></div>'.replace('{{src}}', defaults.src);
+    loadingStr = loadingStr.replace('{{hook}}', defaults.type ? defaults.animateHtml : '<img src="'+defaults.src+'" />');
+
+    if (defaults.shadow) {
+        loadingStr = '<div class="IUI-loading-backdrop" ' + (callType ? 'style="position:absolute;"':'') + '></div>' + loadingStr;
     }
 
+
     if (defaults.display) {
-        if (defaults.shadow) {
-            loadingStr = '<div class="IUI-loading-backdrop"></div>' + loadingStr;
-        }
         $context.append(loadingStr);
     } else {
         $context.find('>.IUI-loading-backdrop,>.IUI-loading').remove();

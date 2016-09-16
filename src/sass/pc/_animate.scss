@@ -1,4 +1,36 @@
-.layer-opening,.alert-opening {
+@mixin animation($animate...) {
+    $max: length($animate);
+    $animations: '';
+
+    @for $i from 1 through $max {
+        $animations: #{$animations + nth($animate, $i)};
+
+        @if $i < $max {
+            $animations: #{$animations + ", "};
+        }
+    }
+    -webkit-animation: $animations;
+    -moz-animation:    $animations;
+    -o-animation:      $animations;
+    animation:         $animations;
+}
+
+@mixin keyframes($animationName) {
+    @-webkit-keyframes #{$animationName} {
+        @content;
+    }
+    @-moz-keyframes #{$animationName} {
+        @content;
+    }
+    @-o-keyframes #{$animationName} {
+        @content;
+    }
+    @keyframes #{$animationName} {
+        @content;
+    }
+}
+
+.layer-opening,.dialog-opening {
     @include animation(layerIn .3s ease-out forwards);
     @include keyframes (layerIn) {
         0% {
@@ -18,7 +50,7 @@
     }
 }
 
-.layer-closing,.alert-closing {
+.layer-closing,.dialog-closing {
     @include animation(layerOut .2s ease-out forwards);
     @include keyframes (layerOut) {
         0% {

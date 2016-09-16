@@ -70,61 +70,68 @@ http://localhost:3000/examples/index.html
 ```
 
 ##History
+
+* 2016年09月15日 更新记录：
+    * 优化 `loading`
+    * `alert`  更名为 `dialog`
+    * `tip`    更名为 `alert`
+    * `dialog` 更名为 `popover`
+    * **版本更新至 1.3.0**
+
 * 2016年09月11日 更新记录：
-  * `layer`,`alert` 优化动画效果
+    * `layer`,`alert` 优化动画效果
+
 * 2016年08月16日 更新记录：
-  * `validate` 修复一些细节 bug，新增 errors接口
+    * `validate` 修复一些细节 bug，新增 errors接口
 * 2016年08月10日 更新记录：
-  * `validate` 修复 remove 的bug
+    * `validate` 修复 remove 的bug
 * 2016年08月05日 更新记录：
-  * `layer` 修复 esc快捷键退出失效的问题
+    * `layer` 修复 esc快捷键退出失效的问题
 * 2016年07月15日 更新记录：
-  * `validate` 修复一些 bug
-  * 新增`dialog`组件
+    * `validate` 修复一些 bug
+    * 新增`dialog`组件
 
 * 2016年07月9日 更新记录：
-  * `layer`新增`cutTo`方法切换不同的`layer`,
-  * `layer`删除阻止事件冒泡，采用`event.target`方式触发遮罩层关闭
-  * `version 1.2.1`
+    * `layer`新增`cutTo`方法切换不同的`layer`,
+    * `layer`删除阻止事件冒泡，采用`event.target`方式触发遮罩层关闭
+    * `version 1.2.1`
 
 * 2016年07月01日 更新记录：
-  * 解决iselector 自定义json 不能渲染出来的问题
+    * 解决iselector 自定义json 不能渲染出来的问题
 
 * 2016年06月27日 更新记录：
-  * 移除 `fadeSlider`,`returnTop`组件
-  * **重构 `tabs`组件，不再兼容之前的`tabs`**
-  * 新增 `placeholder` 文档
+    * 移除 `fadeSlider`,`returnTop`组件
+    * **重构 `tabs`组件，不再兼容之前的`tabs`**
+    * 新增 `placeholder` 文档
 
 
 * 2016年06月26日 更新记录：
-  * 修复`alert`,`layer`弹出时`body`因`overflow:hidden`而跳动的问题
-  * 优化`tip`插件，简化了接口，新增demo及文档
-  * 新增`layer`说明文档
+    * 修复`alert`,`layer`弹出时`body`因`overflow:hidden`而跳动的问题
+    * 优化`tip`插件，简化了接口，新增demo及文档
+    * 新增`layer`说明文档
 
 * 2016年06月16日 更新记录：
-  * `1.2.0`的 `cookie` 不再向下兼容，升级后请对之前cookie的调用做修改
-  * 优化`loading`插件，增强调用的灵活性
+    * `1.2.0`的 `cookie` 不再向下兼容，升级后请对之前cookie的调用做修改
+    * 优化`loading`插件，增强调用的灵活性
 
 
 * 2016年06月14日 更新记录：
-  * `mPicker` 增加 `display` 显示方式和 `isshort` 简写参数
-  * `validate` 增加了一条生日的验证规则 `isBirthday`
-  * `layer` 增加显示的回调函数 `showCall`
-  * 新增分享组件 `share`
-  * 后台错误提示组件 `ajaxError`
-  * 唯一字段邮箱或者手机显示隐藏组件 `exist`（活动专用）
+    * `mPicker` 增加 `display` 显示方式和 `isshort` 简写参数
+    * `validate` 增加了一条生日的验证规则 `isBirthday`
+    * `layer` 增加显示的回调函数 `showCall`
+    * 新增分享组件 `share`
+    * 后台错误提示组件 `ajaxError`
+    * 唯一字段邮箱或者手机显示隐藏组件 `exist`（活动专用）
 
 
-
-* 2016年06月13日 **适配`webpack`模块加载  `version 1.2`**
 
 * 2016年6月13日 重构`placeholder`组件，使用label模拟,避免提交出错
 
 * 2016年6月12日 重构`layer`组件的居中方式及动画效果
 
 * 2016年6月8日 更新记录：
-  * `ajaxForm`增加always回调和对ajax2的支持
-  * `tokenize`优化js和css代码，增加搜索回调函数和可以限制输入搜索的字符的长度
+    * `ajaxForm`增加always回调和对ajax2的支持
+    * `tokenize`优化js和css代码，增加搜索回调函数和可以限制输入搜索的字符的长度
 
 
 * 2016年6月3日 新增`dialog`组件
@@ -138,8 +145,8 @@ http://localhost:3000/examples/index.html
 * 2016年03月29日 增加初始选项及禁止删除功能，修复`tokenize`的多次调用bug
 
 * 2016年03月21日 更新记录：
-  * 重构`layer`组件，降低耦合度
-  * 新增`mpicker`组件
+    * 重构`layer`组件，降低耦合度
+    * 新增`mpicker`组件
 
 
 * 2016年03月11日 新增`tokenize`组件
@@ -179,8 +186,8 @@ http://localhost:3000/examples/index.html
 * 2015年08月11日 新增`layer`组件
 
 * 2015年08月10日 更新记录：
-  * 新增`returnTop`组件
-  * 新增IUI库扩展功能，支持`AMD`、`CMD`模块加载
+    * 新增`returnTop`组件
+    * 新增IUI库扩展功能，支持`AMD`、`CMD`模块加载
 
 
 * 2015年08月09日 完成`emailSuffix`组件

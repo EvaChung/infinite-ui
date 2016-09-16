@@ -24,14 +24,14 @@ $iui-z-index-layer:$iui-z-index + 1;
 $iui-z-index-loading-backdrop : $iui-z-index + 100;
 $iui-z-index-loading : $iui-z-index + 101;
 
-$iui-z-index-alert-backdrop : $iui-z-index + 10;
-$iui-z-index-alert : $iui-z-index + 11;
+$iui-z-index-dialog-backdrop : $iui-z-index + 10;
+$iui-z-index-dialog : $iui-z-index + 11;
 
-$alert-color:#333 #666;
-$alert-header-font:bold 16px/1.2 "微软雅黑";
-$alert-content-font:normal 14px/1.8 "微软雅黑";
-$alert-footer-font:normal 18px/1.2 "微软雅黑";
-$alert-width:400px;
+$dialog-color:#333 #666;
+$dialog-header-font:bold 16px/1.2 "微软雅黑";
+$dialog-content-font:normal 14px/1.8 "微软雅黑";
+$dialog-footer-font:normal 18px/1.2 "微软雅黑";
+$dialog-width:400px;
 
 $tooltip-trbl-1:50%;
 $tooltip-trbl-2:-10px;

@@ -21,7 +21,7 @@ var globWidgets = [
   './src/js/alert.js',      //活动这边用到的
   './src/js/cookie.js',
   './src/js/loading.js',    //活动这边用到的
-  './src/js/tip.js',        //活动这边用到的
+  './src/js/alert.js',        //活动这边用到的
 ];
 
 /**
@@ -36,7 +36,8 @@ var pcComponents = [
   // './src/js/lrselect.js',
   // './src/js/iselector.js',    //活动pc这边用到的
   './src/js/tokenize.js',
-   // './src/js/dialog.js'
+  './src/js/dialog.js',
+  './src/js/popover.js'
 ];
 
 /**

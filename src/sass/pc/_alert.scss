@@ -1,121 +1,13 @@
-.IUI-alert-backdrop {
-    @extend %backdrop;
-    z-index: $iui-z-index-alert-backdrop;
-}
-
-.IUI-alert-container {
+#message{
     position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    overflow: auto;
-    text-align: center;
-    -webkit-overflow-scrolling: touch;
-    z-index: $iui-z-index-alert;
-    &:after {
-        display: inline-block;
-        height: 100%;
-        margin-left: -.05em;
-        content: "";
-        vertical-align: middle;
-    }
-}
-
-.IUI-alert-main {
-    position: relative;
-    background-color: #fff;
-    border-radius: 5px;
-    box-shadow: 0 0 10px 0 #333;
-    width: $alert-width;
-    outline: 0;
-    -moz-text-size-adjust: 100%;
-    -ms-text-size-adjust: 100%;
-    text-size-adjust: 100%;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-    padding: 35px;
-    -webkit-transform: translate3d(0, 0, 0);
-    transform: translate3d(0, 0, 0);
-    color: #2b2e38;
-    background: #fff;
-    display: inline-block;
-    vertical-align: middle;
-
-}
-
-
-.IUI-alert-header,
-.IUI-alert-content,
-.IUI-alert-footer {
-    padding: 5px 10px;
-}
-
-.IUI-alert-header {
-    color: nth($alert-color,1);
-    font: $alert-header-font;
-}
-
-.IUI-alert-content {
-    font: $alert-content-font;
-    color: nth($alert-color,2);
-    margin-bottom: 20px;
-}
-
-.IUI-alert-footer {
-    // text-align: center;
-}
-
-.IUI-alert-confirm,
-.IUI-alert-cancel {
-    display: inline-block;
-    padding: 5px 0;
-    width: 70px;
-    text-align: center;
-    text-decoration: none;
-    margin-right: 10px;
+    background-color: #000;
     color: #fff;
-    font-size: 14px;
-}
-
-.IUI-alert-confirm {
-    background-color: #666;
-    &:hover {
-        background-color: #888;
-    }
-}
-
-.IUI-alert-cancel {
-    background-color: #ccc;
-    &:hover {
-        background-color: #ddd;
-    }
-}
-
-
-%extend-style{
-    padding-left: 110px;
-    width:330px;
-}
-
-.IUI-alert-main.success {
-    @extend %extend-style;
-    &:before {
-        content: '\e632';
-        color:#90bf00;
-    }
-}
-.IUI-alert-main.error {
-    @extend %extend-style;
-    &:before {
-        content: '\e68e';
-        color:#f24f00;
-    }
-}
-.IUI-alert-main.warning {
-    @extend %extend-style;
-    &:before {
-        content: '\e68e';
-        color:#f3c901;
-    }
+    padding: 13px 20px 13px 15px;
+    text-align: left;
+    font-size: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,.15);
+    border-radius: 3px;
+    z-index: 99999;
+    @include gradient(#000,.6);
+    line-height: 36px;
 }

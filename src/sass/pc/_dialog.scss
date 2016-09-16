@@ -1,59 +1,121 @@
-/**
- * 对话框组件样式
- */
+.IUI-dialog-backdrop {
+    @extend %backdrop;
+    z-index: $iui-z-index-dialog-backdrop;
+}
 
 .IUI-dialog-container {
-    width: 300px;
-    background-color: #fff;
-    border: 1px #d9dadc solid;
-    position: absolute;
-    left: 50%;
-    top: 20%;
-    z-index: 999;
-    &:after,
-    &:before {
-        width: 0;
-        height: 0;
-        border-style: solid;
-        border-width: 0 10px 10px 10px;
-        content: ' ';
-        position: absolute;
-        left: 50%;
-        margin-left: -10px;
-    }
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    overflow: auto;
+    text-align: center;
+    -webkit-overflow-scrolling: touch;
+    z-index: $iui-z-index-dialog;
     &:after {
-        border-color: transparent transparent #fff transparent;
-        top: -9px;
+        display: inline-block;
+        height: 100%;
+        margin-left: -.05em;
+        content: "";
+        vertical-align: middle;
     }
+}
+
+.IUI-dialog-main {
+    position: relative;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px 0 #333;
+    width: $dialog-width;
+    outline: 0;
+    -moz-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 35px;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    color: #2b2e38;
+    background: #fff;
+    display: inline-block;
+    vertical-align: middle;
+
+}
+
+
+.IUI-dialog-header,
+.IUI-dialog-content,
+.IUI-dialog-footer {
+    padding: 5px 10px;
+}
+
+.IUI-dialog-header {
+    color: nth($dialog-color,1);
+    font: $dialog-header-font;
+}
+
+.IUI-dialog-content {
+    font: $dialog-content-font;
+    color: nth($dialog-color,2);
+    margin-bottom: 20px;
+}
+
+.IUI-dialog-footer {
+    // text-align: center;
+}
+
+.IUI-dialog-confirm,
+.IUI-dialog-cancel {
+    display: inline-block;
+    padding: 5px 0;
+    width: 70px;
+    text-align: center;
+    text-decoration: none;
+    margin-right: 10px;
+    color: #fff;
+    font-size: 14px;
+}
+
+.IUI-dialog-confirm {
+    background-color: #666;
+    &:hover {
+        background-color: #888;
+    }
+}
+
+.IUI-dialog-cancel {
+    background-color: #ccc;
+    &:hover {
+        background-color: #ddd;
+    }
+}
+
+
+%extend-style{
+    padding-left: 110px;
+    width:330px;
+}
+
+.IUI-dialog-main.success {
+    @extend %extend-style;
     &:before {
-        border-color: transparent transparent #d9dadc transparent;
-        top: -10px;
+        content: '\e632';
+        color:#90bf00;
     }
-    &.right {
-        &:after,
-        &:before {
-            left: 90%;
-        }
+}
+.IUI-dialog-main.error {
+    @extend %extend-style;
+    &:before {
+        content: '\e68e';
+        color:#f24f00;
     }
-    &.left {
-        &:after,
-        &:before {
-            left: 10%;
-        }
-    }
-    [role="content"] {
-        padding: 30px;
-    }
-    [role="operate"] {
-        padding: 0 15px;
-        text-align: center;
-        text-align: center;
-        padding-bottom: 30px;
-        a {
-            width: 110px;
-        }
-        a:first-child {
-            margin-right: 10px;
-        }
+}
+.IUI-dialog-main.warning {
+    @extend %extend-style;
+    &:before {
+        content: '\e68e';
+        color:#f3c901;
     }
 }

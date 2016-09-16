@@ -1,203 +1,76 @@
 /**
  * alert 组件
- * @param {String}      title 标题                   默认为空
- * @param {String}      content 内容                 默认为空
- * @param {String}      confirmText                 确定按钮文本
- * @param {String}      cancelText                  取消按钮文本
- * @param {Boolean}     closeBtn                    是否开启关闭按钮
- * @param {Boolean}     shadow                      是否开启点击阴影关闭
- * @param {String}      type                        可选择 alert 或 confirm，区别在于有无【取消按钮】
- * @param {String}      status                      状态类，如 success , error , warning , info
- * @param {Function}    before                      回调函数 - 弹出前
- * @param {Function}    confirm                     回调函数 - 点击确认按钮后触发
- * @param {Function}    cancel                      回调函数 - 点击取消按钮后触发
+ * @param {String}                 obj                 被提示的对象，可传 id 或 jQuery 对象
+ * @param {String}                 text                文本信息
+ * @param {Number}                 timeout             多少毫秒后隐藏提示
+ * @param {Boolean}                status              状态，success or error
+ * @param {Array}                  offset              自定义位置微调值，offset[0] = x, offset[1] = y
+ * @param {Function}               callback            回调函数 - hide 时触发
  *
- *
- * @param $.alert({options});
  */
 $.extend({
-  alert: function(options) {
-    var scrollBarWidth = IUI_UTILS.scrollBarWidth;
-    var $body = $('body');
-    var animateTime = document.all && !window.atob ? 0 : 200;
-    var isIE = document.all && !window.atob;
-    function animateEnd(el, fn) {
-        if (isIE) {
-            fn();
-        } else {
-            el.on(IUI_UTILS.animateEnd, fn);
-        }
-    }
+    alert: function(options) {
+        var param = $.extend({
+            container:'body',
+            obj: "#message",
+            text: '',
+            timeout: 1000,
+            status: true,
+            offset: false,
+            customClass:'alert-part',
+            callback: null
+        }, options);
+        // 判断传入的是id还是class
+        var callerStyle = param.obj.charAt(0) === '#' ? 'id' : 'class';
+        //初始化jQuery对象
+        var obj = $(param.obj).length === 0 ? $('<div '+callerStyle+'="'+param.obj.slice(1)+'" />').appendTo('body') : $(param.obj);
+        //判断状态
+        var status = param.status ? 'success' : 'error';
+        //定时器进程id与dom对象的count绑定，用于一对一清除
+        var count = obj.data('count') || 1;
+        //自定义位置id标识
+        var id = new Date().getTime();
+        //自定义位置时，caller的宽度
+        var objWidth = obj.outerWidth();
+        //自定义位置时，caller的高度
+        var objHeight = obj.outerHeight();
+        //自定义位置时，caller的x位置
+        var x = obj.offset().left;
+        //自定义位置时，caller的y位置
+        var y = obj.offset().top;
+        var _alert;
 
-    function transitionEnd(el,fn){
-      if(isIE){
-        fn();
-      }else{
-        el.on(IUI_UTILS.transitionEnd,fn);
-      }
-    }
-    var defaults = {
-      title: '',
-      content: '',
-      confirmText: '确定',
-      cancelText: '取消',
-      closeBtn: false,
-      shadow: true,
-      type: 'confirm',
-      status: 'default',
-      keyboard: true,
-      before: function() {},
-      confirm: function() {},
-      cancel: function() {}
-    };
+        clearTimeout(obj.data('count'));
 
-    var config = $.extend({}, defaults, options);
+        //判断是否为局部提示
+        if (param.offset) {
+            //判断局部提示的caller是否第一次调用
+            if (typeof obj.attr('data-alert') === 'undefined') {
 
-    var container = create();
-    /**
-     * [deferred description]
-     * @type {Object}
-     * @description 在回调函数中使用
-     */
-    var deferred = {
-      showAlert: function() {
-        show(container);
-      },
-      hideAlert: function() {
-        hide(container);
-      },
-      target: container
-    };
+                $('<div class="'+param.customClass+'" id="alert_' + id + '" style="left:' + (x + param.offset[0]) + 'px;top:' + (y + objHeight + param.offset[1]) + 'px"></div>').appendTo(param.container);
+                obj.attr('data-alert', id);
 
-    if (!$.alertBackdrop) {
-      $.alertBackdrop = $('<div class="IUI-alert-backdrop"></div>');
-      $body.append($.alertBackdrop);
-    }
+            }
+            //获取局部提示元素
+            _alert = $('#alert_' + obj.attr('data-alert'));
 
-
-    if (config.shadow) {
-      $body.on('touchstart.iui-alert click.iui-alert', '.IUI-alert-container', function(event) {
-        event.preventDefault();
-        hide(container);
-      });
-    }
-
-    $body.on('touchstart.iui-alert click.iui-alert', '.IUI-alert-main', function(event) {
-      event.stopPropagation();
-    });
-
-    container.on('touchstart.iui-alert click.iui-alert', '.IUI-alert-confirm', function(event) {
-
-      if (config.type === 'alert') {
-
-        if (config.cancel.call(this, deferred) === false) {
-          return false;
         }
 
-        hide(container);
+        // 根据不同alert类型选择dom来做显示/隐藏的行为
+        var target = param.offset ? _alert : obj;
 
-        return false;
-      }
+        target.html('<span class="' + status + '">' + param.text + '</span>').removeClass('hide');
 
-      if (config.confirm.call(this, deferred) === false) {
-        return false;
-      }
+        // 计时器隐藏提示
+        obj.data('count', setTimeout(function() {
 
-    });
+            target.addClass('hide');
 
-    container.on('touchstart.iui-alert click.iui-alert', '.IUI-alert-cancel,.IUI-alert-close', function(event) {
-      if (config.cancel.call(this, deferred) === false) {
-        return false;
-      }
+            if(param.callback){
+                param.callback();
+            }
 
-      hide(container);
-    });
+        }, param.timeout));
 
-
-
-    if (config.keyboard) {
-
-      $(document).off('keyup.iui-alert').on('keyup.iui-alert', function(event) {
-        // keyCode => esc
-        if (event.keyCode === 27) {
-          container.find('.IUI-alert-cancel,.IUI-alert-close').trigger('click.iui-alert');
-        }
-        // keyCode => enter
-        if (event.keyCode === 13) {
-          container.find('.IUI-alert-confirm').trigger('click.iui-alert');
-        }
-      });
     }
-
-
-    /**
-     * [show description]
-     * @param  {jQuery object} target 需要显示的对象
-     */
-    function show(target) {    
-        var screenH = document.documentElement.clientHeight;
-        var GtIE10 = document.body.style.msTouchAction === undefined;
-        target.find('.IUI-alert-main').off(IUI_UTILS.animateEnd);
-        $.alertBackdrop.off(IUI_UTILS.transitionEnd);
-        //当body高度大于可视高度，修正滚动条跳动
-        //tmd,>=ie10的滚动条不需要做此修正
-        if ($('body').height() > screenH & GtIE10) {
-             $body.css({'border-right':scrollBarWidth+'px transparent solid','overflow':'hidden'});
-        }
-       
-        target.removeClass('hide');
-        $.alertBackdrop.attr('style', 'opacity: 1;visibility: visible;');
-        target.find('.IUI-alert-main').addClass('alert-opening');
-        animateEnd(target.find('.IUI-alert-main'),function(event){
-          target.find('.IUI-alert-main').removeClass('alert-opening');
-        });
-    }
-    /**
-     * [hide description]
-     * @param  {jQuery object} target 需要隐藏的对象
-     */
-    function hide(target) {
-        $([$body, target]).off('touchstart.iui-alert click.iui-alert');
-        target.addClass('alert-closing');
-        $.alertBackdrop.removeAttr('style');
-        transitionEnd($.alertBackdrop,function(event){
-            target.remove();
-            $body.removeAttr('style');
-        });
-    }
-    /**
-     * [create description]
-     * @return {string} 拼接html
-     */
-    function create() {
-      var isConfirm = config.type === 'confirm';
-
-      var _closeBtn = '<span class="IUI-alert-close"></span>';
-
-      var _confirmBtn = '<a href="javascript:;" class="IUI-alert-confirm">' + config.confirmText + '</a>';
-
-      var _cancelBtn = '<a href="javascript:;" class="IUI-alert-cancel">' + config.cancelText + '</a>';
-
-      var _header = '<div class="IUI-alert-header">' + (config.title || '') + (config.closeBtn ? _closeBtn : '') + '</div>';
-
-      var _content = '<div class="IUI-alert-content">' + (config.content || '') + '</div>';
-
-      var _footer = '<div class="IUI-alert-footer">' + _confirmBtn + (isConfirm ? _cancelBtn : '') + '</div>';
-
-      var _main = _header + _content + _footer;
-
-      var $container = $('<div class="IUI-alert-container hide"><div class="IUI-alert-main ' + config.status + '">' + _main + '</div></div>');
-
-      $body[0].appendChild($container[0]);
-
-      return $container;
-    }
-
-    if (config.before.call(this, deferred) === false) {
-      return false;
-    }
-
-    show(container);
-
-  }
 });

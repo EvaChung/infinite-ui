@@ -1,120 +1,203 @@
-(function() {
+/**
+ * dialog 组件
+ * @param {String}      title 标题                   默认为空
+ * @param {String}      content 内容                 默认为空
+ * @param {String}      confirmText                 确定按钮文本
+ * @param {String}      cancelText                  取消按钮文本
+ * @param {Boolean}     closeBtn                    是否开启关闭按钮
+ * @param {Boolean}     shadow                      是否开启点击阴影关闭
+ * @param {String}      type                        可选择 dialog 或 confirm，区别在于有无【取消按钮】
+ * @param {String}      status                      状态类，如 success , error , warning , info
+ * @param {Function}    before                      回调函数 - 弹出前
+ * @param {Function}    confirm                     回调函数 - 点击确认按钮后触发
+ * @param {Function}    cancel                      回调函数 - 点击取消按钮后触发
+ *
+ *
+ * @param $.dialog({options});
+ */
+$.extend({
+  dialog: function(options) {
+    var scrollBarWidth = IUI_UTILS.scrollBarWidth;
+    var $body = $('body');
+    var animateTime = document.all && !window.atob ? 0 : 200;
+    var isIE = document.all && !window.atob;
+    function animateEnd(el, fn) {
+        if (isIE) {
+            fn();
+        } else {
+            el.on(IUI_UTILS.animateEnd, fn);
+        }
+    }
 
-  var template = '<div class="IUI-dialog-container hide">' +
-    '<div role="content"></div>' +
-    '<div role="operate">' +
-    '<a href="javascript:;" role="confirm" class="btn btn-primary">确定</a>' +
-    '<a href="javascript:;" class="btn btn-default" role="cancel">取消</a>' +
-    '</div>' +
-    '</div>';
-  var defaults = {
-    handle: '[data-dialog]', //绑定监听对象
-    container: 'body',       //全局作用域
-    offsetX: 0,              //全局微调 X 位置
-    offsetY: 10,             //全局微调 Y 位置
-    compiler: null,          //有无模板引擎
-    data: {}                 //传参，当compiler存在时有效
-  };
+    function transitionEnd(el,fn){
+      if(isIE){
+        fn();
+      }else{
+        el.on(IUI_UTILS.transitionEnd,fn);
+      }
+    }
+    var defaults = {
+      title: '',
+      content: '',
+      confirmText: '确定',
+      cancelText: '取消',
+      closeBtn: false,
+      shadow: true,
+      type: 'confirm',
+      status: 'default',
+      keyboard: true,
+      before: function() {},
+      confirm: function() {},
+      cancel: function() {}
+    };
 
-  function Dialog(config) {
-    this.$selector = $(config.handle);
-    this.$template = $(template);
-    this.$container = $(config.container);
-    this.config = config;
-    this.containerPos = $(config.container)[0].getBoundingClientRect();
-    this.init();
+    var config = $.extend({}, defaults, options);
+
+    var container = create();
+    /**
+     * [deferred description]
+     * @type {Object}
+     * @description 在回调函数中使用
+     */
+    var deferred = {
+      showDialog: function() {
+        show(container);
+      },
+      hideDialog: function() {
+        hide(container);
+      },
+      target: container
+    };
+
+    if (!$.dialogBackdrop) {
+      $.dialogBackdrop = $('<div class="IUI-dialog-backdrop"></div>');
+      $body.append($.dialogBackdrop);
+    }
+
+
+    if (config.shadow) {
+      $body.on('touchstart.iui-dialog click.iui-dialog', '.IUI-dialog-container', function(event) {
+        event.preventDefault();
+        hide(container);
+      });
+    }
+
+    $body.on('touchstart.iui-dialog click.iui-dialog', '.IUI-dialog-main', function(event) {
+      event.stopPropagation();
+    });
+
+    container.on('touchstart.iui-dialog click.iui-dialog', '.IUI-dialog-confirm', function(event) {
+
+      if (config.type === 'dialog') {
+
+        if (config.cancel.call(this, deferred) === false) {
+          return false;
+        }
+
+        hide(container);
+
+        return false;
+      }
+
+      if (config.confirm.call(this, deferred) === false) {
+        return false;
+      }
+
+    });
+
+    container.on('touchstart.iui-dialog click.iui-dialog', '.IUI-dialog-cancel,.IUI-dialog-close', function(event) {
+      if (config.cancel.call(this, deferred) === false) {
+        return false;
+      }
+
+      hide(container);
+    });
+
+
+
+    if (config.keyboard) {
+
+      $(document).off('keyup.iui-dialog').on('keyup.iui-dialog', function(event) {
+        // keyCode => esc
+        if (event.keyCode === 27) {
+          container.find('.IUI-dialog-cancel,.IUI-dialog-close').trigger('click.iui-dialog');
+        }
+        // keyCode => enter
+        if (event.keyCode === 13) {
+          container.find('.IUI-dialog-confirm').trigger('click.iui-dialog');
+        }
+      });
+    }
+
+
+    /**
+     * [show description]
+     * @param  {jQuery object} target 需要显示的对象
+     */
+    function show(target) {
+        var screenH = document.documentElement.clientHeight;
+        var GtIE10 = document.body.style.msTouchAction === undefined;
+        target.find('.IUI-dialog-main').off(IUI_UTILS.animateEnd);
+        $.dialogBackdrop.off(IUI_UTILS.transitionEnd);
+        //当body高度大于可视高度，修正滚动条跳动
+        //tmd,>=ie10的滚动条不需要做此修正
+        if ($('body').height() > screenH & GtIE10) {
+             $body.css({'border-right':scrollBarWidth+'px transparent solid','overflow':'hidden'});
+        }
+
+        target.removeClass('hide');
+        $.dialogBackdrop.attr('style', 'opacity: 1;visibility: visible;');
+        target.find('.IUI-dialog-main').addClass('dialog-opening');
+        animateEnd(target.find('.IUI-dialog-main'),function(event){
+          target.find('.IUI-dialog-main').removeClass('dialog-opening');
+        });
+    }
+    /**
+     * [hide description]
+     * @param  {jQuery object} target 需要隐藏的对象
+     */
+    function hide(target) {
+        $([$body, target]).off('touchstart.iui-dialog click.iui-dialog');
+        target.addClass('dialog-closing');
+        $.dialogBackdrop.removeAttr('style');
+        transitionEnd($.dialogBackdrop,function(event){
+            target.remove();
+            $body.removeAttr('style');
+        });
+    }
+    /**
+     * [create description]
+     * @return {string} 拼接html
+     */
+    function create() {
+      var isConfirm = config.type === 'confirm';
+
+      var _closeBtn = '<span class="IUI-dialog-close"></span>';
+
+      var _confirmBtn = '<a href="javascript:;" class="IUI-dialog-confirm">' + config.confirmText + '</a>';
+
+      var _cancelBtn = '<a href="javascript:;" class="IUI-dialog-cancel">' + config.cancelText + '</a>';
+
+      var _header = '<div class="IUI-dialog-header">' + (config.title || '') + (config.closeBtn ? _closeBtn : '') + '</div>';
+
+      var _content = '<div class="IUI-dialog-content">' + (config.content || '') + '</div>';
+
+      var _footer = '<div class="IUI-dialog-footer">' + _confirmBtn + (isConfirm ? _cancelBtn : '') + '</div>';
+
+      var _main = _header + _content + _footer;
+
+      var $container = $('<div class="IUI-dialog-container hide"><div class="IUI-dialog-main ' + config.status + '">' + _main + '</div></div>');
+
+      $body[0].appendChild($container[0]);
+
+      return $container;
+    }
+
+    if (config.before.call(this, deferred) === false) {
+      return false;
+    }
+
+    show(container);
+
   }
-
-  Dialog.prototype.init = function() {
-    var self = this;
-
-
-    // show
-    this.$container.on('click.IUI-dialog', this.config.handle, function(event) {
-      var $this = $(this);
-      var eventSpace = $this.data('dialogid') ? ('.dialog-' + $this.data('dialogid')) : '.dialog';
-      $this.trigger('show' + eventSpace, [self]);
-      self.show($this);
-      $this.trigger('after' + eventSpace, [self]);
-      event.stopPropagation();
-    });
-
-    // hide
-    this.$container.on('click.IUI-dialog', function(event) {
-      var $this = $(this);
-      $this.trigger('hide.dialog', [self]);
-      self.hide();
-    });
-
-    // cut bubbling
-    this.$container.on('click', '.IUI-dialog-container', function(event) {
-      event.stopPropagation();
-    });
-
-    // cancel
-    this.$container.on('click', '.IUI-dialog-container [role="cancel"]', function(event) {
-      var $this = $(this);
-      var id = self.$template.data('caller').data('dialogid');
-      var eventSpace = id ? ('.dialog-' + id) : '.dialog';
-      self.hide();
-      $this.trigger('cancel' + eventSpace, [self]);
-    });
-
-    // confirm
-    this.$container.on('click', '.IUI-dialog-container [role="confirm"]', function(event) {
-      event.preventDefault();
-      var $this = $(this);
-      var id = self.$template.data('caller').data('dialogid');
-      var eventSpace = id ? ('.dialog-' + id) : '.dialog';
-      $this.trigger('confirm' + eventSpace, [self]);
-
-    });
-  };
-
-  Dialog.prototype.show = function(handle) {
-    var config = this.config;
-    var $handle = handle;
-    var pos = handle[0].getBoundingClientRect();
-    var handlePosX = pos.left;
-    var handlePosY = pos.top;
-    var containerPosX = this.containerPos.left;
-    var containerPosY = this.containerPos.top;
-    var handleWidth = $handle.outerWidth() / 2;
-    var handleHeight = $handle.outerHeight();
-    var $template = this.$template;
-    var $content = $($handle.attr('data-dialog'));
-    var content = config.compiler ? config.compiler($handle.attr('data-dialog').replace(/\#|\./, ''), config.data) : $content.html();
-    var screenWidth = $(document).width();
-    var screenHeight = $(document).height();
-    var triPos = '';
-    this.$container.css({ 'position': 'relative' });
-    $template.find('[role="content"]').html(content);
-    $template.appendTo(config.container).removeClass('hide');
-    handlePosX -= $template.outerWidth() / 2 - handleWidth + config.offsetX;
-    handlePosY -= containerPosY - handleHeight - this.$container.scrollTop() - config.offsetY;
-
-    if (screenWidth - pos.left < $template.outerWidth() / 2) {
-      handlePosX = pos.left - ($template.outerWidth() - handleWidth * 2);
-      triPos = 'right';
-    }else if(pos.left === 0){
-        handlePosX = pos.left ;
-        triPos = 'left';
-    }
-
-    $template.removeClass('left right').addClass(triPos).css({
-      left: handlePosX,
-      top: handlePosY
-    }).data('caller', $handle).data('dialog', this);
-  };
-
-  Dialog.prototype.hide = function() {
-    this.$container.removeAttr('style');
-    this.$template.remove();
-  };
-
-  $.extend({
-    dialog: function(config) {
-      return new Dialog($.extend({}, defaults, config));
-    }
-  });
-}());
+});
