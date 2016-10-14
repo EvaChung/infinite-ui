@@ -22,7 +22,7 @@ https://github.com/Janking/infinite-ui
 
 
 ## Version
-`1.2.1`
+`1.3.0`
 
 ##Support
 * Internet Explorer 8+
@@ -70,6 +70,18 @@ http://localhost:3000/examples/index.html
 ```
 
 ##History
+
+* 2016年09月23日 更新记录：
+    * 优化 `tokenize`
+    * `不能删除的token去掉关闭按钮`
+    * `一级和二级的样式解耦`
+    * `事件增加tokenize命名空间`
+
+* 2016年09月22日 更新记录：
+    * 优化 `tokenize`
+    * `二级选择增加折叠功能`
+    * `增加选择前回调`
+    * `优化css及命名`
 
 * 2016年09月15日 更新记录：
     * 优化 `loading`

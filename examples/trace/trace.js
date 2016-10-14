@@ -484,8 +484,9 @@
    */
 
   var img = new Image();
+
   function send(){
-    // img.src = config.url+obj2url(userAction);
+     // img.src = config.url+obj2url(userAction);
 
     each(['record','nextUrl','scriptError'],function(index, value) {
       var arr = userAction[value];
@@ -494,6 +495,8 @@
       }
     });
     userAction.duration = 0;
+
+    console.log(decodeURIComponent(JSON.stringify(userAction)));
   }
 
   /*
@@ -615,7 +618,7 @@
   }(root));
 
   var config = {
-    url          : './xx.png?',
+    url          : './qq.png?',
     production   : false,           // true则不输出console
     clickDiff    : 500,             // 两次点击的间隔超过500ms才进行记录
     clickTime    : timesamp(),      // 记录点击的时间
@@ -896,6 +899,7 @@
 
     eventUtils.on(goEventEle, goEventType, function() {
         psb.pub('visitTime');
+        send();
     });
 
   });

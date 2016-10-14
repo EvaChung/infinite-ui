@@ -98,7 +98,7 @@ $.fn.IUI({
                 $body.append($list);
                 $(window).on('resize.emailSuffix', resize);
             } else {
-                $selector.parent().append($list);
+                $selector.parent().css('position','relative').append($list);
             }
 
             $selector.on('keyup.emailSuffix', function(event) {

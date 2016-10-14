@@ -7,3 +7,4 @@ exp-om/*
 exp-pv/*
 gulp-web/*
 iui-web/*
+*.codekit

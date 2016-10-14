@@ -6,89 +6,272 @@
 	<title>tokenize</title>
 	<link rel="stylesheet" href="../dist/style-pc.css">
 	<script src="../src/jquery.js"></script>
-	<script src="../dist/iui.js"></script>
+	<script src="../src/js/index.js"></script>
+	<script src="../src/js/tokenize.js"></script>
+	<style>
+		pre {
+		    overflow: auto;
+		    word-wrap: normal;
+		    margin: 0;
+		    padding: .85em 1em;
+		    margin-bottom: 1.275em;
+		    background: #f7f7f7;
+		    font-size: 14px;
+		    line-height: 24px;
+		}
+		.hide{
+			display: none;
+		}
+		.h-pre pre{
+			display: none;
+		}
+		.j-sp{
+			text-decoration: none;
+			color: #333;
+			line-height: 24px;
+		}
+		.j-sp:after{
+			display: inline-block;
+			content: '';
+			width: 10px;
+			height: 10px;
+			border-left: 1px solid #333;
+			border-bottom: 1px solid #333;
+			transform: rotate(135deg);
+			margin-left: 5px;
+			margin-bottom: -4px;
+		}
+		.h-pre .j-sp:after{
+			transform: rotate(-45deg);
+			margin-bottom: 2px;
+		}
+		body{
+			width: 80%;
+			margin: 0 auto;
+		}
+	</style>
 </head>
 <body>
+	<p>2016年03月11日</p>
+	<h1>tokenize组件</h1>
+	<h2>Intro</h2>
+	<p>标签式下拉框组件</p>
+	<h2>Author</h2>
+	<pre>concat:674166705@qq.com</pre>
+	<h2>Options</h2>
+	<pre>
+ /**
+ * tokenize 组件
+ * @param  {boolean} readOnly 为true的时候，其他所有option失效
+ * @return {string}   contain 默认为'.tokenize'，共有上下文
+ * @param  {string} remove 如果为'no-remove'，表示不能删除初始化就选中的token
+ * @param  {number} maxLength 最多可以输入多少个字符进行搜索，默认是10
+ * @param  {string} placeholder input的placeholder
+ * @param  {boolean} expand 是否展开二级菜单，默认 true
+ * @param  {function} overLimitCount 选择超过限制个数触发
+ * @return {function}   existToken 已经存在标签触发
+ * @return {function}   searchCallback 搜索后的回调函数
+ * @return {function}   beforeChoice 选择前回调函数
+ * @return {function}   choiceCallback 选择token回调
+ * @return {function}   removeCallback 移除token回调
+ * .tokenize
+ *     select
+ *     .token
+ *         .token-item
+ *         input
+ *     .tokenize-level
+ *         .tokenize-level-item
+ * .tokenize
+ *     select
+ *     .token
+ *         .token-item
+ *         input
+ *     .tokenize-level1
+ *         .tokenize-level1-item
+ *             ul.tokenize-level2
+ *                 .tokenize-level2-item2
+ */
+ /*
+    多级必须有optgroup 必须有label属性
+ */
+	</pre>
+	<pre>
+自定义属性有：
+data-showAll: 为空点击是否显示下拉，默认是
+data-create: 不存在token时，是否自动创建，默认是
+data-limitCount: 显示选择的个数，默认是无限
+	</pre>
+	<h2>Demo1</h2>
 	<div>
-		<p>自定义属性有：<br>
-			data-showAll: 为空点击是否显示下拉，默认是 <br>
-			data-create: 不存在token时，是否自动创建，默认是 <br>
-			data-limitCount: 显示选择的个数，默认是无限
-		</p>
-		<p>api有：<br>
-			 /** <br>
-			 * tokenize 组件 <br>
-			 * @param  {boolean} readOnly 为true的时候，其他所有option失效 <br>
-			 * @return {string}   contain 默认为'.tokenize'，共有上下文 <br>
-			 * @param  {string} remove 如果为'no-remove'，表示不能删除初始化就选中的token <br>
-			 * @param  {number} maxLength 最多可以输入多少个字符进行搜索，默认是10 <br>
-			 * @param  {function} overLimitCount 选择超过限制个数触发 <br>
-			 * @return {function}   existToken 已经存在标签触发 <br>
-			 * @return {function}   searchCallback 搜索后的回调函数 <br>
-			 * @return {function}   choiceCallback 选择token回调 <br>
- 			 * @return {function}   removeCallback 移除token回调 <br>
-			 * .tokenize > select + ul + .token > .token-item <br>
-			 */ <br>
-			 /* <br>
-			    多级必须有optgroup 必须有label属性 optgroup label="" <br>
-			 */
-		</p>
-	</div>
-	<p>请打开控制台查看输出信息！</p>
-	<h2>示例一</h2>
-	<div class="tokenize">
-		<select multiple name="tokenize-demo" id="" class="hide">
-			<optgroup label="这个示例是多级的">
-				<option selected="selected" value="默认选中">默认选中</option>
-				<option selected="selected" class="no-remove" value="d d d">默认选中,并且不能删除</option>
-				<option class="no-remove" value="d d d">a默认不选中,选中就不能删除</option>
-				<option value="点击弹出下拉">为空默认点击弹出下拉</option>
-				<option value="不限制选择个数">默认不限制选择个数</option>
-				<option value="多级是不能自动创建的">多级是不能自动创建的</option>
-				<option value="一级默认是能创建">一级默认是能创建</option>
-				<option value="支持限制token的字符长度，默认是20个">支持限制token的字符长度，默认是20个</option>
-			</optgroup>
-			<optgroup label="标题2">
-				<option value="selected">selected表示默认选中</option>
-				<option value="no-remove">no-remove表示不能删除</option>
-				<option value="有个搜索回调函数也不错哦">有个搜索回调函数也不错哦</option>
-			</optgroup>
-		</select>
+		<div class="demo1-html">
+			<div id="tokenize-l1" class="tokenize">
+				<select multiple name="tokenize-demo" id="" class="hide">
+					<optgroup label="这个示例是多级的">
+						<option selected="selected" value="默认选中">默认选中</option>
+						<option selected="selected" class="no-remove" value="d d d">默认选中,并且不能删除</option>
+						<option class="no-remove" value="d d d">a默认不选中,选中就不能删除</option>
+						<option value="点击弹出下拉">为空默认点击弹出下拉</option>
+						<option value="不限制选择个数">默认不限制选择个数</option>
+						<option value="多级是不能自动创建的">多级是不能自动创建的</option>
+						<option value="一级默认是能创建">一级默认是能创建</option>
+						<option value="支持限制token的字符长度，默认是20个">支持限制token的字符长度，默认是20个</option>
+					</optgroup>
+					<optgroup label="标题2">
+						<option value="selected">selected表示默认选中</option>
+						<option value="no-remove">no-remove表示不能删除</option>
+						<option value="有个搜索回调函数也不错哦">有个搜索回调函数也不错哦</option>
+					</optgroup>
+				</select>
+			</div>
+		</div>
+		<div class="h-pre">
+			<a class="j-sp" href="javascript:;">html code</a>
+			<pre>
+				<div class="demo1-html">
+
+				</div>
+			</pre>
+		</div>
+		<div class="h-pre">
+			<a class="j-sp" href="javascript:;">js code</a>
+			<pre>
+				<div class="demo1-js">
+
+				</div>
+			</pre>
+		</div>
 	</div>
 
 
-	<h2>示例二<small>（输入a方便测试）</small></h2>
-	<div class="tokenize" data-showAll="false" data-create="true" data-limitCount="2">
-		<select multiple name="tokenize-demo" id="" class="hide">
-			<option value="默认选中">a默认不选中</option>
-			<option class="no-remove" value="d d d">a默认不选中,选中就不能删除</option>
-			<option value="点击不弹出下拉">a为空点击不弹出下拉</option>
-			<option value="限制选择个数">a限制选择个数2</option>
-			<option value="一级默认是能创建">a一级默认是能创建</option>
-		</select>
+
+
+	<h2>Demo2<small>（输入a方便测试）</small></h2>
+	<div>
+		<div class="demo2-html">
+			<div id="tokenize-l2" class="tokenize" data-showAll="false" data-create="true" data-limitCount="2">
+				<select multiple name="tokenize-demo" id="" class="hide">
+					<option value="默认选中">a默认不选中</option>
+					<option class="no-remove" value="d d d">a默认不选中,选中就不能删除</option>
+					<option value="点击不弹出下拉">a为空点击不弹出下拉</option>
+					<option value="限制选择个数">a限制选择个数2</option>
+					<option value="一级默认是能创建">a一级默认是能创建</option>
+				</select>
+			</div>
+		</div>
+		<div class="h-pre">
+			<a class="j-sp" href="javascript:;">html code</a>
+			<pre>
+				<div class="demo2-html">
+
+				</div>
+			</pre>
+		</div>
+		<div class="h-pre">
+			<a class="j-sp" href="javascript:;">js code</a>
+			<pre>
+				<div class="demo2-js">
+
+				</div>
+			</pre>
+		</div>
+	</div>
+	<h2>Remak</h2>
+	<div>
+		<p>上面的例子的js可以合并为一个</p>
+		<pre>
+		<div class="demo3-js">
+
+		</div>
+		</pre>
+		<div class="hide demo3-js">
+			$('.tokenize').tokenize({
+				overLimitCount: function($err){
+					alert('只能选择' + $err.data('limitCount') + '个token')
+				},
+				existToken: function($err){
+					var value = $err.find('input').val();
+					alert(value + '已经存在')
+				},
+				searchCallback: function(){
+					console.log('搜索了')
+				},
+				choiceCallback: function(){
+					console.log('选择了');
+				},
+				removeCallback: function(){
+					console.log('去除了');
+				}
+			});
+
+		</div>
 	</div>
 
 	<script>
-		var sc = 0;
-		$('.tokenize').IUI('tokenize', {
+	function setHtml(t){
+		var $a;
+		var k = 0,j = 1;
+
+		if (t === '-html') {
+			k = 1;
+			j = 0;
+		}
+
+		for (var i = 1; i <= 3; i++) {
+			$a = $('.demo' + i + t);
+			$a.eq(k).text($a.eq(j).html());
+		}
+	}
+	setHtml('-html');
+	</script>
+
+	<script class="demo1-js">
+		$('#tokenize-l1').tokenize({
 			overLimitCount: function($err){
-				console.log('只能选择' + $err.data('limitCount') + '个token')
+				alert('只能选择' + $err.data('limitCount') + '个token')
 			},
 			existToken: function($err){
 				var value = $err.find('input').val();
-				console.log(value + '已经存在')
+				alert(value + '已经存在')
 			},
 			searchCallback: function(){
-				console.log('搜索了' + (++sc) + '次')
+				console.log('搜索了')
 			},
 			choiceCallback: function(){
-				console.log('选择了')
+				console.log('选择了');
 			},
 			removeCallback: function(){
-				console.log('移除了')
+				console.log('去除了');
 			}
 		});
 
 	</script>
+	<script class="demo2-js">
+		$('#tokenize-l2').tokenize({
+			overLimitCount: function($err){
+				alert('只能选择' + $err.data('limitCount') + '个token')
+			},
+			existToken: function($err){
+				var value = $err.find('input').val();
+				alert(value + '已经存在')
+			},
+			searchCallback: function(){
+				console.log('搜索了')
+			},
+			choiceCallback: function(){
+				console.log('选择了');
+			},
+			removeCallback: function(){
+				console.log('去除了');
+			}
+		});
+
+	</script>
+	<script>
+		setHtml('-js');
+		$('.j-sp').click(function(event) {
+			$(this).parent().toggleClass('h-pre');
+		});
+	</script>
+
 </body>
 </html>

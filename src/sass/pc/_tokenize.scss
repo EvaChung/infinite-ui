@@ -6,13 +6,14 @@
 	}
 
 	.token{
-		height: 80px;
+		min-height: 80px;
 		word-break: break-all;
 		padding: 5px;
 		border: 1px solid #ddd;
 		box-sizing: border-box;
 		position: relative;
 		z-index: 1;
+		border-radius: 5px;
 
 		.token-item{
 			display: inline-block;
@@ -22,6 +23,7 @@
 			background-color: #eff2f7;
 			border: 1px solid #ccd5e3;
 			font-size: 12px;
+			border-radius: 2px;
 		}
 
 		input{
@@ -31,6 +33,7 @@
 			text-indent: 5px;
 			padding: 0;
 			max-width: 100%;
+			margin-top: 5px;
 		}
 
 		.token-close{
@@ -38,62 +41,114 @@
 			text-decoration: none;
 			cursor: pointer;
 			color: #a6b4ce;
-		}
-	}
 
-	ul{
-		list-style: none;
-		font-size: 14px;
-
-		&,li{
-			margin: 0;
-			padding: 0;
-		}
-
-		li{
-			font-weight: normal;
-
-			&.current{
-				background-color: #0081c2;
-				color: white;
+			&.no-remove{
+				display: none;
 			}
 		}
 	}
 
-	>ul{
+	.tokenize-level,.tokenize-level1{
 		position: absolute;
 		top: 100%;
 		left: 0;
 		width: 100%;
-		text-indent: 15px;
 		line-height: 28px;
 		font-size: 14px;
 		border: 1px solid #ddd;
 		border-top: none;
 		box-sizing: border-box;
 		background-color: #fff;
-		z-index: 2;
+		z-index: 1001;
 		margin: 0;
 		padding: 0;
 		max-height: 250px;
-		overflow-y: auto;
+		overflow: auto;
+		padding: 10px 5px;
+		list-style: none;
+		font-size: 14px;
+	}
 
-		>li{
-			background-color: #fff;
-			color: #000;
-			font-size: 16px;
+	.tokenize-level{
+		&,.tokenize-level-item{
+			margin: 0;
+			padding: 0;
 		}
 
-		.tokenize-level{
-			font-weight: bold;
+		.tokenize-level-item{
+			font-weight: normal;
+			padding-left: 10px;
+			cursor: pointer;
 
-			.tokenize-menu{
-				padding-left: 10px;
+			&.current,&:hover{
+				background-color: #4b8fe0;
+				color: white;
 			}
 		}
 	}
+
+	.tokenize-level1{
+		padding: 10px;
+
+		.tokenize-level1-item,.tokenize-level2,.tokenize-level2-item{
+			margin: 0;
+			padding: 0;
+		}
+
+		.tokenize-level1-item{
+			font-weight: bold;
+			cursor: default;
+		}
+
+		.tokenize-level2{
+			.tokenize-level2-item{
+				font-weight: normal;
+				padding-left: 10px;
+				cursor: pointer;
+
+				&.current{
+					background-color: #fff;
+					color: #4b8fe0;
+				}
+			}
+		}
+
+		.tokenize-level1-name{
+			display: inline-block;
+			position: relative;
+			padding-right: 20px;
+			cursor: pointer;
+
+			&:hover{
+				color: #4b8fe0;
+
+				&:after{
+					border-left: 1px solid #4b8fe0;
+					border-bottom: 1px solid #4b8fe0;
+				}
+			}
+
+			&:after{
+				position: absolute;
+				display: inline-block;
+				content: '';
+				border-left: 1px solid #d2d2d2;
+				border-bottom: 1px solid #d2d2d2;
+				transform: rotate(-45deg);
+				width: 12px;
+				height: 12px;
+				margin-left: 8px;
+				top: 4px;
+				right: 0;
+			}
+
+			&.tokenize-up{
+				&:after{
+					transform: rotate(135deg);
+					margin-top: 8px;
+				}
+			}
+		}
+	}
+
 }
-
-
-
-

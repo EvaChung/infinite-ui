@@ -412,8 +412,25 @@
   vertical-align: middle;
 }
 
+#message {
+  position: fixed;
+  background-color: #000;
+  color: #fff;
+  padding: 13px 20px 13px 15px;
+  text-align: left;
+  font-size: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+  z-index: 99999;
+  background-color: rgba(0, 0, 0, 0.6);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);
+  line-height: 36px;
+}
+:root #message {
+  filter: none;
+}
+
 .email-list {
-  border-top: none;
   list-style-type: none;
   margin: 0;
   padding: 0;
@@ -423,7 +440,6 @@
   color: #888;
   border: 1px #ccc solid;
   box-sizing: border-box;
-  border-top: none;
   font-family: "Microsoft Yahei";
 }
 
@@ -437,7 +453,6 @@
 .email-item:hover,
 .email-item.checked {
   background-color: #eee;
-  border-radius: 5px;
 }
 
 .email-item:last-child {
@@ -556,13 +571,14 @@
   display: none;
 }
 .tokenize .token {
-  height: 80px;
+  min-height: 80px;
   word-break: break-all;
   padding: 5px;
   border: 1px solid #ddd;
   box-sizing: border-box;
   position: relative;
   z-index: 1;
+  border-radius: 5px;
 }
 .tokenize .token .token-item {
   display: inline-block;
@@ -572,6 +588,7 @@
   background-color: #eff2f7;
   border: 1px solid #ccd5e3;
   font-size: 12px;
+  border-radius: 2px;
 }
 .tokenize .token input {
   outline: none;
@@ -580,6 +597,7 @@
   text-indent: 5px;
   padding: 0;
   max-width: 100%;
+  margin-top: 5px;
 }
 .tokenize .token .token-close {
   padding-left: 5px;
@@ -587,49 +605,91 @@
   cursor: pointer;
   color: #a6b4ce;
 }
-.tokenize ul {
-  list-style: none;
-  font-size: 14px;
+.tokenize .token .token-close.no-remove {
+  display: none;
 }
-.tokenize ul, .tokenize ul li {
-  margin: 0;
-  padding: 0;
-}
-.tokenize ul li {
-  font-weight: normal;
-}
-.tokenize ul li.current {
-  background-color: #0081c2;
-  color: white;
-}
-.tokenize > ul {
+.tokenize .tokenize-level, .tokenize .tokenize-level1 {
   position: absolute;
   top: 100%;
   left: 0;
   width: 100%;
-  text-indent: 15px;
   line-height: 28px;
   font-size: 14px;
   border: 1px solid #ddd;
   border-top: none;
   box-sizing: border-box;
   background-color: #fff;
-  z-index: 2;
+  z-index: 1001;
   margin: 0;
   padding: 0;
   max-height: 250px;
-  overflow-y: auto;
+  overflow: auto;
+  padding: 10px 5px;
+  list-style: none;
+  font-size: 14px;
 }
-.tokenize > ul > li {
-  background-color: #fff;
-  color: #000;
-  font-size: 16px;
+.tokenize .tokenize-level, .tokenize .tokenize-level .tokenize-level-item {
+  margin: 0;
+  padding: 0;
 }
-.tokenize > ul .tokenize-level {
-  font-weight: bold;
-}
-.tokenize > ul .tokenize-level .tokenize-menu {
+.tokenize .tokenize-level .tokenize-level-item {
+  font-weight: normal;
   padding-left: 10px;
+  cursor: pointer;
+}
+.tokenize .tokenize-level .tokenize-level-item.current, .tokenize .tokenize-level .tokenize-level-item:hover {
+  background-color: #4b8fe0;
+  color: white;
+}
+.tokenize .tokenize-level1 {
+  padding: 10px;
+}
+.tokenize .tokenize-level1 .tokenize-level1-item, .tokenize .tokenize-level1 .tokenize-level2, .tokenize .tokenize-level1 .tokenize-level2-item {
+  margin: 0;
+  padding: 0;
+}
+.tokenize .tokenize-level1 .tokenize-level1-item {
+  font-weight: bold;
+  cursor: default;
+}
+.tokenize .tokenize-level1 .tokenize-level2 .tokenize-level2-item {
+  font-weight: normal;
+  padding-left: 10px;
+  cursor: pointer;
+}
+.tokenize .tokenize-level1 .tokenize-level2 .tokenize-level2-item.current {
+  background-color: #fff;
+  color: #4b8fe0;
+}
+.tokenize .tokenize-level1 .tokenize-level1-name {
+  display: inline-block;
+  position: relative;
+  padding-right: 20px;
+  cursor: pointer;
+}
+.tokenize .tokenize-level1 .tokenize-level1-name:hover {
+  color: #4b8fe0;
+}
+.tokenize .tokenize-level1 .tokenize-level1-name:hover:after {
+  border-left: 1px solid #4b8fe0;
+  border-bottom: 1px solid #4b8fe0;
+}
+.tokenize .tokenize-level1 .tokenize-level1-name:after {
+  position: absolute;
+  display: inline-block;
+  content: '';
+  border-left: 1px solid #d2d2d2;
+  border-bottom: 1px solid #d2d2d2;
+  transform: rotate(-45deg);
+  width: 12px;
+  height: 12px;
+  margin-left: 8px;
+  top: 4px;
+  right: 0;
+}
+.tokenize .tokenize-level1 .tokenize-level1-name.tokenize-up:after {
+  transform: rotate(135deg);
+  margin-top: 8px;
 }
 
 .lrselect-box, .lrselect-toolBox {
