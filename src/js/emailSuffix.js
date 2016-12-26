@@ -12,6 +12,8 @@
  * @param {Number}      offsetHeight            组件高度 - height
  * @param {Function}    checkedCall             回调函数，选中后触发
  */
+
+
 $.fn.IUI({
     emailSuffix: function(options) {
         return this.each(function() {

@@ -20,22 +20,7 @@ $.extend({
     var scrollBarWidth = IUI_UTILS.scrollBarWidth;
     var $body = $('body');
     var animateTime = document.all && !window.atob ? 0 : 200;
-    var isIE = document.all && !window.atob;
-    function animateEnd(el, fn) {
-        if (isIE) {
-            fn();
-        } else {
-            el.on(IUI_UTILS.animateEnd, fn);
-        }
-    }
 
-    function transitionEnd(el,fn){
-      if(isIE){
-        fn();
-      }else{
-        el.on(IUI_UTILS.transitionEnd,fn);
-      }
-    }
     var defaults = {
       title: '',
       content: '',
@@ -148,7 +133,7 @@ $.extend({
         target.removeClass('hide');
         $.dialogBackdrop.attr('style', 'opacity: 1;visibility: visible;');
         target.find('.IUI-dialog-main').addClass('dialog-opening');
-        animateEnd(target.find('.IUI-dialog-main'),function(event){
+        IUI_UTILS.animateEndShim(target.find('.IUI-dialog-main'),function(event){
           target.find('.IUI-dialog-main').removeClass('dialog-opening');
         });
     }
@@ -160,7 +145,7 @@ $.extend({
         $([$body, target]).off('touchstart.iui-dialog click.iui-dialog');
         target.addClass('dialog-closing');
         $.dialogBackdrop.removeAttr('style');
-        transitionEnd($.dialogBackdrop,function(event){
+        IUI_UTILS.transitionEndShim($.dialogBackdrop,function(event){
             target.remove();
             $body.removeAttr('style');
         });
@@ -182,7 +167,7 @@ $.extend({
 
       var _content = '<div class="IUI-dialog-content">' + (config.content || '') + '</div>';
 
-      var _footer = '<div class="IUI-dialog-footer">' + _confirmBtn + (isConfirm ? _cancelBtn : '') + '</div>';
+      var _footer = '<div class="IUI-dialog-footer">'  + (isConfirm ? (_confirmBtn +  _cancelBtn) : _confirmBtn.replace('IUI-dialog-confirm','IUI-dialog-cancel')) + '</div>';
 
       var _main = _header + _content + _footer;
 

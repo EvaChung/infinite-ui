@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>iDate - 最屌的时间组件</title>
+    <link rel="stylesheet" type="text/css" href="./ext/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../dist/style-pc.css">
+        <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css"> -->
+    <script type="text/javascript" src="../src/jquery.js"></script>
+    <script type="text/javascript" src="./ext/moment.js"></script>
+    <script type="text/javascript" src="./ext/zh-cn.js"></script>
+    <script src="../dist/iui.js"></script>
+    <script type="text/html" id="tpl-html">
+        <%if(!this['idate'].config.singleDatePicker){%>
+        <div class="range-time-show">
+            <i class="fa fa-calendar glyphicon glyphicon-calendar"></i>
+            <span class="time-text">
+                <%if(this['witchCalendar'] === 0){%>
+                    <%this['idate'].startDate%>
+                <%}else{%>
+                    <%this['idate'].endDate%>
+                <%}%>
+            </span>
+        </div>
+        <%}%>
+        <table class="idate-table-condensed">
+            <thead>
+                <tr>
+                    <th class="btn-prev" data-num="<%this['prev']%>"><i class="fa fa-chevron-left glyphicon glyphicon-chevron-left"></i></th>
+                    <%this["title"]%>
+                     <th class="btn-next" data-num="<%this['next']%>"><i class="fa fa-chevron-left glyphicon glyphicon-chevron-right"></i></th>
+                </tr>
+                <%if(this["weeklist"]){%>
+                    <tr class="idate-week">
+                        <%for(var i = 0;i < this["weeklist"].length ; i++){%>
+                            <th><%this["weeklist"][i]%></th>
+                        <%}%>
+                    </tr>
+                    <%}%>
+            </thead>
+            <%this["tbody"]%>
+        </table>
+    </script>
+    <script type="text/html" id="temp">
+         <table class="idate-table-condensed">
+            <thead>
+                <tr>
+                    <th class="btn-prev" data-num="<%this['prev']%>"><i class="fa fa-chevron-left glyphicon glyphicon-chevron-left"></i></th>
+                    <%this["title"]%>
+                     <th class="btn-next" data-num="<%this['next']%>"><i class="fa fa-chevron-left glyphicon glyphicon-chevron-right"></i></th>
+                </tr>
+                <%if(this["weeklist"]){%>
+                    <tr class="idate-week">
+                        <%for(var i = 0;i < this["weeklist"].length ; i++){%>
+                            <th><%this["weeklist"][i]%></th>
+                        <%}%>
+                    </tr>
+                    <%}%>
+            </thead>
+            <%this["tbody"]%>
+        </table>
+    </script>
+    <script type="text/javascript">
+            var templateEngine = function(html, options) {
+                var re = /<%([^%>]+)?%>/g,
+                    reExp = /(^( )?(if|for|else|switch|case|break|{|}))(.*)?/g,
+                    code = 'var r=[];\n',
+                    cursor = 0,
+                    match;
+
+                var add = function(line, js) {
+                    if(js){
+                       ( code += line.match(reExp) ? line + '\n' : 'r.push(' + line + ');\n')
+                    }else{
+                        (code += line !== '' ? 'r.push("' + line.replace(/"/g, '\\"') + '");\n' : '')
+                    }
+                    return add;
+                };
+                while (match = re.exec(html)) {
+                    add(html.slice(cursor, match.index))(match[1], true);
+                    cursor = match.index + match[0].length;
+                }
+
+                add(html.substr(cursor, html.length - cursor));
+
+                code += 'return r.join("");';
+
+                return new Function(code.replace(/[\r\t\n]/g, '')).apply(options);
+            };
+
+           templateEngine(document.getElementById('temp').innerHTML)
+
+    </script>
+</head>
+
+<body style="height:800px">
+    <br>
+    <br>
+    <br>
+    <div class="container">
+        <div class="col-md-10">
+            <form role="form">
+                <div class="form-group">
+                    <label for="exampleInputEmail1">Date time (range)</label>
+                    <input type="text" class="form-control" id="exampleInputEmail1"  placeholder="Enter your birthday">
+                </div>
+
+                <div class="form-group">
+                    <label for="exampleInputEmail1">Date time (single)</label>
+                    <input type="text" class="form-control" id="exampleInputEmail2" placeholder="Enter your birthday">
+                </div>
+            </form>
+        </div>
+    </div>
+    <script type="text/javascript" src="../src/js/idate.js"></script>
+    <script type="text/javascript">
+    var idate = $('#exampleInputEmail1').IUI('idate');
+    var idate2 = $('#exampleInputEmail2').IUI('idate',{
+        singleDatePicker:true
+    });
+    </script>
+</body>
+
+</html>

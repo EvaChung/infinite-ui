@@ -3,6 +3,7 @@
     utils：通用方法
     */
 
+    var isIE = document.all && !window.atob;
     window.IUI_UTILS = {
         animateEnd: 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend',
         transitionEnd: 'webkitTransitionEnd transitionend oTransitionEnd MSTransitionEnd msTransitionEnd',
@@ -91,7 +92,21 @@
             scrollbarWidth = $scrollDiv[0].offsetWidth - $scrollDiv[0].clientWidth;
             $scrollDiv.remove();
             return scrollbarWidth;
-        }())
+        }()),
+        animateEndShim: function(el, fn, animateDisable) {
+            if (isIE || animateDisable) {
+                fn();
+            } else {
+                el.on(IUI_UTILS.animateEnd, fn);
+            }
+        },
+        transitionEndShim: function(el, fn, animateDisable) {
+            if (isIE || animateDisable) {
+                fn();
+            } else {
+                el.on(IUI_UTILS.transitionEnd, fn);
+            }
+        }
     };
 
     window.IUI = {};
@@ -368,52 +383,57 @@
      *
      */
 
-    $.loading = $.fn.loading = function(options, type) {
+    $.loading = $.fn.loading = function(options, type, init) {
+        // 默认配置
         var defaults = {
             display: false,
             type: 1,
             animateHtml: '<div class="ball-clip-rotate"><div></div></div>',
             src: 'http://img.yi114.com/201571121314_382.gif',
-            shadow: true
+            shadow: true,
+            template: '<div class="IUI-loading">{{hook}}</div>'
         };
+        // 是否全局模式
+        var isGlobal = this instanceof $;
+        // 作用域元素
+        var $context = isGlobal ? this : $('body');
 
-        var $context;
-        var callType = this instanceof $;
-        if (callType) {
-            $context = this;
+        // 若非全局模式，给作用域元素相对定位
+        if (isGlobal) {
             $context.css('position', 'relative');
-        } else {
-            $context = $('body');
         }
-
-
-
-        var loadingStr = '<div class="IUI-loading">{{hook}}</div>';
-
-        if (typeof options === 'object') {
-            $.extend(defaults, options);
-        } else {
-            if (options !== undefined) {
-                defaults.display = options;
-            }
-            if (type !== undefined) {
-                defaults.type = type;
-            }
+        // 判断是临时配置还是自定义配置
+        var isTempConfig = typeof options === 'object';
+        // 使用自定义配置还是默认配置
+        if (!init) {
+            $.extend(defaults, isTempConfig ? options : $.loadingConfig);
         }
-
+        // 若options不为
+        if (!isTempConfig && typeof options !== void 0) {
+            defaults.display = options;
+        }
+        // 快捷切换css3 or image
+        if (type !== undefined) {
+            defaults.type = type;
+        }
+        // loading 模板
+        var loadingStr = defaults.template;
         loadingStr = loadingStr.replace('{{hook}}', defaults.type ? defaults.animateHtml : '<img src="' + defaults.src + '" />');
-
+        // 是否需要遮罩
         if (defaults.shadow) {
-            loadingStr = '<div class="IUI-loading-backdrop" ' + (callType ? 'style="position:absolute;"' : '') + '></div>' + loadingStr;
+            loadingStr = '<div class="IUI-loading-backdrop" ' + (isGlobal ? 'style="position:absolute;"' : '') + '></div>' + loadingStr;
         }
-
-
+        var $loading = $context.data('loading') || $(loadingStr);
+        // 显示loading的时候，将 $loading存入作用域元素中
+        if (!$context.data('loading')) {
+            $context.data('loading', $loading);
+        }
+        // 显示 or 隐藏
         if (defaults.display) {
-            $context.append(loadingStr);
+            $context.append($loading);
         } else {
-            $context.find('>.IUI-loading-backdrop,>.IUI-loading').remove();
+            $context.data('loading').remove();
         }
-
     };
 
     /**
@@ -461,27 +481,8 @@
     (function($, window) {
         var version = '3.1.0';
         var scrollBarWidth = IUI_UTILS.scrollBarWidth;
-        var isIE = document.all && !window.atob;
         var $body = $('body');
         var backdrop = $('<div class="layer-backdrop"></div>');
-
-
-
-        function animateEnd(el, fn) {
-            if (isIE) {
-                fn();
-            } else {
-                el.on(IUI_UTILS.animateEnd, fn);
-            }
-        }
-
-        function transitionEnd(el, fn) {
-            if (isIE) {
-                fn();
-            } else {
-                el.on(IUI_UTILS.transitionEnd, fn);
-            }
-        }
 
         function Layer(config, selector) {
             var defaults = {
@@ -497,6 +498,8 @@
                 data: '',
                 method: 'GET',
                 content: '',
+                animateDisable: true,
+                zIndex: 0,
                 showCall: function() {},
                 hideCall: function() {},
                 successCall: function() {},
@@ -507,8 +510,7 @@
             this.$selector = selector;
             this.config = $.extend(defaults, config);
             //创建遮罩层
-            this.$backdrop = backdrop;
-
+            this.$backdrop = $('<div class="layer-backdrop"></div>');
             this.init();
             this.event();
         }
@@ -524,12 +526,18 @@
             var layerWidth = Number($selector.attr('data-width')) || config.offsetWidth;
             var layerHeight = Number($selector.attr('data-height')) || config.offsetHeight;
 
+            if (config.zIndex) {
+                self.$backdrop.css('z-index', config.zIndex);
+                $selector.css('z-index', config.zIndex + 10);
+            }
+
             $content.css({
                 width: layerWidth,
                 height: layerHeight
             });
 
             $selector.data('layer', self);
+
 
         };
 
@@ -607,17 +615,20 @@
             var self = this;
             var config = self.config;
             var $backdrop = self.$backdrop;
+            var $body = $('body');
             var screenH = document.documentElement.clientHeight;
             var gtIE10 = document.body.style.msTouchAction === undefined;
             var isCutto = cutto;
             var Q = $.Deferred();
             // 当body高度大于可视高度，修正滚动条跳动
             // >=ie10的滚动条不需要做此修正,tmd :(
-            if ($('body').height() > screenH & (gtIE10)) {
-                $('body').css({
+            if ($body.height() > screenH & (gtIE10)) {
+                $body.data('initstyle', $body.attr('style') || '');
+                $body.css({
                     'border-right': scrollBarWidth + 'px transparent solid',
                     'overflow': 'hidden'
                 });
+
             }
             //显示层
             self.$selector.removeClass('hide');
@@ -635,14 +646,15 @@
             //插入-弹层-css3显示动画
             self.$content.addClass('layer-opening');
 
-            animateEnd(self.$content, function(event) {
+            IUI_UTILS.animateEndShim(self.$content, function(event) {
                 self.$content.removeClass('layer-opening');
                 //触发show事件
                 self.$selector.trigger('layer.show', [self]);
                 //触发showCall回调
                 config.showCall.apply(self.$selector, [self]);
+
                 Q.resolve();
-            });
+            }, config.animateDisable);
 
             // 绑定 esc 键盘控制
             $(document).on('keyup.iui-layer', function(event) {
@@ -666,24 +678,27 @@
             self.$content.addClass('layer-closing');
             if (!isCutto) {
                 self.$backdrop.removeAttr('style');
-                transitionEnd(self.$backdrop, function() {
+                IUI_UTILS.transitionEndShim(self.$backdrop, function() {
                     self.$backdrop.remove();
-                });
+                }, config.animateDisable);
             }
-            animateEnd(self.$content, function(event) {
+            IUI_UTILS.animateEndShim(self.$content, function(event) {
                 //插入-遮罩-隐藏动画
                 self.$content.removeClass('layer-closing');
                 //隐藏弹层
                 self.$selector.addClass('hide');
+
                 //触发hide事件
                 self.$selector.trigger('layer.hide', [this]);
                 //触发hideCall回调
                 config.hideCall.apply(self.$selector, [self]);
                 Q.resolve();
-            });
+            }, config.animateDisable);
+
 
             //恢复 body 滚动条
-            $body.removeAttr('style');
+            $body.attr('style', $body.data('initstyle'));
+
             // 绑定 esc 键盘控制
             $(document).off('keyup.iui-layer');
             return Q;
@@ -692,7 +707,9 @@
         Layer.prototype.cutTo = function(nextId, currentId) {
             var nextLayer = $(nextId).data('layer');
             var currentLayer = (currentId ? $(currentId) : this.$selector).data('layer');
-
+            if (nextLayer.$backdrop.width() === 0) {
+                nextLayer.$backdrop = currentLayer.$backdrop;
+            }
             currentLayer.hideLayer(true).done(function() {
                 nextLayer.showLayer(true);
             });
@@ -906,14 +923,24 @@
                 obj: '#message',
                 data: null, //插入后台的data数据
                 timeout: 3000, //设置多少时间隐藏提示
-                status: true
+                status: false,
+                hideCall: function() {}
             }, options);
             var obj = param.obj instanceof $ ? param.obj : $(param.obj);
             var status = param.status ? 'success' : 'error';
             var msg = ''; //提示信息
 
             if (param.data.error.constructor !== Object) {
-                console.log('验证已经全部通过，不再执行往下方法');
+                //'验证已经全部通过，不再执行往下方法'
+                if (param.data.info !== '新增成功' || param.data.info !== '修改成功') {
+                    msg = param.data.info;
+                    $.alert({
+                        obj: obj,
+                        text: msg,
+                        timeout: param.timeout,
+                        status: param.status
+                    });
+                }
                 return false;
             }
 
@@ -933,25 +960,16 @@
                         }
                     });
                     if (msg) {
-                        showerrow(msg);
+                        $.alert({
+                            obj: obj,
+                            text: msg,
+                            timeout: param.timeout,
+                            status: param.status,
+                            callback: param.hideCall
+                        });
                         return false;
                     }
                 });
-            }
-
-            function showerrow(text) {
-
-                var count = obj.data('count') || 1;
-
-                clearTimeout(obj.data('count'));
-
-                obj.html('<span class="' + status + '">' + text + '</span>').removeClass('hide none');
-
-                obj.data('count', setTimeout(function() {
-
-                    obj.addClass('none');
-
-                }, param.timeout));
             }
         }
     });
@@ -975,6 +993,7 @@
                     url: $selector.attr('action'),
                     method: $selector.attr('method') || 'POST',
                     type: $selector.attr('data-type') || 'json',
+                    timeout: 3000,
                     data: null,
                     ajax2: false,
                     before: function() {},
@@ -1002,7 +1021,8 @@
                     var args = {
                         url: config.url,
                         type: config.method,
-                        data: config.data || $selector.serialize()
+                        data: config.data || $selector.serialize(),
+                        timeout: config.timeout
                     };
 
                     // ajax2
@@ -1399,7 +1419,6 @@
                 var collections = glob.cache[$this.data('required')];
                 var matches = collections.matches;
                 var status = false;
-
                 /**
                  * @param {String}      name        验证函数名
                  * @param {Object}      params      验证字段（自定义字段）：errMsg、range
@@ -1407,15 +1426,18 @@
                 $.each(matches, function(name, params) {
                     var result = glob.options.strategy[name].call(collections, params);
                     status = result === void(0) ? 1 : 2;
-                    $this.data('validateStatus', result);
+                    $this.data('validateStatus', status);
                     glob.message(status, collections, name);
                     return status === 2 ? false : true;
                 });
+
+
 
                 $this.trigger('validate.' + eventName, collections);
 
                 return status;
             };
+
 
             /**
              * [message description]
@@ -1471,7 +1493,7 @@
                         return;
                     }
                     var initStatus = target.self.data('validateStatus');
-                    var result = !initStatus ? self.verify.call(target.self, self, 'batch') : initStatus;
+                    var result = self.verify.call(target.self, self, 'batch');
 
                     if (circulation && result === 2) {
                         status.push(result);
@@ -1511,6 +1533,18 @@
                 var $this = $(this);
                 var self = event.data.self;
                 var requiredName = $this.data('required');
+                var config = self.cache[requiredName];
+                var delay = config.options.delay;
+                var _this = this;
+
+                if (delay) {
+                    clearTimeout($this.data('delay'));
+                    $this.data('delay', setTimeout(function() {
+                        self.verify.call(_this, self, 'blur');
+                    }, delay));
+                    return false;
+                }
+
                 self.verify.call(this, self, 'blur');
             }
 
@@ -1537,6 +1571,8 @@
      * @param {Number}      offsetHeight            组件高度 - height
      * @param {Function}    checkedCall             回调函数，选中后触发
      */
+
+
     $.fn.IUI({
         emailSuffix: function(options) {
             return this.each(function() {
@@ -1775,21 +1811,29 @@
     $.fn.IUI({
         typeCount: function(options) {
             return this.each(function() {
-                $(this).on('keyup', 'input[type=text],textarea', function(event) {
-                    event.preventDefault();
+                var $self = $(this);
+                var config = $.extend({
+                    separator: '/'
+                }, options);
+
+                $self.on('keyup', 'input[type=text],textarea', function(event) {
                     var $this = $(this);
                     var $target = $this.parent().find('span.count');
-                    var initCount = parseInt($target.text().split('/')[1]);
+                    var initCount = parseInt($target.text().split(config.separator)[1]);
                     var length = this.value.length;
                     if (length > initCount) {
                         $target.addClass('error');
                     } else {
                         $target.removeClass('error');
                     }
-                    $target.html(length + '/' + initCount);
+                    $target.html(length + config.separator + initCount);
                 });
 
-                $(this).find('input,textarea').trigger('keyup');
+                $self.on('input propertychange', 'input[type=text],textarea', function(event) {
+                    $(this).trigger('keyup');
+                });
+
+                $self.find('input,textarea').trigger('keyup');
             });
         }
     });
@@ -1808,7 +1852,22 @@
      * @return {function}   beforeChoice 选择前回调函数
      * @return {function}   choiceCallback 选择token回调
      * @return {function}   removeCallback 移除token回调
-     * .tokenize > select + ul + .token > .token-item
+     * .tokenize
+     *     select
+     *     .token
+     *         .token-item
+     *         input
+     *     .tokenize-level
+     *         .tokenize-level-item
+     * .tokenize
+     *     select
+     *     .token
+     *         .token-item
+     *         input
+     *     .tokenize-level1
+     *         .tokenize-level1-item
+     *             ul.tokenize-level2
+     *                 .tokenize-level2-item2
      */
     /*
        多级必须有optgroup 必须有label属性
@@ -1845,7 +1904,7 @@
                 '</span>'
             ].join(''),
             optionTemplate: '<option selected="selected" value="{value}">{value}</option>',
-            liTemplate: '<li class="hidden" data-value="{value}">{value}</li>',
+            liTemplate: '<li class="hidden tokenize-level-item" data-value="{value}">{value}</li>',
             inputTemplate: '<div class="token"> <span class="tokenize-inp"> <input type="text" maxlength="{{maxlength}}" placeholder="{{placeholder}}" style="width: {{width}}px"> </span> </div>'
         };
 
@@ -1859,7 +1918,6 @@
 
         var tokenize = $.fn.tokenize = function(options) {
             var defaults = $.extend(true, {}, settings, options);
-            htmlTemplate.inputTemplate = htmlTemplate.inputTemplate.replace('{{maxlength}}', defaults.maxLength).replace('{{placeholder}}', defaults.placeholder).replace('{{width}}', defaults.maxLength * 12);
 
             return this.each(function(index, el) {
                 var $this = $(this);
@@ -1880,7 +1938,7 @@
                 });
 
                 //添加input
-                $this.append(htmlTemplate.inputTemplate);
+                $this.append(htmlTemplate.inputTemplate.replace('{{maxlength}}', defaults.maxLength).replace('{{placeholder}}', defaults.placeholder).replace('{{width}}', defaults.maxLength * 12));
 
                 //创建模拟下拉框
                 tokenize.renderSelect($this, defaults.expand);
@@ -1931,7 +1989,7 @@
 
             if (defaults.readOnly === false) {
                 //删除token
-                $contain.on('click', '.token-close', function(event) {
+                $contain.on('click.tokenize', '.token-close', function(event) {
                     event.stopPropagation();
                     var $this = $(this);
                     var $contain = $this.closest(defaults.contain);
@@ -1950,16 +2008,16 @@
                 });
 
                 //聚焦输入
-                $contain.on('click', '.token', function(event) {
+                $contain.on('click.tokenize', '.token', function(event) {
                     event.stopPropagation();
-                    $(document).trigger('click.tokenize-hide');
+                    $(document).trigger('click.tokenize');
                     var $this = $(this);
                     $this.find('input').focus();
                     tokenize.searchToken.call($this.find('input')[0], defaults);
                 });
 
                 //输入搜索token
-                $contain.on('keyup', 'input', function(event) {
+                $contain.on('keyup.tokenize', 'input', function(event) {
                     var keycode = event.keyCode;
                     var KC = KEY_CODE;
                     if (keycode !== KC.enter && keycode !== KC.back && keycode !== KC.bottom && keycode !== KC.top) {
@@ -1968,12 +2026,12 @@
                 });
 
                 // 收缩二级菜单
-                $contain.on('click', '.tokenize-level1-name', function(event) {
+                $contain.on('click.tokenize', '.tokenize-level1-name', function(event) {
                     $(this).toggleClass('tokenize-up').next().toggleClass('hide');
                 });
 
                 //按下enter键设置token
-                $contain.on('keyup', '>ul,input', function(event) {
+                $contain.on('keyup.tokenize', '>ul,input', function(event) {
                     var keycode = event.keyCode;
                     var KC = KEY_CODE;
                     if (keycode === KC.enter || keycode === KC.back) {
@@ -1982,7 +2040,7 @@
                 });
 
                 //按下上下键切换token
-                $contain.on('keyup', function(event) {
+                $contain.on('keyup.tokenize', function(event) {
                     var keycode = event.keyCode;
                     var KC = KEY_CODE;
                     if (keycode === KC.bottom || keycode === KC.top) {
@@ -2008,7 +2066,7 @@
 
 
             //点击li设置token
-            $contain.on('click', 'li', function(event) {
+            $contain.on('click.tokenize', 'li', function(event) {
                 if (!$(this).hasClass('tokenize-level1-item')) {
                     tokenize.setToken.call(this, defaults);
                 } else {
@@ -2046,6 +2104,7 @@
             defaults.searchCallback.call($contain);
 
             if (count === 0) {
+                $ul.addClass('hide');
                 return;
             }
 
@@ -2144,7 +2203,7 @@
 
         //隐藏li
         tokenize.hideToken = function($ele) {
-            $(document).on('click.tokenize-hide', function(event) {
+            $(document).on('click.tokenize', function(event) {
                 tokenize.hideToken($('.tokenize'));
             });
             return function($ele) {
@@ -2226,23 +2285,7 @@
             var scrollBarWidth = IUI_UTILS.scrollBarWidth;
             var $body = $('body');
             var animateTime = document.all && !window.atob ? 0 : 200;
-            var isIE = document.all && !window.atob;
 
-            function animateEnd(el, fn) {
-                if (isIE) {
-                    fn();
-                } else {
-                    el.on(IUI_UTILS.animateEnd, fn);
-                }
-            }
-
-            function transitionEnd(el, fn) {
-                if (isIE) {
-                    fn();
-                } else {
-                    el.on(IUI_UTILS.transitionEnd, fn);
-                }
-            }
             var defaults = {
                 title: '',
                 content: '',
@@ -2358,7 +2401,7 @@
                 target.removeClass('hide');
                 $.dialogBackdrop.attr('style', 'opacity: 1;visibility: visible;');
                 target.find('.IUI-dialog-main').addClass('dialog-opening');
-                animateEnd(target.find('.IUI-dialog-main'), function(event) {
+                IUI_UTILS.animateEndShim(target.find('.IUI-dialog-main'), function(event) {
                     target.find('.IUI-dialog-main').removeClass('dialog-opening');
                 });
             }
@@ -2370,7 +2413,7 @@
                 $([$body, target]).off('touchstart.iui-dialog click.iui-dialog');
                 target.addClass('dialog-closing');
                 $.dialogBackdrop.removeAttr('style');
-                transitionEnd($.dialogBackdrop, function(event) {
+                IUI_UTILS.transitionEndShim($.dialogBackdrop, function(event) {
                     target.remove();
                     $body.removeAttr('style');
                 });
@@ -2392,7 +2435,7 @@
 
                 var _content = '<div class="IUI-dialog-content">' + (config.content || '') + '</div>';
 
-                var _footer = '<div class="IUI-dialog-footer">' + _confirmBtn + (isConfirm ? _cancelBtn : '') + '</div>';
+                var _footer = '<div class="IUI-dialog-footer">' + (isConfirm ? (_confirmBtn + _cancelBtn) : _confirmBtn.replace('IUI-dialog-confirm', 'IUI-dialog-cancel')) + '</div>';
 
                 var _main = _header + _content + _footer;
 
@@ -2414,118 +2457,177 @@
 
     (function() {
 
-        var template = '<div class="IUI-popover-container hide">' +
-            '<div role="content"></div>' +
-            '<div role="operate">' +
-            '<a href="javascript:;" role="confirm" class="btn btn-primary">确定</a>' +
-            '<a href="javascript:;" class="btn btn-default" role="cancel">取消</a>' +
-            '</div>' +
-            '</div>';
+        var template = '<div class="IUI-popover-container">{{header}}{{content}}</div>';
+
         var defaults = {
             handle: '[data-popover]', //绑定监听对象
             container: 'body', //全局作用域
             offsetX: 0, //全局微调 X 位置
             offsetY: 10, //全局微调 Y 位置
             compiler: null, //有无模板引擎
-            data: {} //传参，当compiler存在时有效
+            header: '' //标题
         };
 
         function Popover(config) {
             this.$selector = $(config.handle);
-            this.$template = $(template);
             this.$container = $(config.container);
             this.config = config;
             this.containerPos = $(config.container)[0].getBoundingClientRect();
+            this.screenWidth = $(document).width();
+            this.screenHeight = $(document).height();
             this.init();
         }
 
         Popover.prototype.init = function() {
             var self = this;
 
-
             // show
-            this.$container.on('click.IUI-popover', this.config.handle, function(event) {
+            self.$container.on('click.IUI-popover', self.config.handle, function(event) {
                 var $this = $(this);
                 var eventSpace = $this.data('popoverid') ? ('.popover-' + $this.data('popoverid')) : '.popover';
-                $this.trigger('show' + eventSpace, [self]);
+
+                if ($this.hasClass('popover-active')) {
+                    self.hide($this.removeClass('popover-active').data('template'));
+                    return false;
+                } else {
+                    $this.addClass('popover-active');
+                }
+
+                $.pub('before' + eventSpace, [self, $this]);
                 self.show($this);
-                $this.trigger('after' + eventSpace, [self]);
+                $.pub('after' + eventSpace, [self, $this]);
                 event.stopPropagation();
             });
 
             // hide
-            this.$container.on('click.IUI-popover', function(event) {
+            $('body').on('click.IUI-popover', function(event) {
                 var $this = $(this);
-                $this.trigger('hide.popover', [self]);
-                self.hide();
+                if (($(event.target).closest('.IUI-popover-container').length === 0)) {
+                    $this.trigger('hide.popover', [self]);
+                    self.hide();
+                }
             });
 
-            // cut bubbling
-            this.$container.on('click', '.IUI-popover-container', function(event) {
-                event.stopPropagation();
-            });
-
-            // cancel
-            this.$container.on('click', '.IUI-popover-container [role="cancel"]', function(event) {
-                var $this = $(this);
-                var id = self.$template.data('caller').data('popoverid');
-                var eventSpace = id ? ('.popover-' + id) : '.popover';
-                self.hide();
-                $this.trigger('cancel' + eventSpace, [self]);
-            });
-
-            // confirm
-            this.$container.on('click', '.IUI-popover-container [role="confirm"]', function(event) {
-                event.preventDefault();
-                var $this = $(this);
-                var id = self.$template.data('caller').data('popoverid');
-                var eventSpace = id ? ('.popover-' + id) : '.popover';
-                $this.trigger('confirm' + eventSpace, [self]);
-
-            });
         };
 
-        Popover.prototype.show = function(handle) {
-            var config = this.config;
-            var $handle = handle;
-            var pos = handle[0].getBoundingClientRect();
-            var handlePosX = pos.left;
-            var handlePosY = pos.top;
-            var containerPosX = this.containerPos.left;
-            var containerPosY = this.containerPos.top;
-            var handleWidth = $handle.outerWidth() / 2;
-            var handleHeight = $handle.outerHeight();
-            var $template = this.$template;
-            var $content = $($handle.attr('data-popover'));
-            var content = config.compiler ? config.compiler($handle.attr('data-popover').replace(/\#|\./, ''), config.data) : $content.html();
-            var screenWidth = $(document).width();
-            var screenHeight = $(document).height();
-            var triPos = '';
-            this.$container.css({
-                'position': 'relative'
-            });
-            $template.find('[role="content"]').html(content);
-            $template.appendTo(config.container).removeClass('hide');
-            handlePosX -= $template.outerWidth() / 2 - handleWidth + config.offsetX;
-            handlePosY -= containerPosY - handleHeight - this.$container.scrollTop() - config.offsetY;
+        Popover.prototype.getEmitterPos = function(emitter) {
+            var self = this;
+            var config = self.config;
+            var $emitter = emitter;
+            var pos = $emitter[0].getBoundingClientRect();
+            var emitterPosX = pos.left;
+            var emitterPosY = pos.top;
+            var emitterWidth = $emitter.outerWidth() / 2;
+            var emitterHeight = $emitter.outerHeight();
+            return [emitterPosX, emitterPosY, emitterWidth, emitterHeight];
+        };
 
-            if (screenWidth - pos.left < $template.outerWidth() / 2) {
-                handlePosX = pos.left - ($template.outerWidth() - handleWidth * 2);
-                triPos = 'right';
-            } else if (pos.left === 0) {
-                handlePosX = pos.left;
-                triPos = 'left';
+        Popover.prototype.fillContent = function(emitter) {
+            var self = this;
+            var config = self.config;
+            var $emitter = emitter;
+            var header = $emitter.attr('data-ppHeader') || config.header;
+            var str = $emitter.attr('data-popover');
+            var isEl = str.indexOf('##') === 0;
+            var $content = isEl ? str.slice(2, str.length) : $(str);
+
+            var _template = template.replace('{{header}}', header ? '<div class="popover-header">' + header + '</div>' : '');
+
+            if (!isEl && $content.data('compiler') && config.compiler) {
+                _template = _template.replace('{{content}}', config.compiler($content.html(), $emitter));
+            } else {
+                _template = _template.replace('{{content}}', isEl ? '<div class="popover-content">' + $content + '</div>' : $content.html());
             }
 
-            $template.removeClass('left right').addClass(triPos).css({
-                left: handlePosX,
-                top: handlePosY
-            }).data('caller', $handle).data('popover', this);
+            return _template;
+
         };
 
-        Popover.prototype.hide = function() {
-            this.$container.removeAttr('style');
-            this.$template.remove();
+        Popover.prototype.excePosition = function(emitter, template) {
+            var self = this;
+            var containerPosX = self.containerPos.left;
+            var containerPosY = self.containerPos.top;
+            var screenWidth = self.screenWidth;
+            var screenHeight = self.screenHeight + self.$container.scrollTop();
+            var emitterMatrix = self.getEmitterPos(emitter);
+            var $template = template;
+            var tmpWidth = $template.outerWidth() / 2;
+            var tmpHeight = $template.outerHeight() + 30;
+            var edgeTest = ['center', 'bottom'];
+
+            if (emitterMatrix[1] < tmpHeight) {
+                edgeTest[1] = 'bottom'; // bottom edge
+            }
+
+            if (screenHeight - emitterMatrix[1] - emitterMatrix[3] < tmpHeight) {
+                edgeTest[1] = 'top'; // bottom top edge  
+            }
+
+            if (tmpWidth + emitterMatrix[2] / 2 + emitterMatrix[0] > screenWidth) {
+                edgeTest[0] = 'right'; // right edge;  
+            }
+
+
+            if (emitterMatrix[0] < tmpWidth) {
+                edgeTest[0] = 'left'; // left edge
+            }
+
+            $template.addClass(edgeTest.join(' '));
+
+            var position = [];
+
+            if (edgeTest[0] === 'left') {
+                position[0] = 0;
+            } else if (edgeTest[0] === 'right') {
+                position[0] = emitterMatrix[0] - containerPosX - $template.outerWidth() + emitterMatrix[2] * 2;
+            } else {
+                position[0] = emitterMatrix[0] - containerPosX - tmpWidth + emitterMatrix[2];
+            }
+
+            if (edgeTest[1] === 'top') {
+                position[1] = emitterMatrix[1] + self.$container.scrollTop() - containerPosY - tmpHeight;
+            } else {
+                position[1] = emitterMatrix[1] + self.$container.scrollTop() + emitterMatrix[3] - containerPosY;
+            }
+            return position;
+        };
+
+
+
+        Popover.prototype.show = function(emitter) {
+            var self = this;
+            var config = self.config;
+            var $emitter = emitter;
+            var content = self.fillContent($emitter);
+            var $template = $(content);
+            $emitter.data('template', $template);
+            self.$container.data('popoverInit', self.$container.css('position')).css({
+                'position': 'relative'
+            });
+            $template.addClass('popover-show').appendTo(config.container);
+            var position = self.excePosition(emitter, $template);
+            $template.css({
+                'left': position[0] + config.offsetX,
+                'top': position[1] + config.offsetY,
+            }).addClass('popover-in');
+
+        };
+
+        Popover.prototype.hide = function(target) {
+            var self = this;
+            var $target = target || $('.IUI-popover-container');
+            var $container = self.$container;
+
+            if (!target) {
+                $('[data-popover]').removeClass('popover-active');
+            }
+
+            $container.css('position', $container.data('popoverInit'));
+
+            IUI_UTILS.transitionEndShim($target.removeClass('popover-in'), function() {
+                $target.remove();
+            });
+
         };
 
         $.extend({
@@ -2534,899 +2636,4 @@
             }
         });
     }());
-
-    /**
-     * hideNavbar 组件
-     * @description  滚动隐藏导航
-     */
-    $.fn.IUI({
-        hideNavbar: function(options) {
-
-
-            var $this = this;
-
-            var $navbar = $(".navbar");
-
-            var height = $navbar.outerHeight() / 2;
-
-            var hideNavbar = this.hasClass('hide-navbar-on-scroll');
-
-            var previousScroll, currentScroll, scrollHeight, offsetHeight, reachEnd, action, navbarHidden, direction, wait;
-
-            if (!hideNavbar && !$navbar.length) {
-                return false;
-            }
-
-
-            previousScroll = currentScroll = Math.abs($this.scrollTop());
-
-            wait = IUI_UTILS.throttle(handleScroll, 100);
-
-            $this.on('scroll', wait);
-
-
-            function handleScroll(event) {
-                currentScroll = $this.scrollTop();
-
-                scrollHeight = this.scrollHeight;
-
-                offsetHeight = this.offsetHeight;
-
-                navbarHidden = $navbar.hasClass('navbar-hidden');
-                //direction : true => up
-                direction = previousScroll <= currentScroll;
-
-                previousScroll = currentScroll;
-
-
-                if (currentScroll < height || previousScroll > currentScroll) {
-                    behavior(false);
-                    return false;
-                }
-
-                // //reachEnd : true => 滚动条到底部
-                // reachEnd = currentScroll + offsetHeight >= scrollHeight - 20;
-
-                behavior(direction);
-
-
-
-                return false;
-            }
-
-            function behavior(direction) {
-                //direction => hide
-                if (direction) {
-                    if ($navbar.hasClass('navbar-hidden')) {
-                        return false;
-                    }
-                    $navbar.addClass('navbar-hidden');
-                } else {
-
-                    if (!$navbar.hasClass('navbar-hidden')) {
-                        return false;
-                    }
-
-                    $navbar.removeClass('navbar-hidden');
-                }
-
-            }
-        }
-    });
-
-    /**
-     * mPicker 组件
-     *
-     * *** options ***
-     *
-     * @param {Str}                                 display    显示的方式，默认是显示在底部    'bottom'/'modal'
-     * @param {Boolean}                             shadow     点击遮罩隐藏组件 - 默认为false;若为false，则禁止点击遮罩隐藏组件
-     * @param {Number}                              level      显示的层级，默认：1
-     * @param {Number}                              rows       picker显示的行数，默认：4
-     * @param {Boolean}                             Linkage    选择联动 - 若为false，则不联动
-     * @param {Array}                               dataJson   渲染picker的json - 有规定的格式，可查看json文件。不联动默认遍历获取第一个json
-     * @param {Number}                              height     每一行的高度
-     * @param {Boolean}                             idDefault  匹配默认值 - 若为false，则不匹配
-     * @param {Str}                                 splitStr   设置分割value的符号，与默认值和显示在input里的值有关
-     * @param {Boolean}                             isshort    是否开启简写，默认是关闭的
-     * @param {Element selector}                    header     picker头部html
-     *@param {function}                             confirm: function() {}
-     *@param {function}                             cancel: function() {}
-     *
-     * *** 关于json格式 ***
-     *jsonChange.js是针对campaign里的json做的格式转换
-     *
-     * *** 关于value值 ***
-     *
-     *$('.select-value').data('value1')：第一级的value值
-     *$('.select-value').data('value2')：第二级的value值
-     *
-     *
-     * *** methods ***
-     *
-     *  show                详情请查阅源码部分
-     *  hide                详情请查阅源码部分
-     *  updateData          详情请查阅源码部分
-     *
-     */
-
-    $.fn.IUI({
-        fresh: function(options) {
-            var freshDefaults = {
-                diretion: true,
-                startTouch: function() {},
-                afterFresh: function() {}
-            };
-
-            function Fresh(ele, options) {
-                this.container = ele;
-                this.options = $.extend(true, freshDefaults, options);
-                this.event();
-            }
-            Fresh.prototype.event = function() {
-                var _this = this;
-                var startY, curY, moveY;
-                //上拉刷新是禁止页面滚动
-                document.body.addEventListener('touchmove', function(event) {
-                    if (_this.lock) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                    }
-                }, false);
-
-                this.container.on({
-
-                    touchstart: function(e) {
-
-                        fnTouches(e);
-
-                        startY = e.touches[0].pageY;
-
-                        changeTime.call(_this, 0);
-
-                        _this.options.startTouch.call(_this);
-
-                    },
-                    touchmove: function(e) {
-
-                        fnTouches(e);
-
-                        var _translate;
-
-                        curY = e.touches[0].pageY;
-
-                        if (_this.options.diretion) {
-                            freshBottom.call(_this, startY, curY, moveY);
-                            //freshBottom();
-                        } else {
-                            freshTop.call(_this, startY, curY, moveY);
-                        }
-
-                    },
-
-                    touchend: function(e) {
-
-                        if (_this.lock) {
-
-                            changeTime.call(_this, 300);
-
-                            _translateY(_this.container, 0);
-
-                            _this.lock = 0;
-
-                            _this.options.afterFresh.call(_this);
-                        }
-                    }
-                });
-            };
-
-            function freshBottom(startY, curY, moveY) {
-                var $this = this.container;
-                var height = $this.height();
-                var childHeight = $this.find('[role="freshList"]').height();
-                //向上
-                if (curY > startY) {
-
-                    this.lock = 0;
-                }
-
-                //向下且滚动到底部了
-                if (curY < startY && $this.scrollTop() + height >= childHeight) {
-
-                    if (!this.lock) {
-
-                        this.lock = 1;
-                    }
-
-                    moveY = curY - startY;
-
-                    _translate = Math.round(moveY * 0.5);
-
-                    if (moveY < -10) {
-
-                        _translate = Math.round((moveY * 0.5 + 10) * 0.3 - 10);
-
-                    }
-
-                    _translateY($this, _translate);
-                }
-            }
-
-            function freshTop(startY, curY, moveY) {
-                var $this = this.container;
-                //向下
-                if (curY < startY) {
-
-                    this.lock = 0;
-                }
-
-                //向上且到顶部
-                if (curY > startY && $this.scrollTop() <= 0) {
-
-                    if (!this.lock) {
-
-                        this.lock = 1;
-                    }
-
-                    moveY = curY - startY;
-
-                    _translate = Math.round(moveY * 0.5);
-
-                    if (moveY > 10) {
-
-                        _translate = Math.round((moveY * 0.5 + 10) * 0.3 - 10);
-
-                    }
-
-                    _translateY($this, _translate);
-                }
-            }
-            // touches
-            function fnTouches(e) {
-
-                if (!e.touches) {
-                    e.touches = e.originalEvent.touches;
-                }
-            }
-
-            function _translateY(obj, y) {
-                obj.css({
-                    "-webkit-transform": 'translateY(' + y + 'px)',
-                    transform: 'translateY(' + y + 'px)'
-                });
-            }
-
-            function changeTime(times) {
-                this.container.css({
-                    '-webkit-transition-duration': times + 'ms',
-                    'transition-duration': times + 'ms'
-                });
-            }
-            return new Fresh(this, options);
-        }
-    });
-    /**
-     * panel 组件
-     * @param {Number}		delay 		动画时间，单位毫秒
-     */
-    $.fn.IUI({
-        panel: function(options) {
-            var $selector = this;
-            var $body = $('body');
-            var $overlay = $('<div class="panel-overlay hide"></div>');
-            var $sidebar = $selector.data('target') ? $($selector.data('target')) : $('.panel').eq(0);
-            var _direction, $target;
-            var defaults = {
-                delay: 300
-            };
-
-            var config = $.extend({}, defaults, options);
-
-            if ($selector.find('.panel-overlay').length) {
-                $overlay = $('.panel-overlay');
-            } else {
-                $selector.append($overlay);
-            }
-
-            if (!$selector.hasClass('panel-viewport')) {
-                $selector = $('.panel-viewport');
-            }
-
-            $selector.on('touchstart.IUI-panel click.IUI-panel', '.panel-open', function(event) {
-                event.preventDefault();
-                openPanel($(this));
-            });
-
-            $selector.on('touchstart.IUI-panel click.IUI-panel', '.panel-overlay', function(event) {
-                event.preventDefault();
-                closePanel();
-            });
-
-            $selector.on(IUI_UTILS.transitionEnd, function(event) {
-                event.preventDefault();
-                if (!$selector.hasClass('panel-move')) {
-                    $sidebar.addClass('hide');
-                }
-            });
-
-            function openPanel(handle) {
-                var $handle = handle;
-                _direction = 'panel-' + $handle.attr('data-direction');
-                $target = $('.' + _direction);
-                $overlay.removeClass('hide');
-                $selector.addClass(_direction + ' panel-move');
-                $sidebar.removeClass('hide');
-            }
-
-            function closePanel() {
-                $selector.removeClass('panel-left panel-move');
-                $overlay.addClass('hide');
-
-            }
-        }
-    });
-
-    /**
-     * mPicker 组件
-     *
-     * *** options ***
-     *
-     * @param {Str}                                 display    显示的方式，默认是显示在底部    'bottom'/'modal'
-     * @param {Boolean}                             shadow     点击遮罩隐藏组件 - 默认为false;若为false，则禁止点击遮罩隐藏组件
-     * @param {Number}                              level      显示的层级，默认：1
-     * @param {Number}                              rows       picker显示的行数，默认：4
-     * @param {Boolean}                             Linkage    选择联动 - 若为false，则不联动
-     * @param {Array}                               dataJson   渲染picker的json - 有规定的格式，可查看json文件。不联动默认遍历获取第一个json
-     * @param {Number}                              height     每一行的高度
-     * @param {Boolean}                             idDefault  匹配默认值 - 若为false，则不匹配
-     * @param {Str}                                 splitStr   设置分割value的符号，与默认值和显示在input里的值有关
-     * @param {Boolean}                             isshort    是否开启简写，默认是关闭的
-     * @param {Element selector}                    header     picker头部html
-     *@param {function}                             confirm: function() {}
-     *@param {function}                             cancel: function() {}
-     *
-     * *** 关于json格式 ***
-     *jsonChange.js是针对campaign里的json做的格式转换
-     *
-     * *** 关于value值 ***
-     *
-     *$('.select-value').data('value1')：第一级的value值
-     *$('.select-value').data('value2')：第二级的value值
-     *
-     *
-     * *** methods ***
-     *
-     *  show                详情请查阅源码部分
-     *  hide                详情请查阅源码部分
-     *  updateData          详情请查阅源码部分
-     *
-     */
-    function __dealCssEvent(eventNameArr, callback) {
-        var events = eventNameArr,
-            i, dom = this; // jshint ignore:line
-
-        function fireCallBack(e) {
-            /*jshint validthis:true */
-            if (e.target !== this) return;
-            callback.call(this, e);
-            for (i = 0; i < events.length; i++) {
-                dom.off(events[i], fireCallBack);
-            }
-        }
-        if (callback) {
-            for (i = 0; i < events.length; i++) {
-                dom.on(events[i], fireCallBack);
-            }
-        }
-    }
-
-    //动画结束事件兼容
-    $.fn.animationEnd = function(callback) {
-        __dealCssEvent.call(this, ['webkitAnimationEnd', 'animationend'], callback);
-        return this;
-    };
-    $.fn.transitionEnd = function(callback) {
-        __dealCssEvent.call(this, ['webkitTransitionEnd', 'transitionend'], callback);
-        return this;
-    };
-    $.fn.IUI({
-        mPicker: function(options) {
-            var defaults = {
-                display: 'bottom',
-                shadow: false,
-                level: 1,
-                rows: 4,
-                Linkage: false,
-                dataJson: '',
-                height: 36,
-                idDefault: false,
-                splitStr: ' ',
-                isshort: false,
-                header: '<div class="mPicker-header"></div>',
-                footer: '<div class="mPicker-footer"><a href="javascript:;" class="mPicker-confirm">确定</a><a href="javascript:;" class="mPicker-cancel">取消</a></div>',
-                confirm: function() {},
-                cancel: function() {}
-            };
-            var self = this;
-
-            self.$container = $(this);
-
-            self.$container.data('mPicker', self);
-
-            self.options = $.extend({}, defaults, options);
-
-            var ulWidth = ['100%', '50%'];
-
-            var $body = $('body');
-            /**
-             * 阻止默认滚动
-             */
-            $body.on('touchmove', function(event) {
-                if (self.lock) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-            });
-            /**
-             * 禁止滚动－－防止滚动选择时页面滚动
-             */
-            $body.on({
-                touchstart: function(event) {
-                    event.preventDefault();
-                    self.lock = 1;
-                },
-                touchmove: function(event) {
-                    event.preventDefault();
-                    //兼容部分手机有时候没有触发touchend
-                    clearTimeout(self.timeTouchend);
-                    self.timeTouchend = setTimeout(function() {
-                        self.lock = 0;
-                    }, 100);
-                },
-                touchend: function(event) {
-                    event.preventDefault();
-                    self.lock = 0;
-                }
-            }, '.mPicker-main');
-            /**
-             * 点击打开选择
-             */
-            self.$container.on('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                self.render();
-                self.$container.focus();
-                self.$container.blur();
-                self.$mPicker.removeClass('hide');
-                self.$mask.removeClass('hide');
-
-                clearTimeout($body.data('mPicker-timer'));
-                $body.data('mPicker-timer', setTimeout(function() {
-                    self.$main.removeClass('down');
-                }, 10));
-                /**
-                 * 显示默认值(判断点击确定选择后不再获取默认值)
-                 */
-                if (!self.noFirst && self.options.idDefault) {
-                    matchDefaultData();
-                }
-                /**
-                 * 获取input的data-id显示选中的元素
-                 */
-                var id = [];
-                self.$list.each(function(index, ele) {
-                    setTransitionY(self.$container, 0);
-                    var dataVal = self.$container.data('id' + (index + 1)) ? self.$container.data('id' + (index + 1)) : 0;
-                    id.push(dataVal);
-                });
-
-                //获得选中的元素
-                setItemMultiple(id);
-
-                self.event();
-            });
-
-            /**
-             *  初始化mpicker,根据json渲染html结构
-             *  添加遮罩，边框等
-             */
-            self.render = function() {
-                var listStr;
-                var jsonData = [];
-                var mainStr;
-                /**
-                 * 根据行数计算居中的位置
-                 */
-                self.$container.data('middleRowIndex', parseInt(self.options.rows / 2.5));
-                /**
-                 * 添加mPicker容器
-                 */
-                if ($('.mPicker').length === 0) {
-                    $body.append('<div class="mPicker hide"><div class="mPicker-mask hide"></div>');
-                }
-
-                self.$mPicker = $body.find('.mPicker');
-                //展示方式
-                self.disy = self.options.display === 'bottom' ? 'mPicker-bottom down' : 'mPicker-modal';
-                /**
-                 * 添加 mPicker-main元素
-                 */
-                jsonData.push(self.options.dataJson);
-                if (self.options.level === 2) {
-                    var childStr = getChildJson(self.options.dataJson[0]);
-                    jsonData.push(childStr);
-                }
-                listStr = concatHtmlList(jsonData);
-                mainStr = '<div class="mPicker-main ' + self.disy + '" data-pickerId="' + self.pickerId + '">' + self.options.header + '<div class="mPicker-content">' + listStr + '</div><div class="mPicker-shadow"></div>' + self.options.footer + '</div>';
-                self.$mPicker.append(mainStr);
-                /**
-                 * 设置变量
-                 */
-                self.$mask = $('.mPicker-mask');
-                self.$main = self.$mPicker.find('.mPicker-main');
-                self.$content = self.$main.find('.mPicker-content');
-                self.$list = self.$main.find('.mPicker-list');
-                self.$listul = self.$list.find('ul');
-                if (self.options.level > 1) {
-                    self.$list.width(ulWidth[self.options.level - 1]);
-                }
-                self.$itemOne = self.$listul.eq(0);
-                if (self.options.level === 2) {
-                    self.$itemTwo = self.$listul.eq(1);
-                }
-                /**
-                 * 添加选中的边框
-                 */
-                self.$list.append('<div class="mPicker-active-box"></div>');
-                self.$list.find('.mPicker-active-box').height(self.options.height);
-                /**
-                 * 设置选中的边框位置
-                 */
-                var activeBoxMarginTop = self.options.rows % 2 === 0 ? -self.options.height - 2 + 'px' : -self.options.height * 0.5 - 2 + 'px';
-
-                self.$content.find('.mPicker-active-box').css({
-                    'margin-top': activeBoxMarginTop
-                });
-                /**
-                 * 设置内容高度
-                 */
-                self.$content.height(self.options.height * self.options.rows);
-                self.$list.height(self.options.height * self.options.rows);
-            };
-
-            /**
-             *  事件
-             *  取消，确定，点击遮罩，列表滑动事件
-             */
-            self.event = function() {
-                //点击确定
-                self.$main.find('.mPicker-confirm').on('touchstart.confirm click.confirm', function(e) {
-                    e.preventDefault();
-                    var str = '';
-                    self.noFirst = true;
-                    $.each(self.$listul, function(index, ele) {
-                        var $active = $(ele).find('.active');
-                        var splitStr = index === 0 ? '' : self.options.splitStr;
-                        if ($active.length > 0) {
-                            index = index + 1;
-                            self.$container.data('value' + index, $active.data('value'));
-                            self.$container.data('id' + index, $active.data('id'));
-                            str += splitStr + $active.text();
-                        }
-                    });
-                    self.$container.val(str);
-                    self.deffered.hide(self.options.confirm);
-                });
-
-                //点击取消
-                self.$main.find('.mPicker-cancel').on('touchstart.cancel click.cancel', function(e) {
-                    e.preventDefault();
-                    self.deffered.hide(self.options.cancel);
-                });
-
-                //点击遮罩取消
-                self.$mask.off('touchstart.mask click.mask').on('touchstart.mask click.mask', function(e) {
-                    e.preventDefault();
-                    if (self.options.shadow) {
-                        self.deffered.hide(self.options.cancel);
-                    }
-                });
-
-                //遍历下拉列表
-                var startY;
-                var curY;
-                var moveY;
-
-                self.$list.on('touchstart.list', function(event) {
-                    fnTouches(event);
-
-                    var $this = $(this).find('ul');
-
-                    var tranY = getTranslateY($this);
-
-                    startY = event.touches[0].pageY - tranY;
-
-                    changeTime(0, $this);
-                });
-
-                self.$list.on('touchmove.list', function(event) {
-                    event.preventDefault();
-
-                    fnTouches(event);
-
-                    var translate;
-
-                    var $this = $(this).find('ul');
-
-                    var listHeight = $this.height();
-
-                    var itemHeight = self.options.height * self.options.rows;
-
-                    var transMaxY = itemHeight - listHeight - parseInt(self.options.rows / 2) * self.options.height;
-
-                    var transMinY = self.$container.data('middleRowIndex') * self.options.height;
-
-                    curY = event.touches[0].pageY;
-
-                    moveY = curY - startY;
-
-                    translate = Math.round(moveY);
-                    //过了
-                    translate = translate > transMinY ? transMinY : translate;
-                    translate = translate < transMaxY ? transMaxY : translate;
-                    // console.info(self.options.rows)
-                    setTransitionY($this, translate);
-                    //兼容部分手机有时候没有触发touchend
-                    clearTimeout(self.timeTouchend);
-                    self.timeTouchend = setTimeout(function() {
-                        touchEndFn($this);
-                    }, 100);
-                });
-
-                self.$list.on('touchend.list', function(event) {
-                    event.preventDefault();
-                    var $this = $(this).find('ul');
-                    touchEndFn($this);
-                });
-            };
-
-            /**
-             *  滑动结束执行函数
-             *  ele:对应的list==>ul
-             *  如果是联动，则更新相应的list html
-             */
-            function touchEndFn(ele) {
-                clearTimeout(self.timeTouchend);
-                var result = setActiveItem(ele);
-
-                var resultId = result.target.data('id');
-
-                var itemIndex = self.$listul.index(ele);
-                // self.lock=0;
-                //点第一个联动
-                if (self.options.Linkage && itemIndex === 0) {
-                    refreshItemTwo(resultId);
-                }
-                //回调函数
-                // callbackFnName[itemIndex].call(ele, result);
-
-                changeTime(400, ele);
-            }
-
-            /**
-             *  第一次打开匹配默认值
-             */
-            function matchDefaultData() {
-                var inputVal = self.$container.val().split(self.options.splitStr);
-                var defaultId = [];
-                var defaultValue = [];
-                var dataLevel2;
-                var hasLevel2;
-                //遍历获取id
-                var nameEach = function(data, index) {
-                    $.each(data, function(key, val) {
-                        if (val.name == inputVal[index]) {
-                            defaultId[index] = key;
-                            defaultValue[index] = val.value;
-                            self.$container.data('value' + (index + 1), defaultValue[index]);
-                            self.$container.data('id' + (index + 1), defaultId[index]);
-                            return false;
-                        }
-                    });
-                };
-                if (typeof(inputVal) !== 'object' || !inputVal.length || !self.$main) {
-                    return;
-                }
-
-                //将name值默认匹配成id，一旦匹配就跳出循环，多个匹配取第一个
-                //匹配一级
-                nameEach(self.options.dataJson, 0);
-                //匹配二级
-                dataLevel2 = self.options.Linkage ? self.options.dataJson[defaultId[0]] : self.options.dataJson[0];
-
-                if (self.options.Linkage && self.options.level === 2 && defaultId[0] && inputVal.length > 1) {
-                    hasLevel2 = 1;
-                }
-
-                if (!self.options.Linkage && self.options.level === 2 && inputVal.length > 1) {
-                    hasLevel2 = 1;
-                }
-
-                if (hasLevel2) {
-                    dataLevel2 = getChildJson(dataLevel2);
-                    nameEach(dataLevel2, 1);
-                }
-
-            }
-            /**
-             *  滑动结束，设置transtion值，返回当前选中的li index和元素
-             *  obj:滑动的元素
-             *  val:可有可没有。可传入data-id或不传
-             */
-            function setActiveItem(obj, val) {
-                var result;
-                var y = Math.round((getTranslateY(obj) / self.options.height));
-                //得到选中的index
-                var index = typeof(val) === 'number' ? obj.find('li').index(obj.find('li[data-id="' + val + '"]')) : self.$container.data('middleRowIndex') - y;
-
-                var y2 = -self.options.height * (index - self.$container.data('middleRowIndex'));
-
-                setTransitionY(obj, y2);
-                //添加选中样式
-                obj.find('li').eq(index).addClass('active').siblings('li').removeClass('active');
-
-                result = {
-                    target: obj.find('li').eq(index),
-                    index: index
-                };
-                return result;
-            }
-            /**
-             *  传入第一级index，更新第二级html（联动的情况下）
-             */
-            function refreshItemTwo(index) {
-                //兼容不存在child
-                var data = getChildJson(self.options.dataJson[index]);
-                if (self.options.level === 2) {
-                    var str = concatHtmlItem(data);
-                    self.$itemTwo.html(str);
-                    setActiveItem(self.$itemTwo, 0);
-                }
-            }
-            /**
-             *  传入数组，设置多级html
-             *  index:数组
-             */
-            function setItemMultiple(index) {
-                var index1 = index[0] ? index[0] : 0;
-                var index2 = index[1] ? index[1] : 0;
-
-                if (self.options.Linkage) {
-                    refreshItemTwo(index1);
-                }
-
-                setActiveItem(self.$itemOne, index1);
-
-                if (self.options.level === 2) {
-                    setActiveItem(self.$itemTwo, index2);
-                }
-            }
-
-            /**
-             *  传入json,判断返回json,child
-             *  兼容不存在child报错的情况
-             */
-            function getChildJson(data) {
-                if (!data) {
-                    return [];
-                }
-                var result = ({}).hasOwnProperty.call(data, 'child') ? data.child : [];
-                return result;
-            }
-            /**
-             *  传入json拼接html，只有li级别
-             */
-            function concatHtmlItem(data) {
-                var str = '';
-                $.each(data, function(index, val) {
-                    var name = self.options.isshort ? val.shortName : val.name;
-                    str += '<li data-value="' + val.value + '" data-id="' + index + '">' + name + '</li>';
-                });
-                return str;
-            }
-            /**
-             *  传入li html 拼接ul
-             */
-            function concatHtmlList(data) {
-                var html = '';
-                for (var i = 0; i < data.length; i++) {
-                    var itemStr = concatHtmlItem(data[i]);
-                    html += '<div class="mPicker-list"><ul>' + itemStr + '</ul></div>';
-                }
-                return html;
-            }
-            /**
-             *  设置运动时间
-             */
-            function changeTime(times, obj) {
-                obj.css({
-                    '-webkit-transition-duration': times + 'ms',
-                    'transition-duration': times + 'ms'
-                });
-            }
-            /**
-             *  touches兼容
-             */
-            function fnTouches(e) {
-                if (!e.touches) {
-                    e.touches = e.originalEvent.touches;
-                }
-            }
-            /**
-             *  设置translateY
-             */
-            function setTransitionY(obj, y) {
-                obj.css({
-                    "-webkit-transform": 'translateY(' + y + 'px)',
-                    transform: 'translateY(' + y + 'px)'
-                });
-            }
-            /**
-             *  获取translateY
-             */
-            function getTranslateY(obj) {
-                var transZRegex = /\.*translateY\((.*)px\)/i;
-                var result;
-                if (obj[0].style.WebkitTransform) {
-                    result = parseInt(transZRegex.exec(obj[0].style.WebkitTransform)[1]);
-                } else if (obj[0].style.transform) {
-                    result = parseInt(transZRegex.exec(obj[0].style.transforms)[1]);
-                }
-                return result;
-            }
-            /**
-             * 暴露的接口：显示，隐藏，更新数据
-             */
-            self.deffered = {
-                container: self.$container,
-                show: function() {
-                    self.$container.trigger('touchstart');
-                },
-                hide: function(callback) {
-                    self.$mask.addClass('hide');
-
-                    if (self.options.display === 'bottom') {
-                        self.$main.addClass('down').transitionEnd(function() {
-                            self.$mPicker.addClass('hide');
-                            self.$main.remove();
-                            if (typeof(callback) === 'function') {
-                                callback.call(this);
-                            }
-                        });
-                        return false;
-                    }
-
-                    self.$mPicker.addClass('hide');
-                    self.$main.remove();
-                    if (typeof(callback) === 'function') {
-                        callback.call(this);
-                    }
-                },
-                updateData: function(data) {
-                    if (!data.length) {
-                        return;
-                    }
-                    self.noFirst = false;
-                    for (var i = 0; i < self.options.level; i++) {
-                        self.$container.data('id' + (i + 1), 0);
-                        self.$container.data('value' + (i + 1), '');
-                    }
-                    self.options.dataJson = data;
-                    self.$main.remove();
-                }
-            };
-
-            return self.deffered;
-        }
-    });
 }(jQuery, window, document, undefined));

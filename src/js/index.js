@@ -2,6 +2,7 @@
 utils：通用方法
 */
 
+var isIE = document.all && !window.atob;
 window.IUI_UTILS = {
     animateEnd: 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend',
     transitionEnd: 'webkitTransitionEnd transitionend oTransitionEnd MSTransitionEnd msTransitionEnd',
@@ -90,7 +91,21 @@ window.IUI_UTILS = {
             scrollbarWidth = $scrollDiv[0].offsetWidth - $scrollDiv[0].clientWidth;
             $scrollDiv.remove();
             return scrollbarWidth;
-    }())
+    }()),
+    animateEndShim:function(el, fn,animateDisable) {
+        if (isIE || animateDisable) {
+            fn();
+        } else {
+            el.on(IUI_UTILS.animateEnd, fn);
+        }
+    },
+    transitionEndShim:function(el,fn,animateDisable){
+      if(isIE || animateDisable){
+        fn();
+      }else{
+        el.on(IUI_UTILS.transitionEnd,fn);
+      }
+    }
 };
 
 window.IUI = {};

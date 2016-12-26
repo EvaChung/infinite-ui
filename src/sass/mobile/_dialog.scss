@@ -11,8 +11,7 @@
     height: 100%;
     overflow: auto;
     z-index: $iui-z-index-dialog;
-    @include flexbox(( display: box), $version: 1);
-    @include flexbox(( display: flex));
+    @include flexbox
     -webkit-box-align: center;
     -webkit-box-pack: center;
     @include align-items(center);

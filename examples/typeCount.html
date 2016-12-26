@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/bootstrap/3.1.1/css/bootstrap.min.css">
+  <script type="text/javascript" src="../src/jquery.js" chartset="UTF-8"></script>
+  <script type="text/javascript" src="../dist/iui.js" chartset="UTF-8"></script>
+  <script type="text/javascript">
+  </script>
+  <style type="text/css">
+
+  </style>
+</head>
+
+<body>
+  <br>
+  <div class="container">
+    <div id="global-tip"></div>
+    <form>
+      <div class="form-group">
+        <label>Email address</label>iui
+        <input type="email" class="form-control" name="email" data-required="email">
+      </div>
+      <div class="form-group J-typeCount">
+        <label>Password</label>
+        <input type="text" class="form-control" name="password" data-required="password">
+        <span class="count">0/20</span>
+      </div>
+      <div class="form-group">
+        <textarea name="" id="" cols="30" rows="10" class="form-control" data-required="text"></textarea>
+      </div>
+      <button type="submit" class="btn btn-default">Submit</button>
+    </form>
+
+  <script type="text/javascript" src="../src/js/typeCount.js" chartset="UTF-8"></script>
+
+    <script type="text/javascript" chartset="UTF-8">
+    $('.J-typeCount').IUI('typeCount');
+    </script>
+  </div>
+</body>
+
+</html>

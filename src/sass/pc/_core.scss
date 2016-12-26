@@ -1,20 +1,5 @@
 @charset "UTF-8";
-/**
- * mixin : gradient
- * @param   $bgColor     [background color]
- * @param   $bgOpacity   [opacity]
- * @param   $supportIE   [compact IE]
- */
 
-@mixin gradient($bgColor, $bgOpacity, $supportIE:true) {
-    background-color: rgba($bgColor, $bgOpacity);
-    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#{ie-hex-str(rgba($bgColor,$bgOpacity))}, endColorstr=#{ie-hex-str(rgba($bgColor,$bgOpacity))});
-    @if $supportIE {
-        :root & {
-            filter: none;
-        }
-    }
-}
 
 $iui-z-index:1000;
 
@@ -53,7 +38,7 @@ $tooltip-border-2:5px solid transparent;
     -webkit-transition: all 0.3s;
     -moz-transition: all 0.3s;
     transition: all 0.3s;
-    @include gradient(#000, .35);
+    @include bgc-opacity(#000, .35);
 }
 
 .hide {

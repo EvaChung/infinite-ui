@@ -8,21 +8,29 @@
 $.fn.IUI({
     typeCount: function(options) {
         return this.each(function() {
-            $(this).on('keyup', 'input[type=text],textarea', function(event) {
-                event.preventDefault();
+            var $self = $(this);
+            var config = $.extend({
+                separator :'/'
+            },options);
+
+            $self.on('keyup', 'input[type=text],textarea', function(event) {
                 var $this = $(this);
                 var $target = $this.parent().find('span.count');
-                var initCount = parseInt($target.text().split('/')[1]);
+                var initCount = parseInt($target.text().split(config.separator)[1]);
                 var length = this.value.length;
                 if (length > initCount) {
                     $target.addClass('error');
                 } else {
                     $target.removeClass('error');
                 }
-                $target.html(length + '/' + initCount);
+                $target.html(length + config.separator + initCount);
             });
 
-            $(this).find('input,textarea').trigger('keyup');
+            $self.on('input propertychange', 'input[type=text],textarea', function(event) {
+                $(this).trigger('keyup');
+            });
+
+            $self.find('input,textarea').trigger('keyup');
         });
     }
 });

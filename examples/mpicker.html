@@ -175,7 +175,7 @@
     <script src="./ext/json.js"></script>
     <script src="./ext/jsonExchange.js"></script>
     <script src="../dist/iui.js"></script>
-    <!-- <script src="../src/js/mpicker.js"></script> -->
+    <script src="../src/js/mpicker.js"></script>
     <script chartset="UTF-8">
     $(function() {
         /**
@@ -189,21 +189,23 @@
             rows:6,
             idDefault:true,
             splitStr:'-',
-            header:'<div class="mPicker-header">这是真的<a href="javascript:;" class="mPicker-cancel">取消</a><a href="javascript:;" class="mPicker-confirm">确定</a></div>',
+            header:'<div class="mPicker-header">1这是真的<a href="javascript:;" class="mPicker-cancel">取消</a><a href="javascript:;" class="mPicker-confirm">确定</a></div>',
             confirm:function(){
-                console.info($('.select-value').data('value1')+'-'+$('.select-value').data('value2'));
-                //点击确定后更新json
-                method.updateData(level3);
+                //更新json
+                this.container.data('mPicker').updateData(level3);
+                //console.info($('.select-value').data('value1')+'-'+$('.select-value').data('value2'));
             },
             cancel:function(){
-                console.info($('.select-value').data('value1')+'-'+$('.select-value').data('value2'));
-
+                //console.info($('.select-value').data('value1')+'-'+$('.select-value').data('value2'));
             }
-        })
-
-        //console.info(method)
-        // method.show();
-        // method.hide();
+        });
+        console.info(method);
+        // 调用方式2: var method= $('.select-value').data('mPicker');
+        // console.info(method)
+        // method.showPicker();
+        // method.hide(function(){
+        //     console.info(this)
+        // });
 
         /**
          * 不联动的picker
@@ -229,12 +231,12 @@
             Linkage:false,
             rows:6,
             idDefault:true,
-            header:'<div class="mPicker-header">这是真的<a href="javascript:;" class="mPicker-cancel">取消</a><a href="javascript:;" class="mPicker-confirm">确定</a></div>',
+            header:'<div class="mPicker-header">3这是真的<a href="javascript:;" class="mPicker-cancel">取消</a><a href="javascript:;" class="mPicker-confirm">确定</a></div>',
             confirm:function(){
-                console.info($('.select-value3').data('id1'));
+                //console.info($('.select-value3').data('id1'));
             },
             cancel:function(){
-                console.info($('.select-value3').data('id1'));
+                //console.info($('.select-value3').data('id1'));
             }
         })
     });

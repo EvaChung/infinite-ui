@@ -226,6 +226,7 @@ data-limitCount: 显示选择的个数，默认是无限
 
 	<script class="demo1-js">
 		$('#tokenize-l1').tokenize({
+			placeholder: '1',
 			overLimitCount: function($err){
 				alert('只能选择' + $err.data('limitCount') + '个token')
 			},
@@ -247,6 +248,7 @@ data-limitCount: 显示选择的个数，默认是无限
 	</script>
 	<script class="demo2-js">
 		$('#tokenize-l2').tokenize({
+			placeholder: '2',
 			overLimitCount: function($err){
 				alert('只能选择' + $err.data('limitCount') + '个token')
 			},

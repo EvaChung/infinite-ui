@@ -1,120 +1,179 @@
 (function() {
 
-  var template = '<div class="IUI-popover-container hide">' +
-    '<div role="content"></div>' +
-    '<div role="operate">' +
-    '<a href="javascript:;" role="confirm" class="btn btn-primary">确定</a>' +
-    '<a href="javascript:;" class="btn btn-default" role="cancel">取消</a>' +
-    '</div>' +
-    '</div>';
-  var defaults = {
-    handle: '[data-popover]', //绑定监听对象
-    container: 'body',       //全局作用域
-    offsetX: 0,              //全局微调 X 位置
-    offsetY: 10,             //全局微调 Y 位置
-    compiler: null,          //有无模板引擎
-    data: {}                 //传参，当compiler存在时有效
-  };
+    var template = '<div class="IUI-popover-container">{{header}}{{content}}</div>';
 
-  function Popover(config) {
-    this.$selector = $(config.handle);
-    this.$template = $(template);
-    this.$container = $(config.container);
-    this.config = config;
-    this.containerPos = $(config.container)[0].getBoundingClientRect();
-    this.init();
-  }
+    var defaults = {
+        handle: '[data-popover]', //绑定监听对象
+        container: 'body', //全局作用域
+        offsetX: 0, //全局微调 X 位置
+        offsetY: 10, //全局微调 Y 位置
+        compiler: null, //有无模板引擎
+        header: '' //标题
+    };
 
-  Popover.prototype.init = function() {
-    var self = this;
-
-
-    // show
-    this.$container.on('click.IUI-popover', this.config.handle, function(event) {
-      var $this = $(this);
-      var eventSpace = $this.data('popoverid') ? ('.popover-' + $this.data('popoverid')) : '.popover';
-      $this.trigger('show' + eventSpace, [self]);
-      self.show($this);
-      $this.trigger('after' + eventSpace, [self]);
-      event.stopPropagation();
-    });
-
-    // hide
-    this.$container.on('click.IUI-popover', function(event) {
-      var $this = $(this);
-      $this.trigger('hide.popover', [self]);
-      self.hide();
-    });
-
-    // cut bubbling
-    this.$container.on('click', '.IUI-popover-container', function(event) {
-      event.stopPropagation();
-    });
-
-    // cancel
-    this.$container.on('click', '.IUI-popover-container [role="cancel"]', function(event) {
-      var $this = $(this);
-      var id = self.$template.data('caller').data('popoverid');
-      var eventSpace = id ? ('.popover-' + id) : '.popover';
-      self.hide();
-      $this.trigger('cancel' + eventSpace, [self]);
-    });
-
-    // confirm
-    this.$container.on('click', '.IUI-popover-container [role="confirm"]', function(event) {
-      event.preventDefault();
-      var $this = $(this);
-      var id = self.$template.data('caller').data('popoverid');
-      var eventSpace = id ? ('.popover-' + id) : '.popover';
-      $this.trigger('confirm' + eventSpace, [self]);
-
-    });
-  };
-
-  Popover.prototype.show = function(handle) {
-    var config = this.config;
-    var $handle = handle;
-    var pos = handle[0].getBoundingClientRect();
-    var handlePosX = pos.left;
-    var handlePosY = pos.top;
-    var containerPosX = this.containerPos.left;
-    var containerPosY = this.containerPos.top;
-    var handleWidth = $handle.outerWidth() / 2;
-    var handleHeight = $handle.outerHeight();
-    var $template = this.$template;
-    var $content = $($handle.attr('data-popover'));
-    var content = config.compiler ? config.compiler($handle.attr('data-popover').replace(/\#|\./, ''), config.data) : $content.html();
-    var screenWidth = $(document).width();
-    var screenHeight = $(document).height();
-    var triPos = '';
-    this.$container.css({ 'position': 'relative' });
-    $template.find('[role="content"]').html(content);
-    $template.appendTo(config.container).removeClass('hide');
-    handlePosX -= $template.outerWidth() / 2 - handleWidth + config.offsetX;
-    handlePosY -= containerPosY - handleHeight - this.$container.scrollTop() - config.offsetY;
-
-    if (screenWidth - pos.left < $template.outerWidth() / 2) {
-      handlePosX = pos.left - ($template.outerWidth() - handleWidth * 2);
-      triPos = 'right';
-    }else if(pos.left === 0){
-        handlePosX = pos.left ;
-        triPos = 'left';
+    function Popover(config) {
+        this.$selector = $(config.handle);
+        this.$container = $(config.container);
+        this.config = config;
+        this.containerPos = $(config.container)[0].getBoundingClientRect();
+        this.screenWidth = $(document).width();
+        this.screenHeight = $(document).height();
+        this.init();
     }
 
-    $template.removeClass('left right').addClass(triPos).css({
-      left: handlePosX,
-      top: handlePosY
-    }).data('caller', $handle).data('popover', this);
-  };
+    Popover.prototype.init = function() {
+        var self = this;
 
-  Popover.prototype.hide = function() {
-    this.$container.removeAttr('style');
-    this.$template.remove();
-  };
+        // show
+        self.$container.on('click.IUI-popover', self.config.handle, function(event) {
+            var $this = $(this);
+            var eventSpace = $this.data('popoverid') ? ('.popover-' + $this.data('popoverid')) : '.popover';
 
-  $.extend({
-    popover: function(config) {
-      return new Popover($.extend({}, defaults, config));
-    }
-  });
+            if($this.hasClass('popover-active')){
+              self.hide($this.removeClass('popover-active').data('template'));
+              return false;
+            }else{
+              $this.addClass('popover-active');
+            }
+
+            $.pub('before' + eventSpace, [self, $this]);
+            self.show($this);
+            $.pub('after' + eventSpace, [self, $this]);
+            event.stopPropagation();
+        });
+
+        // hide
+        $('body').on('click.IUI-popover', function(event) {
+            var $this = $(this);
+            if(($(event.target).closest('.IUI-popover-container').length === 0)){
+              $this.trigger('hide.popover', [self]);
+              self.hide(); 
+            }
+        });
+
+    };
+
+    Popover.prototype.getEmitterPos = function(emitter) {
+        var self = this;
+        var config = self.config;
+        var $emitter = emitter;
+        var pos = $emitter[0].getBoundingClientRect();
+        var emitterPosX = pos.left;
+        var emitterPosY = pos.top;
+        var emitterWidth = $emitter.outerWidth() / 2;
+        var emitterHeight = $emitter.outerHeight();
+        return [emitterPosX, emitterPosY, emitterWidth, emitterHeight];
+    };
+
+    Popover.prototype.fillContent = function(emitter) {
+        var self = this;
+        var config = self.config;
+        var $emitter = emitter;
+        var header = $emitter.attr('data-ppHeader') || config.header;
+        var str = $emitter.attr('data-popover');
+        var isEl = str.indexOf('##') === 0;
+        var $content = isEl ? str.slice(2, str.length) : $(str);
+
+        var _template = template.replace('{{header}}', header ? '<div class="popover-header">' + header + '</div>' : '');
+
+        if (!isEl && $content.data('compiler') && config.compiler) {
+            _template = _template.replace('{{content}}', config.compiler($content.html(), $emitter));
+        } else {
+            _template = _template.replace('{{content}}', isEl ? '<div class="popover-content">' + $content + '</div>' : $content.html());
+        }
+
+        return _template;
+
+    };
+
+    Popover.prototype.excePosition = function(emitter, template) {
+        var self = this;
+        var containerPosX = self.containerPos.left;
+        var containerPosY = self.containerPos.top;
+        var screenWidth = self.screenWidth;
+        var screenHeight = self.screenHeight + self.$container.scrollTop();
+        var emitterMatrix = self.getEmitterPos(emitter);
+        var $template = template;
+        var tmpWidth = $template.outerWidth() / 2;
+        var tmpHeight = $template.outerHeight() + 30;
+        var edgeTest = ['center', 'bottom'];
+
+        if (emitterMatrix[1] < tmpHeight) {
+            edgeTest[1] = 'bottom'; // bottom edge
+        }
+
+        if (screenHeight - emitterMatrix[1] - emitterMatrix[3] < tmpHeight) {
+            edgeTest[1] = 'top'; // bottom top edge  
+        }
+
+        if (tmpWidth + emitterMatrix[2] / 2 + emitterMatrix[0] > screenWidth) {
+            edgeTest[0] = 'right'; // right edge;  
+        }
+
+
+        if (emitterMatrix[0] < tmpWidth) {
+            edgeTest[0] = 'left'; // left edge
+        }
+
+        $template.addClass(edgeTest.join(' '));
+
+        var position = [];
+
+        if (edgeTest[0] === 'left') {
+            position[0] = 0;
+        } else if (edgeTest[0] === 'right') {
+            position[0] = emitterMatrix[0] - containerPosX - $template.outerWidth() + emitterMatrix[2] * 2;
+        } else {
+            position[0] = emitterMatrix[0] - containerPosX - tmpWidth + emitterMatrix[2];
+        }
+
+        if (edgeTest[1] === 'top') {
+            position[1] = emitterMatrix[1] + self.$container.scrollTop() - containerPosY - tmpHeight;
+        } else {
+            position[1] = emitterMatrix[1] + self.$container.scrollTop() + emitterMatrix[3] - containerPosY;
+        }
+        return position;
+    };
+
+
+
+    Popover.prototype.show = function(emitter) {
+        var self = this;
+        var config = self.config;
+        var $emitter = emitter;
+        var content = self.fillContent($emitter);
+        var $template = $(content);
+        $emitter.data('template',$template);
+        self.$container.data('popoverInit',self.$container.css('position')).css({ 'position': 'relative' });
+        $template.addClass('popover-show').appendTo(config.container);
+        var position = self.excePosition(emitter, $template);
+        $template.css({
+            'left': position[0] + config.offsetX,
+            'top': position[1] + config.offsetY,
+        }).addClass('popover-in');
+
+    };
+
+    Popover.prototype.hide = function(target) {
+      var self = this;
+      var $target = target || $('.IUI-popover-container');
+      var $container = self.$container;
+
+      if(!target){
+        $('[data-popover]').removeClass('popover-active');
+      }
+
+      $container.css('position',$container.data('popoverInit'));
+
+      IUI_UTILS.transitionEndShim($target.removeClass('popover-in'),function(){
+        $target.remove();
+      });
+
+    };
+
+    $.extend({
+        popover: function(config) {
+            return new Popover($.extend({}, defaults, config));
+        }
+    });
 }());

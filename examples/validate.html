@@ -75,7 +75,7 @@
         }
       }, {
         required: 'email',
-        context: '.asdasdsa',
+        context: '.form-group',
         infoMsg: '请输入您的邮箱',
         matches: {
           isNonEmpty: {
@@ -93,6 +93,7 @@
         required: 'password',
         context: '.form-group',
         infoMsg: '请输入您的密码，字符长度为3-16位',
+        delay:1300,
         matches: {
           isNonEmpty: {
             errMsg: '密码不能为空'
@@ -131,7 +132,10 @@
         }
       }
     });
-
+    $('[name="password"]').on('validate.blur', function(event) {
+      event.preventDefault();
+      console.log($(this).data('validateStatus'));
+    });
     // validate.remove('email');
 
     // validate.add([{

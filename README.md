@@ -22,7 +22,7 @@ https://github.com/Janking/infinite-ui
 
 
 ## Version
-`1.3.0`
+`1.3.1`
 
 ##Support
 * Internet Explorer 8+
@@ -70,6 +70,16 @@ http://localhost:3000/examples/index.html
 ```
 
 ##History
+* 2016年12月26日 更新记录:
+    * 用`css-helpers`代替`compass`
+* 2016年12月1日 更新记录:
+    * `ajaxError` 里面的逻辑更新, 显示错误提示改为iui alert组件
+    * `ajaxForm` 增加timeout 超时处理
+* 2016年10月18日 更新记录:
+    * `layer` 增加层叠功能
+    * `validate` 新增 delay 验证机制
+    * `typeCount` 修复选择历史记录时不计数的问题
+    * **版本更新至 1.3.1**
 
 * 2016年09月23日 更新记录：
     * 优化 `tokenize`

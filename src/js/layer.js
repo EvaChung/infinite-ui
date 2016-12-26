@@ -43,27 +43,8 @@
 (function($, window) {
         var version = '3.1.0';
         var scrollBarWidth = IUI_UTILS.scrollBarWidth;
-        var isIE = document.all && !window.atob;
         var $body = $('body');
         var backdrop = $('<div class="layer-backdrop"></div>');
-
-
-
-        function animateEnd(el, fn) {
-            if (isIE) {
-                fn();
-            } else {
-                el.on(IUI_UTILS.animateEnd, fn);
-            }
-        }
-
-        function transitionEnd(el, fn) {
-            if (isIE) {
-                fn();
-            } else {
-                el.on(IUI_UTILS.transitionEnd, fn);
-            }
-        }
 
         function Layer(config, selector) {
             var defaults = {
@@ -79,6 +60,8 @@
                 data: '',
                 method: 'GET',
                 content: '',
+                animateDisable:true,
+                zIndex:0,
                 showCall: function() {},
                 hideCall: function() {},
                 successCall: function() {},
@@ -89,8 +72,7 @@
             this.$selector = selector;
             this.config = $.extend(defaults, config);
             //创建遮罩层
-            this.$backdrop = backdrop;
-
+            this.$backdrop = $('<div class="layer-backdrop"></div>');
             this.init();
             this.event();
         }
@@ -106,12 +88,18 @@
             var layerWidth = Number($selector.attr('data-width')) || config.offsetWidth;
             var layerHeight = Number($selector.attr('data-height')) || config.offsetHeight;
 
+            if(config.zIndex){
+                self.$backdrop.css('z-index',config.zIndex);
+                $selector.css('z-index',config.zIndex + 10);
+            }
+
             $content.css({
                 width: layerWidth,
                 height: layerHeight
             });
 
             $selector.data('layer', self);
+
 
         };
 
@@ -189,17 +177,20 @@
             var self = this;
             var config = self.config;
             var $backdrop = self.$backdrop;
+            var $body = $('body');
             var screenH = document.documentElement.clientHeight;
             var gtIE10 = document.body.style.msTouchAction === undefined;
             var isCutto = cutto;
             var Q = $.Deferred();
             // 当body高度大于可视高度，修正滚动条跳动
             // >=ie10的滚动条不需要做此修正,tmd :(
-            if ($('body').height() > screenH & (gtIE10)) {
-                $('body').css({
+            if ($body.height() > screenH & (gtIE10)) {
+                $body.data('initstyle',$body.attr('style') || '');
+                $body.css({
                     'border-right': scrollBarWidth + 'px transparent solid',
                     'overflow': 'hidden'
                 });
+
             }
             //显示层
             self.$selector.removeClass('hide');
@@ -217,14 +208,15 @@
             //插入-弹层-css3显示动画
             self.$content.addClass('layer-opening');
 
-            animateEnd(self.$content, function(event) {
+            IUI_UTILS.animateEndShim(self.$content, function(event) {
                 self.$content.removeClass('layer-opening');
                 //触发show事件
                 self.$selector.trigger('layer.show', [self]);
                 //触发showCall回调
                 config.showCall.apply(self.$selector, [self]);
+
                 Q.resolve();
-            });
+            },config.animateDisable);
 
             // 绑定 esc 键盘控制
             $(document).on('keyup.iui-layer', function(event) {
@@ -248,24 +240,27 @@
             self.$content.addClass('layer-closing');
             if (!isCutto) {
                 self.$backdrop.removeAttr('style');
-                transitionEnd(self.$backdrop, function() {
+                IUI_UTILS.transitionEndShim(self.$backdrop, function() {
                     self.$backdrop.remove();
-                });
+                },config.animateDisable);
             }
-            animateEnd(self.$content, function(event) {
+            IUI_UTILS.animateEndShim(self.$content, function(event) {
                 //插入-遮罩-隐藏动画
                 self.$content.removeClass('layer-closing');
                 //隐藏弹层
                 self.$selector.addClass('hide');
+
                 //触发hide事件
                 self.$selector.trigger('layer.hide', [this]);
                 //触发hideCall回调
                 config.hideCall.apply(self.$selector, [self]);
                 Q.resolve();
-            });
+            },config.animateDisable);
+
 
             //恢复 body 滚动条
-            $body.removeAttr('style');
+            $body.attr('style',$body.data('initstyle'));
+
             // 绑定 esc 键盘控制
             $(document).off('keyup.iui-layer');
             return Q;
@@ -274,7 +269,9 @@
         Layer.prototype.cutTo = function(nextId, currentId) {
             var nextLayer = $(nextId).data('layer');
             var currentLayer = (currentId ? $(currentId) : this.$selector).data('layer');
-
+            if (nextLayer.$backdrop.width() === 0) {
+                nextLayer.$backdrop = currentLayer.$backdrop;
+            }
             currentLayer.hideLayer(true).done(function(){
                 nextLayer.showLayer(true);
             });

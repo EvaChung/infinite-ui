@@ -195,11 +195,12 @@
 
             var layerTwo = $('#demoTwo').IUI('layer', {
                 offsetWidth: 500,
+                zIndex:1010,
                 content: $('#demoTwo-template').html()+ '<a href="javascript:;" class="btn btn-primary btn-sm" id="btn-switch-2">switch layer One</a>'
             });
 
 
-            $('.btn-primary').on('click', function(event) {
+            $('.btn-primary').eq(0).on('click', function(event) {
                 layerOne.showLayer();
             });
             $('.btn-primary').eq(0).trigger('click');

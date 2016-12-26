@@ -7,9 +7,9 @@ var prettify = require('gulp-jsbeautifier');
 var compress = require('gulp-yuicompressor');
 var rename = require('gulp-rename');
 var jshint = require('gulp-jshint');
-var compass = require('gulp-compass');
 var argv = require('yargs').argv;
 var browserSync = require("browser-sync");
+var sass = require('gulp-sass');
 var reload = browserSync.reload;
 
 
@@ -97,18 +97,16 @@ gulp.task('build', function() {
     .pipe(rename('iui.min.js'))
     .pipe(gulp.dest('./dist/'));
 
-  gulp.task('compass');
 
 });
 
-//编译compass
-gulp.task('compass', function() {
-  gulp.src('./src/sass/*.scss')
-    .pipe(compass({ comments: true, css: './dist', sass: './src/sass' })).
-  on('error', function(err) {
-      console.log(err);
-    })
-    .pipe(reload({ stream: true }));
+gulp.task('sass', function () {
+  return gulp.src(['./src/sass/*.scss'])
+    .pipe(sass({
+      outputStyle:'expanded',
+      sourceComments:true,
+      }).on('error', sass.logError))
+    .pipe(gulp.dest('./dist'));
 });
 
 gulp.task('browser-sync', function() {
@@ -124,7 +122,9 @@ gulp.task('fresh', function() {
     stream: true
   }));
 });
-gulp.task('watch', ['browser-sync', 'compass', 'fresh'], function() {
-  gulp.watch(['./src/sass/**/*.scss'], ['compass']);
-  gulp.watch(['./examples/**/*.html', './src/js/*.js','./examples/**/*.js'], ['fresh']);
+
+
+gulp.task('watch', ['browser-sync', 'sass', 'fresh'], function() {
+  gulp.watch(['./examples/**/*.html', './src/js/*.js','./examples/**/*.js','./dist/**/*.css'], ['fresh']);
+   gulp.watch('./src/sass/*.scss', ['sass','fresh']);
 });

@@ -8,3 +8,7 @@ exp-pv/*
 gulp-web/*
 iui-web/*
 *.codekit
+edmEditor/*
+examples/canvas/*
+examples/xlsx/*
+examples/trace/*

@@ -76,7 +76,6 @@
 
     var tokenize = $.fn.tokenize = function(options){
         var defaults = $.extend(true, {}, settings, options);
-        htmlTemplate.inputTemplate = htmlTemplate.inputTemplate.replace('{{maxlength}}', defaults.maxLength).replace('{{placeholder}}', defaults.placeholder).replace('{{width}}', defaults.maxLength*12);
 
         return this.each(function(index, el) {
             var $this = $(this);
@@ -97,7 +96,7 @@
             });
 
             //添加input
-            $this.append(htmlTemplate.inputTemplate);
+            $this.append(htmlTemplate.inputTemplate.replace('{{maxlength}}', defaults.maxLength).replace('{{placeholder}}', defaults.placeholder).replace('{{width}}', defaults.maxLength*12));
 
             //创建模拟下拉框
             tokenize.renderSelect($this, defaults.expand);

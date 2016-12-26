@@ -63,7 +63,7 @@ $.fn.transitionEnd = function(callback) {
 };
 $.fn.IUI({
     mPicker: function(options) {
-        var defaults = {
+        var mPickerDefaults = {
             display: 'bottom',
             shadow: false,
             level: 1,
@@ -79,22 +79,30 @@ $.fn.IUI({
             confirm: function() {},
             cancel: function() {}
         };
-        var self = this;
 
-        self.$container = $(this);
-
-        self.$container.data('mPicker', self);
-
-        self.options = $.extend({}, defaults, options);
+        var moveStartLock;
 
         var ulWidth = ['100%', '50%'];
 
         var $body = $('body');
+
+        var $mask=$('<div class="mPicker-mask hide"></div>');
+
+        var $mPicker=$('<div class="mPicker hide"></div>');
+
+        var lock,timeTouchend;
+        /**
+         * 添加mPicker容器
+         */
+        if (!$('.mPicker').length) {
+            $body.append($mPicker);
+            $mPicker.append($mask);
+        }
         /**
          * 阻止默认滚动
          */
         $body.on('touchmove', function(event) {
-            if (self.lock) {
+            if (lock) {
                 event.preventDefault();
                 event.stopPropagation();
             }
@@ -105,222 +113,323 @@ $.fn.IUI({
         $body.on({
             touchstart: function(event) {
                 event.preventDefault();
-                self.lock = 1;
+                lock = 1;
             },
             touchmove: function(event) {
                 event.preventDefault();
                 //兼容部分手机有时候没有触发touchend
-                clearTimeout(self.timeTouchend);
-                self.timeTouchend = setTimeout(function() {
-                    self.lock = 0;
+                clearTimeout(timeTouchend);
+                timeTouchend = setTimeout(function() {
+                    lock = 0;
                 }, 100);
             },
             touchend: function(event) {
                 event.preventDefault();
-                self.lock = 0;
+                lock = 0;
             }
         }, '.mPicker-main');
-        /**
-         * 点击打开选择
-         */
-        self.$container.on('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            self.render();
-            self.$container.focus();
-            self.$container.blur();
-            self.$mPicker.removeClass('hide');
-            self.$mask.removeClass('hide');
 
-            clearTimeout($body.data('mPicker-timer'));
-            $body.data('mPicker-timer', setTimeout(function() {
-                self.$main.removeClass('down');
-            }, 10));
-            /**
-             * 显示默认值(判断点击确定选择后不再获取默认值)
-             */
-            if (!self.noFirst && self.options.idDefault) {
-                matchDefaultData();
+        function MPicker(ele,options){
+            if (!ele.length) {
+                return false;
             }
-            /**
-             * 获取input的data-id显示选中的元素
-             */
-            var id = [];
-            self.$list.each(function(index, ele) {
-                setTransitionY(self.$container, 0);
-                var dataVal = self.$container.data('id' + (index + 1)) ? self.$container.data('id' + (index + 1)) : 0;
-                id.push(dataVal);
-            });
+            this.container=ele;
+            this.mpicker=$('.mPicker');
+            this.mask=this.mpicker.find('.mPicker-mask');
+            this.options = $.extend({}, mPickerDefaults, options);
+            this.init();
+            this.event();
+            this.container.data('mPicker', this);
 
-            //获得选中的元素
-            setItemMultiple(id);
+        }
 
-            self.event();
-        });
 
-        /**
-         *  初始化mpicker,根据json渲染html结构
-         *  添加遮罩，边框等
-         */
-        self.render = function() {
-            var listStr;
-            var jsonData = [];
-            var mainStr;
-            /**
-             * 根据行数计算居中的位置
-             */
-            self.$container.data('middleRowIndex', parseInt(self.options.rows / 2.5));
-            /**
-             * 添加mPicker容器
-             */
-            if ($('.mPicker').length === 0) {
-                $body.append('<div class="mPicker hide"><div class="mPicker-mask hide"></div>');
-            }
+        MPicker.prototype={
+            //初始化MPicker
+            init:function(ele,options){
 
-            self.$mPicker = $body.find('.mPicker');
-            //展示方式
-            self.disy = self.options.display === 'bottom' ? 'mPicker-bottom down' : 'mPicker-modal';
-            /**
-             * 添加 mPicker-main元素
-             */
-            jsonData.push(self.options.dataJson);
-            if (self.options.level === 2) {
-                var childStr = getChildJson(self.options.dataJson[0]);
-                jsonData.push(childStr);
-            }
-            listStr = concatHtmlList(jsonData);
-            mainStr = '<div class="mPicker-main '+ self.disy +'" data-pickerId="' + self.pickerId + '">' + self.options.header + '<div class="mPicker-content">' + listStr + '</div><div class="mPicker-shadow"></div>' + self.options.footer + '</div>';
-            self.$mPicker.append(mainStr);
-            /**
-             * 设置变量
-             */
-            self.$mask = $('.mPicker-mask');
-            self.$main = self.$mPicker.find('.mPicker-main');
-            self.$content = self.$main.find('.mPicker-content');
-            self.$list = self.$main.find('.mPicker-list');
-            self.$listul = self.$list.find('ul');
-            if(self.options.level > 1 ){
-                self.$list.width(ulWidth[self.options.level - 1]);
-            }
-            self.$itemOne = self.$listul.eq(0);
-            if (self.options.level === 2) {
-                self.$itemTwo = self.$listul.eq(1);
-            }
-            /**
-             * 添加选中的边框
-             */
-            self.$list.append('<div class="mPicker-active-box"></div>');
-            self.$list.find('.mPicker-active-box').height(self.options.height);
-            /**
-             * 设置选中的边框位置
-             */
-            var activeBoxMarginTop = self.options.rows % 2 === 0 ? -self.options.height - 2 + 'px' : -self.options.height * 0.5 - 2 + 'px';
+                /**
+                 * 根据行数计算居中的位置
+                 */
+                this.middleRowIndex=parseInt(this.options.rows / 2.5);
+                //展示方式
+                this.disy = this.options.display === 'bottom' ? 'mPicker-bottom down' : 'mPicker-modal';
+            },
+            //初始化mpicker,根据json渲染html结构,添加遮罩，边框等
+            render:function(){
+                /**
+                 *  初始化mpicker,根据json渲染html结构
+                 *  添加遮罩，边框等
+                 */
+                var listStr;
+                var jsonData = [];
+                var mainStr;
+                var self=this;
+                /**
+                 * 添加 mPicker-main元素
+                 */
+                jsonData.push(self.options.dataJson);
+                if (self.options.level === 2) {
+                    var childStr = getChildJson(self.options.dataJson[0]);
+                    jsonData.push(childStr);
+                }
+                listStr = concatHtmlList.call(self,jsonData);
+                mainStr = '<div class="mPicker-main '+ self.disy +'" data-pickerId="' + self.pickerId + '">' + self.options.header + '<div class="mPicker-content">' + listStr + '</div><div class="mPicker-shadow"></div>' + self.options.footer + '</div>';
+                self.mpicker.append(mainStr);
+                /**
+                 * 设置变量
+                 */
+                self.mpickerMain = self.mpicker.find('.mPicker-main');
+                //元素集合
+                var $content=self.mpickerMain.find('.mPicker-content');
+                var $list=self.mpickerMain.find('.mPicker-list');
+                var $listUl=$list.find('ul');
+                //var $itemOne=$listUl.eq(0);
+                //var $itemTwo=self.options.level === 2?$listUl.eq(1):false;
+                //设置多列宽度
+                if(self.options.level > 1){
+                    $list.width(ulWidth[self.options.level - 1]);
+                }
 
-            self.$content.find('.mPicker-active-box').css({
-                'margin-top': activeBoxMarginTop
-            });
-            /**
-             * 设置内容高度
-             */
-            self.$content.height(self.options.height * self.options.rows);
-            self.$list.height(self.options.height * self.options.rows);
-        };
+                //添加选中的边框
+                $list.append('<div class="mPicker-active-box"></div>');
+                $list.find('.mPicker-active-box').height(self.options.height);
+                /**
+                 * 设置选中的边框位置
+                 */
+                var activeBoxMarginTop = self.options.rows % 2 === 0 ? -self.options.height - 2 + 'px' : -self.options.height * 0.5 - 2 + 'px';
 
-        /**
-         *  事件
-         *  取消，确定，点击遮罩，列表滑动事件
-         */
-        self.event = function() {
-            //点击确定
-            self.$main.find('.mPicker-confirm').on('touchstart.confirm click.confirm', function(e) {
-                e.preventDefault();
+                $content.find('.mPicker-active-box').css({
+                    'margin-top': activeBoxMarginTop
+                });
+                /**
+                 * 设置内容高度
+                 */
+                $content.height(self.options.height * self.options.rows);
+                $list.height(self.options.height * self.options.rows);
+
+            },
+            showPicker:function(){
+                var self=this;
+                self.mpicker.data('object',self);
+                //元素集合
+                //var $content=this.mpickerMain.find('.mPicker-content');
+
+                //var $listUl=$list.find('ul');
+                // var $itemOne=$listUl.eq(0);
+                // var $itemTwo=this.options.level === 2?$listUl.eq(1):false;
+                self.render();
+                var $list=self.mpicker.find('.mPicker-list');
+                self.container.focus();
+                self.container.blur();
+                self.mpicker.removeClass('hide');
+                self.mask.removeClass('hide');
+
+                clearTimeout(self.timer);
+                self.timer=setTimeout(function() {
+                    self.mpickerMain.removeClass('down');
+                }, 10);
+                /**
+                 * 显示默认值(判断点击确定选择后不再获取默认值)
+                 */
+                if (!self.noFirst && self.options.idDefault) {
+                    matchDefaultData.call(self);
+                }
+                /**
+                 * 获取input的data-id显示选中的元素
+                 */
+                var id = [];
+                setTransitionY(self.container, 0);
+                $list.each(function(index, ele) {
+                    var dataVal = self.container.data('id' + (index + 1)) ? self.container.data('id' + (index + 1)) : 0;
+                    id.push(dataVal);
+                });
+                //获得选中的元素
+                setItemMultiple.call(self,id);
+            },
+            hidePicker:function(callback){
+                var self=this;
+                self.mask.addClass('hide');
+
+                if(self.options.display === 'bottom'){
+                    self.mpicker.find('.mPicker-main').addClass('down').transitionEnd(function() {
+                        self.mpicker.addClass('hide');
+                        self.mpicker.find('.mPicker-main').remove();
+                        if (typeof(callback) === 'function') {
+                            callback.call(self);
+                        }
+                    });
+                    return false;
+                }
+
+                self.mpicker.addClass('hide');
+                callback.call(self);
+                self.mpicker.find('.mPicker-main').remove();
+            },
+            updateData:function(data){
+                var self=this;
+                if (!data.length) {
+                    return;
+                }
+                self.noFirst = false;
+                for (var i = 0; i < self.options.level; i++) {
+                    self.container.data('id' + (i + 1), 0);
+                    self.container.data('value' + (i + 1), '');
+                }
+                self.options.dataJson = data;
+                self.mpicker.find('.mPicker-main').remove();
+            },
+            confirm:function(){
+                var self=this;
                 var str = '';
+                var $list=self.mpicker.find('.mPicker-main').find('.mPicker-list');
+                var $listUl=$list.find('ul');
                 self.noFirst = true;
-                $.each(self.$listul, function(index, ele) {
+                $.each($listUl, function(index, ele) {
                     var $active = $(ele).find('.active');
                     var splitStr = index === 0 ? '' : self.options.splitStr;
                     if ($active.length > 0) {
                         index = index + 1;
-                        self.$container.data('value' + index, $active.data('value'));
-                        self.$container.data('id' + index, $active.data('id'));
+                        self.container.data('value' + index, $active.data('value'));
+                        self.container.data('id' + index, $active.data('id'));
                         str += splitStr + $active.text();
                     }
                 });
-                self.$container.val(str);
-                self.deffered.hide(self.options.confirm);
-            });
+                self.container.val(str);
+                self.hidePicker(self.options.confirm);
 
-            //点击取消
-            self.$main.find('.mPicker-cancel').on('touchstart.cancel click.cancel', function(e) {
-                e.preventDefault();
-                self.deffered.hide(self.options.cancel);
-            });
+            },
+            cancel:function(){
+                var self=this;
+                self.hidePicker(self.options.cancel);
+            },
+             /**
+             *  事件
+             *  取消，确定，点击遮罩，列表滑动事件
+             */
+            event : function() {
+                /**
+                 * 点击打开选择
+                 */
+                var self=this;
+                this.container.off('touchstart.container click.container').on('touchstart.container click.container', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    self.showPicker();
+                });
+                //点击确定
+                this.mpicker.off('touchstart.confirm click.confirm').on('touchstart.confirm click.confirm','.mPicker-confirm', function(e) {
+                    e.preventDefault();
+                    var self=$('.mPicker').data('object');
+                    self.confirm();
+                });
 
-            //点击遮罩取消
-            self.$mask.off('touchstart.mask click.mask').on('touchstart.mask click.mask', function(e) {
-                e.preventDefault();
-                if(self.options.shadow){
-                    self.deffered.hide(self.options.cancel);
-                }
-            });
+                //点击取消
+                this.mpicker.off('touchstart.cancel click.cancel').on('touchstart.cancel click.cancel','.mPicker-cancel', function(e) {
+                    e.preventDefault();
+                    var self=$('.mPicker').data('object');
+                    self.cancel();
+                });
 
-            //遍历下拉列表
-            var startY;
-            var curY;
-            var moveY;
+                //点击遮罩取消
+                this.mpicker.off('touchstart.mask click.mask').on('touchstart.mask click.mask','.mPicker-mask', function(e) {
+                    e.preventDefault();
+                    var self=$('.mPicker').data('object');
+                    if(self.options.shadow){
+                        self.cancel();
+                    }
+                });
 
-            self.$list.on('touchstart.list', function(event) {
-                fnTouches(event);
+                //遍历下拉列表
+                var startY;
+                var curY;
+                var moveY;
 
-                var $this = $(this).find('ul');
 
-                var tranY = getTranslateY($this);
+                this.mpicker.off('touchstart.list mousedown.list').on('touchstart.list mousedown.list','.mPicker-list', function(event) {
+                    fnTouches(event);
 
-                startY = event.touches[0].pageY - tranY;
+                    var $this = $(this).find('ul');
 
-                changeTime(0, $this);
-            });
+                    var tranY = getTranslateY($this);
 
-            self.$list.on('touchmove.list', function(event) {
-                event.preventDefault();
+                    startY = getTouches(event).y - tranY;
 
-                fnTouches(event);
+                    changeTime(0, $this);
 
-                var translate;
+                    moveStartLock=true;
+                });
 
-                var $this = $(this).find('ul');
+                this.mpicker.off('touchmove.list mousemove.list').on('touchmove.list mousemove.list', '.mPicker-list',function(event) {
+                    event.preventDefault();
+                    if(!moveStartLock){
+                        return false;
+                    }
+                    var self=$('.mPicker').data('object');
 
-                var listHeight = $this.height();
+                    fnTouches(event);
 
-                var itemHeight = self.options.height * self.options.rows;
+                    var translate;
 
-                var transMaxY = itemHeight - listHeight - parseInt(self.options.rows / 2) * self.options.height;
+                    var $this = $(this).find('ul');
 
-                var transMinY = self.$container.data('middleRowIndex') * self.options.height;
+                    var listHeight = $this.height();
 
-                curY = event.touches[0].pageY;
+                    var itemHeight = self.options.height * self.options.rows;
 
-                moveY = curY - startY;
+                    var transMaxY = itemHeight - listHeight - parseInt(self.options.rows / 2) * self.options.height;
 
-                translate = Math.round(moveY);
-                //过了
-                translate = translate > transMinY ? transMinY : translate;
-                translate = translate < transMaxY ? transMaxY : translate;
-                // console.info(self.options.rows)
-                setTransitionY($this, translate);
-                //兼容部分手机有时候没有触发touchend
-                clearTimeout(self.timeTouchend);
-                self.timeTouchend = setTimeout(function() {
-                    touchEndFn($this);
-                }, 100);
-            });
+                    var transMinY = self.middleRowIndex * self.options.height;
 
-            self.$list.on('touchend.list', function(event) {
-                event.preventDefault();
-                var $this = $(this).find('ul');
-                touchEndFn($this);
-            });
+                    curY = getTouches(event).y;
+
+                    moveY = curY - startY;
+
+                    translate = Math.round(moveY);
+                    //过了
+                    translate = translate > transMinY ? transMinY : translate;
+                    translate = translate < transMaxY ? transMaxY : translate;
+                    // console.info(self.options.rows)
+                    setTransitionY($this, translate);
+                    //兼容部分手机有时候没有触发touchend
+                    clearTimeout(self.timeTouchend);
+                    self.timeTouchend = setTimeout(function() {
+                        touchEndFn.call(self,$this);
+                    }, 100);
+                });
+
+                this.mpicker.off('touchend.list mouseup.list').on('touchend.list mouseup.list', '.mPicker-list',function(event) {
+                    event.preventDefault();
+                    var self=$('.mPicker').data('object');
+                    var $this = $(this).find('ul');
+                    touchEndFn.call(self,$this);
+                });
+            }
         };
+        function getTouches(event) {
+            if (event.touches !== undefined) {
+                return {
+                    x : event.touches[0].pageX,
+                    y : event.touches[0].pageY
+                };
+            }
+
+            if (event.touches === undefined) {
+                if (event.pageX !== undefined) {
+                    return {
+                        x : event.pageX,
+                        y : event.pageY
+                    };
+                }
+                if (event.pageX === undefined) {
+                    return {
+                        x : event.clientX,
+                        y : event.clientY
+                    };
+                }
+            }
+        }
+
 
         /**
          *  滑动结束执行函数
@@ -328,28 +437,31 @@ $.fn.IUI({
          *  如果是联动，则更新相应的list html
          */
         function touchEndFn(ele) {
-            clearTimeout(self.timeTouchend);
-            var result = setActiveItem(ele);
+            clearTimeout(this.timeTouchend);
+            var result = setActiveItem.call(this,ele);
 
             var resultId = result.target.data('id');
 
-            var itemIndex = self.$listul.index(ele);
-            // self.lock=0;
+            var itemIndex = this.mpicker.find('.mPicker-list ul').index(ele);
+            // this.lock=0;
             //点第一个联动
-            if (self.options.Linkage && itemIndex === 0) {
-                refreshItemTwo(resultId);
+            if (this.options.Linkage && itemIndex === 0) {
+                refreshItemTwo.call(this,resultId);
             }
             //回调函数
             // callbackFnName[itemIndex].call(ele, result);
 
             changeTime(400, ele);
+
+            moveStartLock=false;
         }
 
         /**
          *  第一次打开匹配默认值
          */
         function matchDefaultData() {
-            var inputVal = self.$container.val().split(self.options.splitStr);
+            var self=this;
+            var inputVal = this.container.val().split(this.options.splitStr);
             var defaultId = [];
             var defaultValue = [];
             var dataLevel2;
@@ -360,27 +472,27 @@ $.fn.IUI({
                     if (val.name == inputVal[index]) {
                         defaultId[index] = key;
                         defaultValue[index] = val.value;
-                        self.$container.data('value' + (index + 1), defaultValue[index]);
-                        self.$container.data('id' + (index + 1), defaultId[index]);
+                        self.container.data('value' + (index + 1), defaultValue[index]);
+                        self.container.data('id' + (index + 1), defaultId[index]);
                         return false;
                     }
                 });
             };
-            if (typeof(inputVal) !== 'object' || !inputVal.length || !self.$main) {
+            if (typeof(inputVal) !== 'object' || !inputVal.length || !self.mpicker.find('.mPicker-main')) {
                 return;
             }
 
             //将name值默认匹配成id，一旦匹配就跳出循环，多个匹配取第一个
             //匹配一级
-            nameEach(self.options.dataJson, 0);
+            nameEach(this.options.dataJson, 0);
             //匹配二级
-            dataLevel2 = self.options.Linkage ? self.options.dataJson[defaultId[0]] : self.options.dataJson[0];
+            dataLevel2 = this.options.Linkage ? this.options.dataJson[defaultId[0]] : this.options.dataJson[0];
 
-            if (self.options.Linkage && self.options.level === 2 && defaultId[0] && inputVal.length > 1) {
+            if (this.options.Linkage && this.options.level === 2 && defaultId[0] && inputVal.length > 1) {
                 hasLevel2 = 1;
             }
 
-            if (!self.options.Linkage && self.options.level === 2 && inputVal.length > 1) {
+            if (!this.options.Linkage && this.options.level === 2 && inputVal.length > 1) {
                 hasLevel2 = 1;
             }
 
@@ -397,12 +509,11 @@ $.fn.IUI({
          */
         function setActiveItem(obj, val) {
             var result;
-            var y = Math.round((getTranslateY(obj) / self.options.height));
+            var y = Math.round((getTranslateY(obj) / this.options.height));
             //得到选中的index
-            var index = typeof(val) === 'number' ? obj.find('li').index(obj.find('li[data-id="' + val + '"]')) : self.$container.data('middleRowIndex') - y;
+            var index = typeof(val) === 'number' ? obj.find('li').index(obj.find('li[data-id="' + val + '"]')) : this.middleRowIndex - y;
 
-            var y2 = -self.options.height * (index - self.$container.data('middleRowIndex'));
-
+            var y2 = -this.options.height * (index - this.middleRowIndex);
             setTransitionY(obj, y2);
             //添加选中样式
             obj.find('li').eq(index).addClass('active').siblings('li').removeClass('active');
@@ -418,11 +529,12 @@ $.fn.IUI({
          */
         function refreshItemTwo(index) {
             //兼容不存在child
-            var data = getChildJson(self.options.dataJson[index]);
-            if (self.options.level === 2) {
-                var str = concatHtmlItem(data);
-                self.$itemTwo.html(str);
-                setActiveItem(self.$itemTwo, 0);
+            var $itemTwo=this.mpicker.find('.mPicker-list ul').eq(1);
+            var data = getChildJson(this.options.dataJson[index]);
+            if (this.options.level === 2) {
+                var str = concatHtmlItem.call(this,data);
+                $itemTwo.html(str);
+                setActiveItem.call(this,$itemTwo, 0);
             }
         }
         /**
@@ -430,17 +542,17 @@ $.fn.IUI({
          *  index:数组
          */
         function setItemMultiple(index) {
+            var $item=this.mpicker.find('.mPicker-list ul');
             var index1 = index[0] ? index[0] : 0;
             var index2 = index[1] ? index[1] : 0;
 
-            if (self.options.Linkage) {
-                refreshItemTwo(index1);
+            if (this.options.Linkage) {
+                refreshItemTwo.call(this,index1);
             }
+            setActiveItem.call(this,$item.eq(0), index1);
 
-            setActiveItem(self.$itemOne, index1);
-
-            if (self.options.level === 2) {
-                setActiveItem(self.$itemTwo, index2);
+            if (this.options.level === 2) {
+                setActiveItem.call(this,$item.eq(1), index2);
             }
         }
 
@@ -460,6 +572,7 @@ $.fn.IUI({
          */
         function concatHtmlItem(data) {
             var str = '';
+            var self=this;
             $.each(data, function(index, val) {
                 var name = self.options.isshort ? val.shortName : val.name;
                 str += '<li data-value="' + val.value + '" data-id="' + index + '">' + name + '</li>';
@@ -472,7 +585,7 @@ $.fn.IUI({
         function concatHtmlList(data) {
             var html = '';
             for (var i = 0; i < data.length; i++) {
-                var itemStr = concatHtmlItem(data[i]);
+                var itemStr = concatHtmlItem.call(this,data[i]);
                 html += '<div class="mPicker-list"><ul>' + itemStr + '</ul></div>';
             }
             return html;
@@ -516,48 +629,13 @@ $.fn.IUI({
             }
             return result;
         }
-        /**
-         * 暴露的接口：显示，隐藏，更新数据
-         */
-        self.deffered = {
-            container: self.$container,
-            show: function() {
-                self.$container.trigger('touchstart');
-            },
-            hide: function(callback) {
-                self.$mask.addClass('hide');
+        return new MPicker($(this), options);
 
-                if(self.options.display === 'bottom'){
-                    self.$main.addClass('down').transitionEnd(function() {
-                        self.$mPicker.addClass('hide');
-                        self.$main.remove();
-                        if (typeof(callback) === 'function') {
-                            callback.call(this);
-                        }
-                    });
-                    return false;
-                }
 
-                self.$mPicker.addClass('hide');
-                self.$main.remove();
-                if (typeof(callback) === 'function') {
-                    callback.call(this);
-                }
-            },
-            updateData: function(data) {
-                if (!data.length) {
-                    return;
-                }
-                self.noFirst = false;
-                for (var i = 0; i < self.options.level; i++) {
-                    self.$container.data('id' + (i + 1), 0);
-                    self.$container.data('value' + (i + 1), '');
-                }
-                self.options.dataJson = data;
-                self.$main.remove();
-            }
-        };
+        // return this.each(function () {
+        //     new MPicker($(this), options);
+        // });
 
-        return self.deffered;
+
     }
 });

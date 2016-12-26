@@ -17,6 +17,7 @@ $.fn.IUI({
                 url: $selector.attr('action'),
                 method: $selector.attr('method') || 'POST',
                 type: $selector.attr('data-type') || 'json',
+                timeout: 3000,
                 data:null,
                 ajax2:false,
                 before: function() {},
@@ -44,7 +45,8 @@ $.fn.IUI({
                 var args = {
                     url: config.url,
                     type: config.method,
-                    data: config.data || $selector.serialize()
+                    data: config.data || $selector.serialize(),
+                    timeout: config.timeout
                 };
 
                 // ajax2

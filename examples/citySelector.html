@@ -15,6 +15,7 @@
 	.form-container{
 		width: 400px;
 		height: 50px;
+		margin-bottom: 100px;
 		overflow: hidden;
 	}
 	.form-container span{
@@ -59,97 +60,40 @@
 		box-sizing: border-box;
 		outline: none;
 	}
+
 </style>
 </head>
 <body>
 	<h1>citySelector</h1>
 	<div class="form-container">
 		<span>城市：</span>
-		<div class="cityPicker">
-			<input type="text" value="" data-role="name" placeholder="选择城市">
-			<input type="hidden" value="" data-role="pid" name="userProvinceId">
-			<input type="hidden" value="" data-role="id" name="userCityId">
+		<div class="cityPicker" id="cityPicker1">
+			<input type="text" value="" role="name" placeholder="选择城市">
+			<input type="hidden" value="" role="pid" name="userProvinceId">
+			<input type="hidden" value="" role="id" name="userCityId">
+		</div>
+	</div>
+
+
+	<div class="form-container">
+		<span>城市：</span>
+		<div class="cityPicker" id="cityPicker2">
+			<input type="text" value="" role="name" placeholder="选择城市">
+			<input type="hidden" value="" role="pid" name="userProvinceId">
+			<input type="hidden" value="" role="id" name="userCityId">
 		</div>
 	</div>
 
 
 
-	<!-- <div class="cityContainer" style="margin-left: 120px;margin-top: 10px;">
-		<div class="cityChoose hide">
-
-			<ul class="cityMenu">
-				<li>热门城市</li>
-				<li class="active">ABC</li>
-				<li>DEFG</li>
-				<li>HIJK</li>
-				<li>LMN</li>
-				<li>OPQR</li>
-				<li>ST</li>
-				<li>UVW</li>
-				<li>XYZ</li>
-
-			</ul>
-			<div class="cityBox">
-				<dl>
-					<dt>A</dt>
-					<dd>
-						<a href="javascript:;">分为非</a>
-						<a href="javascript:;" class="active">可分为</a>
-						<a href="javascript:;">恩恩</a>
-						<a href="javascript:;">给我个</a>
-						<a href="javascript:;">给我个</a>
-					</dd>
-				</dl>
-				<dl>
-					<dt>B</dt>
-					<dd>
-						<a href="javascript:;">二分委屈额外</a>
-						<a href="javascript:;">问问</a>
-						<a href="javascript:;">无法</a>
-						<a href="javascript:;">后台软件和</a>
-						<a href="javascript:;">教育局</a>
-						<a href="javascript:;">天河</a>
-						<a href="javascript:;">问问</a>
-						<a href="javascript:;">裤裤</a>
-					</dd>
-				</dl>
-				<dl>
-					<dt>C</dt>
-					<dd>
-						<a href="javascript:;">如3让她还有</a>
-						<a href="javascript:;">好人挺好</a>
-						<a href="javascript:;">恩恩</a>
-						<a href="javascript:;">合同</a>
-					</dd>
-				</dl>
-			</div>
-		</div>
-
-		<div class="citySearch hide">
-			<ul>
-				<li><span>广州市</span><i>guangzhou</i></li>
-				<li class="active"><span>广州市</span><i>guangzhou</i></li>
-				<li><span>广州市swfwefwefewfwe</span><i>guangzhoufewewfwef</i></li>
-				<li><span>广州市</span><i>guangzhou</i></li>
-				<li><span>广州市</span><i>guangzhou</i></li>
-				<li><span>广州市</span><i>guangzhou</i></li>
-				<li><span>广州市</span><i>guangzhou</i></li>
-				<li><span>广州市</span><i>guangzhou</i></li>
-				<li><span>广州市</span><i>guangzhou</i></li>
-				<li><span>广州市</span><i>guangzhou</i></li>
-				<li><span>广州市</span><i>guangzhou</i></li>
-			</ul>
-		</div>
-
-	</div> -->
-
-	<script type="text/javascript" src="../src/jquery.min.js" chartset="UTF-8"></script>
+	<script type="text/javascript" src="../src/jquery.js" chartset="UTF-8"></script>
+    <script type="text/javascript" src="../dist/iui.js"></script>
 	<script type="text/javascript" src="./ext/nationalCity.js" chartset="UTF-8"></script>
 	<script type="text/javascript" src="../src/js/citySelector.js" chartset="UTF-8"></script>
 	<script type="text/javascript" chartset="UTF-8">
 		$(function(){
 
-		    $('.cityPicker').IUI('citySelector',{
+		    $('#cityPicker1').IUI('citySelector',{
 		        container: 'body',
 		        isCityMode: true,     //城市省份模式，true城市，false省份，默认城市
 		        isSearchMode: true,   //开启搜索模式，true为搜索与点选，false为不搜索与点选，默认搜索与点选
@@ -168,6 +112,11 @@
 		        selectCall: function(){console.log('selectCall trriger');},
 		        hideCall: function(){console.log('hideCall trriger');}
 		    });
+
+		     $('#cityPicker2').IUI('citySelector');
+
+
+
 		});
 	</script>
 

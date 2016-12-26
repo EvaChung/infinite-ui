@@ -13,14 +13,24 @@ $.extend({
             obj: '#message',
             data: null,         //插入后台的data数据
             timeout: 3000,       //设置多少时间隐藏提示
-            status: true
+            status: false,
+            hideCall: function() {}
         }, options);
         var obj = param.obj instanceof $ ? param.obj : $(param.obj);
         var status = param.status ? 'success' :'error';
         var msg = '';           //提示信息
 
         if(param.data.error.constructor !== Object){
-            console.log('验证已经全部通过，不再执行往下方法');
+            //'验证已经全部通过，不再执行往下方法'
+            if(param.data.info !== '新增成功' || param.data.info !== '修改成功') {
+                msg = param.data.info;
+                $.alert({
+                    obj: obj,
+                    text: msg,
+                    timeout: param.timeout,
+                    status: param.status
+                });
+            }
             return false;
         }
 
@@ -40,25 +50,16 @@ $.extend({
                     }
                 });
                 if(msg){
-                    showerrow(msg);
+                    $.alert({
+                        obj: obj,
+                        text: msg,
+                        timeout: param.timeout,
+                        status: param.status,
+                        callback: param.hideCall
+                    });
                     return false;
                 }
             });
-        }
-
-        function showerrow (text) {
-
-            var count = obj.data('count') || 1;
-
-            clearTimeout(obj.data('count'));
-
-            obj.html('<span class="'+status+'">'+text+'</span>').removeClass('hide none');
-
-            obj.data('count',setTimeout(function() {
-
-                obj.addClass('none');
-
-            }, param.timeout));
         }
     }
 });
