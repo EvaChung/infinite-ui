@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/wap.css">
+    <script src="http://cdn.bootcss.com/jquery/1.8.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/iui.wap.js"></script>
+    <style type="text/css">
+    body {
+        margin: 15% 0 0;
+        text-align: center;
+    }
+    img{
+        max-width: 100% !important;
+    }
+    a:hover,
+    a:active,
+    a:focus {
+        text-decoration: none;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="text-info">打开控制台可以查看callback</div>
+    <br>
+    <a href="javascript:;" class="btn btn-default btn-md J-layer-0">layer-static</a>
+    <a href="javascript:;" class="btn btn-default btn-md J-layer-1">layer-ajax</a>
+    <a href="javascript:;" class="btn btn-default btn-md J-layer-2">layer-cutto</a>
+    <script type="text/html" id="tpl-one">
+        <!-- layer header -->
+        <div class="layer-header clearfix">
+            <div class="pull-left">
+                <div class="layer-title">标题</div>
+            </div>
+            <div class="pull-right">
+                <a href="javascript:;" class="btn-close icon-close"></a>
+            </div>
+        </div>
+        <!-- layer header end -->
+        <!-- layer body -->
+        <div class="layer-body">
+            这是弹层一
+        </div>
+        <!-- layer body end -->
+        <!-- layer footer -->
+        <div class="layer-footer">
+            <button type="button" class="btn btn-primary btn-sm btn-next">切换</button>
+            <button type="button" class="btn btn-default btn-sm btn-close" data-dismiss="modal">取消</button>
+        </div>
+        <!-- layer footer end -->
+    </script>
+    <script type="text/html" id="tpl-two">
+        <!-- layer header -->
+        <div class="layer-header clearfix">
+            <div class="pull-left">
+                <div class="layer-title">标题</div>
+            </div>
+            <div class="pull-right">
+                <a href="javascript:;" class="btn-close icon-close"></a>
+            </div>
+        </div>
+        <!-- layer header end -->
+        <!-- layer body -->
+        <div class="layer-body">
+            这是弹层二
+        </div>
+        <!-- layer body end -->
+        <!-- layer footer -->
+        <div class="layer-footer">
+            <button type="button" class="btn btn-primary btn-sm btn-prev">切换</button>
+            <button type="button" class="btn btn-default btn-sm btn-close" data-dismiss="modal">取消</button>
+        </div>
+        <!-- layer footer end -->
+    </script>
+    <script type="text/html" id="tpl-static">
+        <!-- layer header -->
+        <div class="layer-header clearfix">
+            <div class="pull-left">
+                <div class="layer-title">标题</div>
+            </div>
+            <div class="pull-right">
+                <a href="javascript:;" class="btn-close icon-close"></a>
+            </div>
+        </div>
+        <!-- layer header end -->
+        <!-- layer body -->
+        <div class="layer-body">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Table heading</th>
+                        <th>Table heading</th>
+                        <th>Table heading</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Table cell</td>
+                        <td>Table cell</td>
+                        <td>Table cell</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Table cell</td>
+                        <td>Table cell</td>
+                        <td>Table cell</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Table cell</td>
+                        <td>Table cell</td>
+                        <td>Table cell</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- layer body end -->
+        <!-- layer footer -->
+        <div class="layer-footer">
+            <button type="button" class="btn btn-primary btn-sm btn-confirm">确定</button>
+            <button type="button" class="btn btn-default btn-sm btn-close" data-dismiss="modal">取消</button>
+        </div>
+        <!-- layer footer end -->
+    </script>
+    <script type="text/javascript">
+    /**
+     * static layer demo
+     * 静态层是指层内容片段已经存在于dom结构中，layer的作用是负责显示/隐藏
+     */
+    var layerStatic = $('#layer-static').IUI('layer', {
+        trigger:'touchstart',
+        offsetWidth:'100%',
+        content: $('#tpl-static').html()
+    });
+
+    // layerStatic === $('#layer-static').data('layer')   // true
+
+    $('.J-layer-0').click(function(event) {
+        layerStatic.showLayer();
+    });
+
+
+
+    /**
+     * ajax layer demo
+     *
+     * 先初始化一个没有 content 的Layer
+     * #layer-ajax 是随意拟定的，最终生成的layer Id 就是 #layer-ajax
+     * 由于是本站是Jekyll搭建的静态页，success 返回的只是一段html,需要将res转为json-object,在实际项目中并不需要。
+     */
+
+    var layerAjax = $('#layer-ajax').IUI('layer', {
+        trigger:'touchstart',
+        offsetWidth:'100%',
+        url: 'https://xieranmaya.github.io/images/cats/cats.json',
+        cache: false,
+        successCall: function(res, xhr, layer) {
+            var html = '';
+            $.each(JSON.parse(res), function(index, item) {
+                html += '<img src="https://xieranmaya.github.io/images/cats/' + item.url + '">';
+                if (index === 5) {
+                    return false;
+                }
+            });
+            this.find('.layer-content').html(html);
+        },
+        confirmCall: function(event, layer) {
+            this.find('form').off('submit').on('submit', function(event) {
+                event.preventDefault();
+                $.alert({
+                    text: '<span style="margin-right:10px;font-size:20px;" class="glyphicon glyphicon-ok-sign"></span>触发表单提交事件'
+                });
+            }).trigger('submit');
+        },
+        cancelCall: function(event, layer) {
+            $.alert({
+                text: '<span style="margin-right:10px;font-size:20px;" class="glyphicon glyphicon-ok-sign"></span>触发关闭事件'
+            });
+        }
+    });
+
+    $('.J-layer-1').click(function(event) {
+        layerAjax.ajaxLoad();
+    });
+
+    /**
+     * cutto layer demo
+     * 两个不同层之间切换的用法
+     */
+
+    var layerOne = $('#layer-one').IUI('layer', {
+        trigger:'touchstart',
+        offsetWidth:'100%',
+        content: $('#tpl-one').html()
+    });
+
+    var layerTwo = $('#layer-two').IUI('layer', {
+        trigger:'touchstart',
+        offsetWidth:'100%',
+        content: $('#tpl-two').html()
+    });
+
+
+    $('.J-layer-2').click(function(event) {
+        layerTwo.showLayer();
+    });
+
+    $('body').on('click', '.btn-prev', function(event) {
+        event.preventDefault();
+        layerTwo.cutTo('#layer-one');
+    });
+
+    $('body').on('click', '.btn-next', function(event) {
+        event.preventDefault();
+        layerOne.cutTo('#layer-two');
+    });
+    </script>
+</body>
+
+</html>

@@ -4,17 +4,20 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
 	<title>tokenize</title>
-	<link rel="stylesheet" href="../dist/style-pc.css">
-	<script src="../src/jquery.js"></script>
-	<script src="../src/js/index.js"></script>
-	<script src="../src/js/tokenize.js"></script>
+	<link rel="stylesheet" type="text/css" href="/pc.css">
+    <script src="http://cdn.bootcss.com/jquery/1.8.1/jquery.min.js"></script>
+	<script src="/iui.pc.js"></script>
 	<style>
+        html,body{
+            overflow-y: auto;
+        }
 		pre {
 		    overflow: auto;
 		    word-wrap: normal;
 		    margin: 0;
-		    padding: .85em 1em;
-		    margin-bottom: 1.275em;
+		    padding: .85em 20px;
+            margin-top: 100px;
+		    margin-bottom: 10px;
 		    background: #f7f7f7;
 		    font-size: 14px;
 		    line-height: 24px;
@@ -48,231 +51,215 @@
 		body{
 			width: 80%;
 			margin: 0 auto;
+            padding-bottom: 200px;
 		}
 	</style>
 </head>
 <body>
-	<p>2016年03月11日</p>
-	<h1>tokenize组件</h1>
-	<h2>Intro</h2>
-	<p>标签式下拉框组件</p>
-	<h2>Author</h2>
-	<pre>concat:674166705@qq.com</pre>
-	<h2>Options</h2>
-	<pre>
- /**
- * tokenize 组件
- * @param  {boolean} readOnly 为true的时候，其他所有option失效
- * @return {string}   contain 默认为'.tokenize'，共有上下文
- * @param  {string} remove 如果为'no-remove'，表示不能删除初始化就选中的token
- * @param  {number} maxLength 最多可以输入多少个字符进行搜索，默认是10
- * @param  {string} placeholder input的placeholder
- * @param  {boolean} expand 是否展开二级菜单，默认 true
- * @param  {function} overLimitCount 选择超过限制个数触发
- * @return {function}   existToken 已经存在标签触发
- * @return {function}   searchCallback 搜索后的回调函数
- * @return {function}   beforeChoice 选择前回调函数
- * @return {function}   choiceCallback 选择token回调
- * @return {function}   removeCallback 移除token回调
- * .tokenize
- *     select
- *     .token
- *         .token-item
- *         input
- *     .tokenize-level
- *         .tokenize-level-item
- * .tokenize
- *     select
- *     .token
- *         .token-item
- *         input
- *     .tokenize-level1
- *         .tokenize-level1-item
- *             ul.tokenize-level2
- *                 .tokenize-level2-item2
- */
- /*
-    多级必须有optgroup 必须有label属性
- */
-	</pre>
-	<pre>
-自定义属性有：
-data-showAll: 为空点击是否显示下拉，默认是
-data-create: 不存在token时，是否自动创建，默认是
-data-limitCount: 显示选择的个数，默认是无限
-	</pre>
-	<h2>Demo1</h2>
-	<div>
-		<div class="demo1-html">
-			<div id="tokenize-l1" class="tokenize">
-				<select multiple name="tokenize-demo" id="" class="hide">
-					<optgroup label="这个示例是多级的">
-						<option selected="selected" value="默认选中">默认选中</option>
-						<option selected="selected" class="no-remove" value="d d d">默认选中,并且不能删除</option>
-						<option class="no-remove" value="d d d">a默认不选中,选中就不能删除</option>
-						<option value="点击弹出下拉">为空默认点击弹出下拉</option>
-						<option value="不限制选择个数">默认不限制选择个数</option>
-						<option value="多级是不能自动创建的">多级是不能自动创建的</option>
-						<option value="一级默认是能创建">一级默认是能创建</option>
-						<option value="支持限制token的字符长度，默认是20个">支持限制token的字符长度，默认是20个</option>
-					</optgroup>
-					<optgroup label="标题2">
-						<option value="selected">selected表示默认选中</option>
-						<option value="no-remove">no-remove表示不能删除</option>
-						<option value="有个搜索回调函数也不错哦">有个搜索回调函数也不错哦</option>
-					</optgroup>
-				</select>
-			</div>
-		</div>
-		<div class="h-pre">
-			<a class="j-sp" href="javascript:;">html code</a>
-			<pre>
-				<div class="demo1-html">
-
-				</div>
-			</pre>
-		</div>
-		<div class="h-pre">
-			<a class="j-sp" href="javascript:;">js code</a>
-			<pre>
-				<div class="demo1-js">
-
-				</div>
-			</pre>
-		</div>
-	</div>
-
-
-
-
-	<h2>Demo2<small>（输入a方便测试）</small></h2>
-	<div>
-		<div class="demo2-html">
-			<div id="tokenize-l2" class="tokenize" data-showAll="false" data-create="true" data-limitCount="2">
-				<select multiple name="tokenize-demo" id="" class="hide">
-					<option value="默认选中">a默认不选中</option>
-					<option class="no-remove" value="d d d">a默认不选中,选中就不能删除</option>
-					<option value="点击不弹出下拉">a为空点击不弹出下拉</option>
-					<option value="限制选择个数">a限制选择个数2</option>
-					<option value="一级默认是能创建">a一级默认是能创建</option>
-				</select>
-			</div>
-		</div>
-		<div class="h-pre">
-			<a class="j-sp" href="javascript:;">html code</a>
-			<pre>
-				<div class="demo2-html">
-
-				</div>
-			</pre>
-		</div>
-		<div class="h-pre">
-			<a class="j-sp" href="javascript:;">js code</a>
-			<pre>
-				<div class="demo2-js">
-
-				</div>
-			</pre>
-		</div>
-	</div>
-	<h2>Remak</h2>
-	<div>
-		<p>上面的例子的js可以合并为一个</p>
-		<pre>
-		<div class="demo3-js">
-
-		</div>
-		</pre>
-		<div class="hide demo3-js">
-			$('.tokenize').tokenize({
-				overLimitCount: function($err){
-					alert('只能选择' + $err.data('limitCount') + '个token')
-				},
-				existToken: function($err){
-					var value = $err.find('input').val();
-					alert(value + '已经存在')
-				},
-				searchCallback: function(){
-					console.log('搜索了')
-				},
-				choiceCallback: function(){
-					console.log('选择了');
-				},
-				removeCallback: function(){
-					console.log('去除了');
-				}
-			});
-
-		</div>
-	</div>
+    <h2> Demo</h2>
+    <div>
+        <pre style="margin-top: 20px;">
+多选
+拥有禁用某一项功能
+拥有选择的不可撤销功能
+        </pre>
+        <div class="tokenize-mul-1">
+            <select class="hide" name="" id="" multiple placeholder="请选择">
+            </select>
+        </div>
+    </div>
+    <div>
+        <pre>
+多选
+        </pre>
+        <div class="tokenize-mul-2">
+            <select class="hide" name="" id="mul-2" multiple placeholder="请选择">
+                <option value="2">2</option>
+                <option value="3" selected="true">我是默认选中的</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+            </select>
+        </div>
+    </div>
+    <div>
+        <pre>
+这个具有默认选项，只读模式
+        </pre>
+         <div class="tokenize-sin-1">
+             <select name="" id="" class="hide" placeholder="请选择：测试placeholder">
+                <option value="1" selected="selected">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+            </select>
+        </div>
+    </div>
+    <div>
+        <pre>
+单选
+这个具有默认选项
+        </pre>
+         <div class="tokenize-sin-2">
+             <select name="" id="" class="hide" placeholder="请选择：测试placeholder">
+                <option value="1" selected="selected">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+            </select>
+        </div>
+    </div>
 
 	<script>
-	function setHtml(t){
-		var $a;
-		var k = 0,j = 1;
+	var json =  [
+		{
+            text: '标题',
+            value: 'e',
+            group: 'group1'
+        },
+        {
+            text: '我是禁用的',
+            value: '1',
+           // selected: 'selected',
+            remove: 0,
+            disabled: 'disabled',
+            group: 'group1'
+        },
+        {
+            text: '选择我你就不能取消了，只对多选有效',
+            value: '2',
+            group: 'group1',
+            remove: '0'
+        },
+        {
+            text: '标题二',
+            value: '4',
+            group: 'group2'
+        },
+        {
+            text: '本例最多选择三个',
+            value: '3',
+            group: 'group2'
+        },
+        {
+            text: '打开控制台查看回调结果',
+            value: '4',
+            group: 'group2'
+        },
+        {
+            text: '5',
+            value: '5',
+            group: 'group2'
+        },
+        {
+            text: '6',
+            value: '6',
+            group: 'group2'
+        },
+        {
+            text: '7',
+            value: '7',
+            group: 'group2'
+        },
+        {
+            text: '8',
+            value: '8',
+            group: 'group2'
+        },
+        {
+            text: '9',
+            value: '9',
+            group: 'group2'
+        },
+        {
+            text: '10',
+            value: '10',
+            group: 'group2'
+        }
+    ];
+	$('.tokenize-mul-1').tokenize({
+        data: json,
+        limitCount: 3,
+		overLimitCount: function(){
+			console.log('超出了');
+		},
+        beforeChoice: function(){
+            console.log('beforeChoice');
+        },
+        choice: function(){
+            console.log('choice');
+        },
+        remove: function(){
+            console.log('remove');
+        }
+	});
 
-		if (t === '-html') {
-			k = 1;
-			j = 0;
-		}
+    $('.tokenize-mul-2').tokenize({
+        limitCount: 3,
+        overLimitCount: function(){
+            console.log('超出了');
+        },
+        beforeChoice: function(){
+            console.log('beforeChoice');
+        },
+        choice: function(){
+            console.log('choice');
+        },
+        remove: function(){
+            console.log('remove');
+        }
+    });
 
-		for (var i = 1; i <= 3; i++) {
-			$a = $('.demo' + i + t);
-			$a.eq(k).text($a.eq(j).html());
-		}
-	}
-	setHtml('-html');
-	</script>
+    $('.tokenize-sin-1').tokenize({
+        readOnly: true,
+        limitCount: 1,
+        input: '<input type="text" maxLength="20" placeholder="请输入搜索">',
+        overLimitCount: function(){
+            console.log('超出了');
+        },
+        beforeChoice: function(){
+            console.log('beforeChoice');
+        },
+        choice: function(){
+            console.log('choice');
+        },
+        remove: function(){
+            console.log('remove');
+        }
+    });
 
-	<script class="demo1-js">
-		$('#tokenize-l1').tokenize({
-			placeholder: '1',
-			overLimitCount: function($err){
-				alert('只能选择' + $err.data('limitCount') + '个token')
-			},
-			existToken: function($err){
-				var value = $err.find('input').val();
-				alert(value + '已经存在')
-			},
-			searchCallback: function(){
-				console.log('搜索了')
-			},
-			choiceCallback: function(){
-				console.log('选择了');
-			},
-			removeCallback: function(){
-				console.log('去除了');
-			}
-		});
-
-	</script>
-	<script class="demo2-js">
-		$('#tokenize-l2').tokenize({
-			placeholder: '2',
-			overLimitCount: function($err){
-				alert('只能选择' + $err.data('limitCount') + '个token')
-			},
-			existToken: function($err){
-				var value = $err.find('input').val();
-				alert(value + '已经存在')
-			},
-			searchCallback: function(){
-				console.log('搜索了')
-			},
-			choiceCallback: function(){
-				console.log('选择了');
-			},
-			removeCallback: function(){
-				console.log('去除了');
-			}
-		});
-
-	</script>
-	<script>
-		setHtml('-js');
-		$('.j-sp').click(function(event) {
-			$(this).parent().toggleClass('h-pre');
-		});
+     $('.tokenize-sin-2').tokenize({
+        limitCount: 1,
+        input: '<input type="text" maxLength="20" placeholder="请输入搜索">',
+        overLimitCount: function(){
+            console.log('超出了');
+        },
+        beforeChoice: function(){
+            console.log('beforeChoice');
+        },
+        choice: function(){
+            console.log('choice');
+        },
+        remove: function(){
+            console.log('remove');
+        }
+    });
 	</script>
 
 </body>

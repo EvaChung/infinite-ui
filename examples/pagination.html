@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>pagination - iui</title>
+    <link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/pc.css">
+    <script src="../src/jquery.js"></script>
+    <script type="text/javascript" src="./ext/arttemplate.js"></script>
+    <script type="text/javascript" src="/node_modules/mockjs/dist/mock.js"></script>
+    <script type="text/javascript" src="/iui.pc.js"></script>
+    <style type="text/css">
+    body {
+        padding: 20px;
+    }
+    
+    a:hover,
+    a:active,
+    a:focus {
+        text-decoration: none;
+    }
+
+    .J-pagination{
+        text-align: right;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="clearfix" style="background-color: #ddd;padding: 15px;">
+        <form class="form-inline">
+            <!-- 当前页数 -->
+            <input type="hidden" name="curPage" value="1">
+            <!-- 每页条数 -->
+            <input type="hidden" name="pageSize" value="15">
+            <!-- 升序降序 -->
+            <input type="hidden" name="orderBy" value="1">
+            <div class="form-group">
+                <input type="text" class="form-control" name="id" placeholder="这是一个假搜索">
+            </div>
+            <button type="submit" class="btn btn-default">Search</button>
+        </form>
+    </div>
+    <table class="table table-bordered" role="mySite">
+        <thead>
+            <tr>
+                <th width="90">序号</th>
+                <th>网站名称</th>
+                <th>站点域名</th>
+                <th>行业类别</th>
+                <th>状态</th>
+                <th>按站点名称</th>
+                <th width="240">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <div class="J-pagination"></div>
+    <script type="text/javascript">
+    // 拦截AJAX，模拟静态数据
+    var Random = Mock.Random;
+
+    Mock.mock('/login',{
+
+    });
+
+    Mock.mock(/demo\.json/, {
+        "flag": true,
+        "retCode": "10000",
+        "msg": "成功",
+        "time": Random.date('yyyy-MM-dd hh:mm:ss'),
+        "data": {
+            "dataList|15-15": [{
+                "comState|0-1": 1,
+                "createTime": function(){return Random.date('2017-MM-dd hh:mm:ss');},
+                "secondeTrade": function(){return Random.city(true).replace(' ',' - ');},
+                "comId|+1": 2000002016,
+                "comName": function(){
+                    return Random.cword()+Random.cword()+Random.cword()+Random.cword() ;
+                },
+                "comDomain": function(){
+                    return Random.url('http');
+                },
+                "codeState|0-2": 1
+            }],
+            "page": {
+                "pageCount": 50,
+                "total": 1000,
+                "pageSize": function(){
+                    return Number($('[name="pageSize"]').val());
+                },
+                "thisPage": function(){
+                    return Number($('[name="curPage"]').val());
+                }
+            }
+        },
+        "other": null
+    });
+    </script>
+
+    <script type="text/html" id="list-mysite">
+    <!-- 使用百度JS模板引擎：arttemplate -->
+      {{each dataList as value i}}
+        <tr>
+          <td>{{(page.thisPage-1)*page.pageSize + (i+1)}}</td>
+          <td class="c999">{{value.comName}}</td>
+          <td><a href="{{value.comDomain}}" target="_blank">{{value.comDomain}}</a></td>
+          <td>{{value.firstTrade}} {{value.secondeTrade}}</td>
+          <td><span class="{{statusClass[value.codeState]}}">{{status[value.codeState]}}</span></td>
+          <td>{{value.createTime}}</td>
+          <td class="operate">
+            <a href="/pv/stat/overView?comId={{value.comId}}">查看报告</a>
+            <a href="/pv/cominfo/jsCode?comId={{value.comId}}">获取代码</a>
+            <a href="/pv/cominfo/baseCominfo?comId={{value.comId}}">设置</a>
+            <a href="/pv/cominfo/state?comId={{value.comId}}">{{value.comState == 1 ? '关闭' : '开启'}}</a>
+          </td>
+        </tr>
+      {{/each}}
+    </script>
+
+
+    <script type="text/javascript">
+        
+    // 分页表单查询
+    (function() {
+        var $searchForm = $('.form-inline');
+
+        var url = $searchForm.attr('action');
+
+        var page = $('.J-pagination').IUI('pagination', {
+            url: $searchForm.attr('action'),
+            param: $searchForm.serialize()
+        });
+
+        $searchForm.on('submit', function(event) {
+            event.preventDefault();
+            console.log($searchForm.serializeArray());
+            page.get($searchForm.serialize());
+        });
+
+        $('.J-pagination').on('get.success', function(event, res, pagination) {
+            var $this = $(this);
+            var data = res.data;
+            var msg =  res.msg;
+            console.log(res)
+            if (!res.flag) {
+                $.tip({
+                    text: '后端抛出异常，请联系开发人员。',
+                    status: 0,
+                    timeout: 1500
+                });
+                if (res.retCode === 'F108') {
+                    location.href = SITE_PATH + '/user/login';
+                }
+                return false;
+            }
+            // *
+            //  * total     : 总计数
+            //  * curPage   : 当前页数
+            //  * pageSize  : 每页显示条数
+            //  * pageCount : 总计页数
+
+            var mapping = {
+                total: data.page.total,
+                curPage: data.page.thisPage,
+                pageSize: data.page.pageSize,
+                pageCount: data.page.pageCount
+            };
+
+            pagination.render(mapping);
+
+            $.pub('pagination', [$this, mapping, data]);
+
+        });
+
+        $.sub('pagination', function(event, page, mapping, data) {
+            var $target = $('table');
+            var dictionary = {
+                status: [ '未检测到代码', '代码安装失败', '代码安装成功'],
+                statusClass: ['text-danger', 'text-warning', 'text-success'],
+                type: ['', '管理员', '查看用户', '自定义']
+            };
+
+            var list = 'list-mysite';
+            var html = template(list, $.extend(data, dictionary));
+
+            if(page.data('target')){
+                $('.wrap-inner').scrollTop($(page.data('target')).scrollTop());
+            }
+
+            $('.table').find('tbody').html(html);
+
+        });
+
+        $('form').trigger('submit');
+    }());
+    </script>
+</body>
+
+</html>

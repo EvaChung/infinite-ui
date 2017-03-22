@@ -1,17 +1,45 @@
- module.exports = {
-     entry: './examples/es2015/one.js',
-     output: {
-         path: './dist/',
-         filename: 'es2015.build.js',
-     },
-     module: {
-         loaders: [{
-             test: /\.jsx?$/, // 匹配'js' or 'jsx' 后缀的文件类型
-             exclude: /(node_modules|bower_components)/, // 排除某些文件
-             loader: 'babel', // 使用'babel-loader'也是一样的
-             query: { // 参数
-                 presets: ['es2015']
-             }
-         }]
-     }
- }
+let VERSION = '1.3.0';
+let webpack = require('webpack');
+let ExtractTextPlugin = require('extract-text-webpack-plugin');
+
+module.exports = {
+    entry: {
+        'pc': './iui-webpack/entry.pc.js',
+        'wap': './iui-webpack/entry.wap.js'
+    },
+    output: {
+        path: __dirname + '/dist',
+        filename: 'iui.[name].js'
+    },
+    plugins: [
+        // new webpack.optimize.UglifyJsPlugin(),
+        new ExtractTextPlugin('./[name].css')
+    ],
+    // externals: {
+    //     // require("jquery") is external and available
+    //     //  on the global var jQuery
+    //     "jquery": "jQuery"
+    // }
+    module: {
+        loaders: [{
+                test: /\.js$/,
+                loader: 'babel-loader',
+                query: {
+                    presets: ['es2015']
+                }
+            },
+            { test: /\.(ttf|eot|svg|woff|woff2)(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: "file-loader" }, 
+            {
+                test: /\.scss$/,
+                loader: ExtractTextPlugin.extract('style', 'css!sass?sourceComments=true')
+            }
+        ]
+    },
+    devServer: {
+        contentBase: __dirname,
+        compress: true,
+        port: 9000,
+        inline: true,
+        host: '0.0.0.0'
+    }
+};

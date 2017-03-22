@@ -70,7 +70,7 @@ $.fn.IUI({
             },
             maxLength: function(params) {
                 //小于
-                if (this.self[0].value.length < params.maxLength) {
+                if (this.self[0].value.length > params.maxLength) {
                     return false;
                 }
             },
@@ -359,6 +359,7 @@ $.fn.IUI({
             var collections = glob.cache[$this.data('required')];
             var matches = collections.matches;
             var status = false;
+
             /**
              * @param {String}      name        验证函数名
              * @param {Object}      params      验证字段（自定义字段）：errMsg、range
@@ -371,13 +372,10 @@ $.fn.IUI({
                 return status === 2 ? false : true;
             });
 
-
-
             $this.trigger('validate.' + eventName, collections);
 
             return status;
         };
-
 
         /**
          * [message description]

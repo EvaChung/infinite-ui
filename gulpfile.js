@@ -2,7 +2,6 @@ var gulp = require('gulp');
 var header = require('gulp-header');
 var footer = require('gulp-footer');
 var concat = require('gulp-concat');
-var remember = require('gulp-remember');
 var prettify = require('gulp-jsbeautifier');
 var compress = require('gulp-yuicompressor');
 var rename = require('gulp-rename');
@@ -126,5 +125,5 @@ gulp.task('fresh', function() {
 
 gulp.task('watch', ['browser-sync', 'sass', 'fresh'], function() {
   gulp.watch(['./examples/**/*.html', './src/js/*.js','./examples/**/*.js','./dist/**/*.css'], ['fresh']);
-   gulp.watch('./src/sass/*.scss', ['sass','fresh']);
+   gulp.watch('./src/**/*.scss', ['sass','fresh']);
 });

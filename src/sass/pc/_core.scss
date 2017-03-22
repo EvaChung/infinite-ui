@@ -18,11 +18,24 @@ $dialog-content-font:normal 14px/1.8 "微软雅黑";
 $dialog-footer-font:normal 18px/1.2 "微软雅黑";
 $dialog-width:400px;
 
-$tooltip-trbl-1:50%;
-$tooltip-trbl-2:-10px;
-$tooltip-margin:-5px;
-$tooltip-border-1:10px solid #3f403b;
-$tooltip-border-2:5px solid transparent;
+
+@include keyframes (iui-fadeIn) {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@include keyframes (iui-fadeOut) {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
 
 
 %backdrop {

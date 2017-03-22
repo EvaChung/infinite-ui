@@ -1,126 +1,40 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-    <head>
-		<meta http-equiv="X-UA-Compatible" content="IE=Edge">
-    	<meta charset="UTF-8">
-        <!-- External CSS -->
-        <link rel="stylesheet" href="../dist/style-pc.css">
-        <!-- In-document CSS -->
-        <style>
+<html lang="en">
 
-			.J_tip a{
-				display: inline-block;
-				padding: 5px;
-				text-decoration: none;
-				color:#000;
-				border-radius: 5px;
-				border:1px solid #000;
-			}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/pc.css">
+    <script src="http://cdn.bootcss.com/jquery/1.8.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/iui.pc.js"></script>
+    <style type="text/css">
+    body {
+        margin: 15% 0 0;
+        text-align: center;
+    }
+    img{
+        max-width: 100% !important;
+    }
+    a:hover,
+    a:active,
+    a:focus {
+        text-decoration: none;
+    }
+    </style>
+</head>
 
-			pre{
-				background-color: #f6f6f6;
-	          	padding: 15px;
-	          	line-height: 1.4
-			}
-		</style>
-    </head>
-    <body>
-    	<pre>
-            var defaults = {
-                showHandle: 'mouseenter',
-                hideHandle: 'mouseleave',
-                custom: false,
-                customHtml: '',
-                direc: 'top',
-                leftOffset: 0,
-                topOffset: 0,
-                className: '',
-                showCallback: function(){},
-                hideCallback: function(){},
-                list: {
-                    'tip1': {
-                        custom: false,
-                        customHtml: '',
-                        direc: 'top',
-                        leftOffset: 0,
-                        topOffset: 0,
-                        className: '',
-                        showCallback: function(){},
-                        hideCallback: function(){}
-                    }
-                }
-            };
-        </pre>
-    	<div class="J_tip">
-    		tooltip插件，包括
-    		<a href="javascript:;" data-tooltip="tip1">上面弹出</a>
-    		<a href="javascript:;" data-tooltip="tip2">右面弹出</a>
-    		<a href="javascript:;" data-tooltip="tip3">下面弹出</a>
-    		<a href="javascript:;" data-tooltip="tip4">左面弹出</a>
-            <a href="javascript:;" data-tooltip="tip5">左上弹出</a>
-            <a href="javascript:;" data-tooltip="tip6">右上弹出</a>
-            <a href="javascript:;" data-tooltip="tip7">左下弹出</a>
-            <a href="javascript:;" data-tooltip="tip8">右下弹出</a>
-    	</div>
+<body>
+    <div class="text-info">打开控制台可以查看callback</div>
+    <br>
+    <a href="javascript:;" data-tooltip="hello world!" data-tooltip-options="left|small"  class="btn btn-default btn-md">tooltip - left - small</a>
+    <a href="javascript:;" data-tooltip="文字内容比较多，需要换行这些情况演示！" data-tooltip-options="right|small" class="btn btn-default btn-md">tooltip - right - small</a>
+    <a href="javascript:;" data-tooltip="您网站的独立访客数(以Cookie为依据)，一小时内同一访客多次访问网站只被计算1次，即累加每小时的网站独立访客数。" data-tooltip-options="up|large" class="btn btn-default btn-md">tooltip - up - large</a>
+    <a href="javascript:;" data-tooltip="历史上首次访问网站的访客为新访客。&#10;以下三种情况会记为新的访问：&#10;1. 访客关闭浏览器后重新进入您的网站；&#10;2. 访客不关闭浏览器，但是在您网站上不活动超过30分钟，&#10;30分钟后访客再次点击您网站上的链接；&#10;3. 访客任何时候从其他网站到达您的网站。数。" data-tooltip-options="down|large" class="btn btn-default btn-md">tooltip - down - large</a>
+    <script type="text/javascript">
+        $.tooltip();
+    </script>
+</body>
 
-        <!-- JavaScript -->
-        <script src="../src/jquery.js"></script>
-        <!-- <script src="../src/js/tooltip.js"></script> -->
-		<script src="../dist/iui.js"></script>
-        <script>
-        	var options = {
-                className: 'zoomIn',
-            	list: {
-                    'tip1': {
-                        content: '两级参数控制<br>可以给tooltip添加自定义类名'
-                    },
-                   'tip2': {
-                        direc: 'right',
-                        className: 'fadeIn',
-                        custom: true,
-                        customHtml: '<span style="position: relative;left:-21px;color:#fff;background-color:#000">&lt;&lt;&lt;</span>',
-                        content: '可以自定义arrow'
-                    },'tip3': {
-                        content: 'data-tooltip的值和list的键名是对应的',
-                        leftOffset: 0,
-                        topOffset: 0,
-                        direc: 'bottom',
-                        className: ''
-                    },'tip4': {
-                        content: '设置了偏移',
-                        leftOffset: 10,
-                        topOffset: 10,
-                        direc: 'left',
-                        className: 'fadeIn'
-                    },'tip5': {
-                        content: '偏移量20px',
-                        leftOffset: 20,
-                        topOffset: 20,
-                        direc: 'topLeft',
-                        className: ''
-                    },'tip6': {
-                        content: 'tip1',
-                        leftOffset: 20,
-                        topOffset: 20,
-                        direc: 'topRight',
-                        className: ''
-                    },'tip7': {
-                        content: 'tip1',
-                        leftOffset: 20,
-                        topOffset: 20,
-                        direc: 'bottomLeft',
-                        className: ''
-                    },'tip8': {
-                        content: '，支持动态元素，可以调节提示的位置（距离），鼠标移到左边的四个按钮可以看到效果。',
-                        leftOffset: 20,
-                        topOffset: 20,
-                        direc: 'bottomRight',
-                        className: ''
-                    }
-                }
-        	};
-	    	//$('.J_tip').tooltip(options);
-            $('.J_tip').IUI('tooltip', options);
-    	</script>
-    </body>
 </html>

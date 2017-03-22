@@ -8,6 +8,7 @@
  * @param {Function}               callback            回调函数 - hide 时触发
  *
  */
+
 $.extend({
     alert: function(options) {
         var param = $.extend({

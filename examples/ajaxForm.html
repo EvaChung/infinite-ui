@@ -1,32 +1,174 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="components">
 
 <head>
     <meta charset="utf-8">
+    <title>Document</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/pc.css">
+    <script src="http://cdn.bootcss.com/jquery/1.8.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/iui.pc.js"></script>
+    <style type="text/css">
+    body {
+        padding: 20px;
+    }
+    
+    html#components body .code-area:after {
+        clear: both;
+    }
+    
+    html#components body .code-area .code-box {
+        border: 1px solid #e9e9e9;
+        border-radius: 6px;
+        float: left;
+        width: 48%;
+        min-width: 600px;
+        margin: 0 2% 16px 0;
+        -webkit-transition: all .2s ease;
+        transition: all .2s ease;
+    }
+    
+    html#components body .code-area .code-box.full {
+        width: 100%;
+        margin-right: 0;
+    }
+    
+    html#components body .code-area .code-box .code-box-demo {
+        border-bottom: 1px solid #e9e9e9;
+        padding: 42px 20px 50px;
+    }
+    
+    html#components body .code-area .code-box .code-box-demo .memo {
+        background-color: #eae3e3;
+        padding: 20px;
+        margin-top: 20px;
+    }
+    
+    html#components body .code-area .code-box .code-box-demo .memo p {
+        margin: 0;
+        padding: 0;
+    }
+    
+    html#components body .code-area .code-box .code-box-meta {
+        position: relative;
+        padding: 17px 16px 15px 20px;
+        border-radius: 0 0 6px 6px;
+        -webkit-transition: background-color .4s ease;
+        transition: background-color .4s ease;
+        width: 100%;
+        font-size: 12px;
+    }
+    
+    html#components body .code-area .code-box .code-box-meta .code-box-title {
+        position: absolute;
+        top: -14px;
+        padding: 1px 8px;
+        margin-left: -8px;
+        color: #777;
+        border-radius: 6px;
+        background: #e9e9e9;
+        border: 1px solid #e9e9e9;
+        -webkit-transition: background-color .4s ease;
+        transition: background-color .4s ease;
+    }
+    
+    html#components body .code-area .code-box .code-box-meta .code-box-open {
+        position: absolute;
+        right: 20px;
+        bottom: 16px;
+        font-size: 12px;
+        outline: none;
+    }
+    
+    html#components body .code-area .code-box .highlight-wrapper {
+        display: none;
+        padding: 0 20px 10px;
+        border-top: 1px dashed #e9e9e9;
+    }
+    
+    html#components body .code-area .code-box .highlight-wrapper pre {
+        background-color: transparent;
+        border: none;
+    }
+    
+    html#components body .code-area ul > li {
+        list-style: none;
+    }
+    
+    html#components body .code-area ul > li:empty {
+        display: none;
+    }
+    
+    html#components body .code-area ul li {
+        margin-left: 0;
+        padding-left: 4px;
+    }
+    </style>
 </head>
 
 <body>
-    <form action="/examples/ajaxForm.html" data-ajaxType="ajax2">
-    <input type="hidden" name="name" value="1">
-        <button>ajax2</button>
-    </form>
-     <form action="/examples/ajaxForm.html">
-        <input type="hidden" name="name" value="1">
-        <button>ajax</button>
-    </form>
-    <script src="../src/jquery.js"></script>
-    <script src="../dist/iui.js"></script>
+    <div class="code-area">
+        <div class="code-box full">
+            <div class="code-box-demo">
+                <form role="form" class="form-ajaxSubmit">
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Email address</label>
+                        <input type="text" name="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">Password</label>
+                        <input type="password" name="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="remember"> Check me out
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-default btn-sm">Submit</button>
+                </form>
+                <div class="memo J-memo"></div>
+            </div>
+        </div>
+    </div>
     <script>
-        $('form').each(function(index, el) {
-            $(el).IUI('ajaxForm', {
-                success: function(){
-                    console.log(this.attr('data-ajaxType'));
-                }
-            });
-        });
+    /**
+     * ajax 请求顺序如下：
+     *  before -> success/error -> always
+     *  pending 出现在服务端接受request后，还未response的时候
+     *  所有回调的this都指向form表单
+     */
+
+    $('.form-ajaxSubmit').IUI('ajaxForm', {
+        before: function(event, config) {
+            // this => $form
+            // return false can prevent submit
+            mark('trigger before callback,    ajax-data:' + this.serialize());
+        },
+        success: function(response, config) {
+            // this => $form
+            mark('trigger success callback');
+        },
+        pending: function(config) {
+            // this => $form
+            mark('trigger pending callback');
+        },
+        error: function(error, config) {
+            // this => $form
+            mark('trigger error callback');
+        },
+        always: function(response, config) {
+            // this => $form
+            mark('trigger alway callback');
+        }
+    });
+
+
+    // 输出记录
+    function mark(text) {
+        $('.J-memo').append($('<p>' + text + '</p>'));
+    }
     </script>
 </body>
 

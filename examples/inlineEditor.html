@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>IUI inlineEditor Demo</title>
+    <meta charset='utf-8'>
+    <link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/pc.css">
+    <script src="//cdn.bootcss.com/jquery/1.8.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/iui.pc.js" chartset="UTF-8"></script>
+    <style type="text/css">
+    body {
+        padding: 10%
+    }
+    </style>
+    <script type="text/html" id="toolbar">
+        <div class="inlineEditor-toolbar" contenteditable="false">
+            <div class="content" contenteditable="false">
+                <div contenteditable="false">
+                    <button contenteditable="false" editor-command="font" class="fa fa-font"> </button>
+                </div>
+                <div contenteditable="false">
+                    <button contenteditable="false" editor-command="bold" class="fa fa-bold"> </button>
+                </div>
+                <div contenteditable="false">
+                    <button contenteditable="false" editor-command="italic" class="fa fa-italic"> </button>
+                </div>
+                <div contenteditable="false">
+                    <button contenteditable="false" editor-command="underline" class="fa fa-underline"> </button>
+                </div>
+                <div contenteditable="false">
+                    <button contenteditable="false" editor-command="header" class="fa fa-header"> </button>
+                </div>
+                <div contenteditable="false">
+                    <button contenteditable="false" editor-command="list" class="fa fa-list"> </button>
+                </div>
+                <div contenteditable="false">
+                    <button contenteditable="false" editor-command="list-ol" class="fa fa-list-ol"> </button>
+                </div>
+                <div contenteditable="false">
+                    <button contenteditable="false" editor-command="chain" class="fa fa-chain"> </button>
+                </div>
+                <div contenteditable="false">
+                    <button contenteditable="false" editor-command="align-left" class="fa fa-align-left"> </button>
+                </div>
+                <div contenteditable="false">
+                    <button contenteditable="false" editor-command="align-center" class="fa fa-align-center"> </button>
+                </div>
+                <div contenteditable="false">
+                    <button contenteditable="false" editor-command="align-right" class="fa fa-align-right"> </button>
+                </div>
+            </div>
+            <!-- <div contenteditable="false" class="link-area">
+                <input contenteditable="false" type="text"></input>
+                <button contenteditable="false"> </button>
+            </div> -->
+        </div>
+    </script>
+</head>
+
+<body>
+    <div class="editor" contenteditable>
+        <h1>IUI inlineEditor DEMO</h1>
+        <p>A simple, clean and elegant text editor. Inspired by the awesomeness of <a href="http://medium.com" target="_blank">Medium</a>.</p>
+        <p>This jQuery plugin is released under the MIT license. You can check out the project and see how extremely simple it is to use this editor on your application by clicking on the Github ribbon on the top corner of this page. Feel free to contribute with this project by registering any bug that you may encounter as an issue on Github, and working on the issues that are already there. I'm looking forward to seeing your pull request!</p>
+        <p>Now, just take a time to test the editor. Yes, <b>this div is the editor</b>. Try to edit this text, select a part of this text and don't forget to try the basic text editor keyboard shortcuts.</p>
+    </div>
+    <textarea class="form-control" rows="5">This jQuery plugin is released under the MIT license. You can check out the project and see how extremely simple it is to use this editor on your application by clicking on the Github ribbon on the top corner of this page. Feel free to contribute with this project by </textarea>
+    <br>
+    <br>
+    <br>
+    <input type="text" class="form-control" value="This jQuery plugin is released under the MIT license. You can check out the project and see how extremely simple it is to use this editor on your application by clicking on the Github ribbon on the top corner of this page. Feel free to contribute with this project by ">
+</body>
+<script type="text/javascript">
+$(function(){
+    $.inlineEditor({
+    el: '.editor'
+});
+})
+</script>
+
+</html>

@@ -5,125 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
     <title>Document</title>
-    <link rel="stylesheet" href="../dist/style-mobi.css">
+     <link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/wap.css">
+    <script src="http://cdn.bootcss.com/jquery/1.8.1/jquery.min.js"></script>
+    <script src="./ext/json.js"></script>
+    <script src="./ext/jsonExchange.js"></script>
+    <script type="text/javascript" src="/iui.wap.js"></script>
     <style type="text/css">
-    /*.mPicker-hide{
-        visibility: hidden;
-    }
 
-    .slide-wapper {
-        overflow-y: scroll;
-    }
-
-    .slide-item {
-        background: #EAC8AE;
-    }
-    .hide{
-        display: none;
-    }
-    .mr10{
-        margin-right:10px;
-    }
-    .mPicker-pr{
-        position: relative;
-    }
-    .mPicker-mask{
-        position: fixed;
-        top:0;
-        left:0;
-        right:0;
-        bottom:0;
-        z-index: 9998;
-        background: #000;
-        opacity: .7;
-    }
-    .mPicker-active-box{
-        position: absolute;
-        top:50%;
-        width: 100%;
-        z-index: 998;
-        border-top:1px solid #ccc;
-        border-bottom:1px solid #ccc;
-    }
-    .mPicker-main{
-        box-sizing:border-box;
-        position: fixed;
-        bottom:0;
-        left:0;
-        width: 100%;
-        z-index: 9999;
-        -webkit-transition: all .2s ease-out;
-            transition: all .2s ease-out;
-    }
-    .mPicker-main.down{
-        transform:translateY(100%);
-        -webkit-transform:translateY(100%);
-    }
-    .mPicker-header{
-        position: relative;
-        height:60px;
-        line-height:60px;
-        text-align: center;
-        background: #fff;
-    }
-    .mPicker-content{
-        overflow: hidden;
-        z-index:999;
-        background: #FFF;
-        position: relative;
-
-    }
-
-    .mPicker-content ul{
-        width: 100%;
-        float:left;
-        text-align: center;
-        position: relative;
-        z-index: 999;
-        overflow-x: hidden;
-        list-style:none;
-        margin:0;
-        padding: 0;
-    }
-    .mPicker-content li{
-        padding-left:3%;
-        padding-right: 3%;
-        height:40px;
-        line-height: 40px;
-        color:#999;
-        -webkit-transition: all .2s ease-out;
-        transition: all .2s ease-out;
-    }
-
-    .mPicker-content li.active{
-        color:#333;
-        -webkit-transform:scale(1.2);
-        transform:scale(1.2);
-    }
-
-    .mPicker-content.level-2 ul{
-        width: 50%;
-    }
-    .mPicker-confirm,.mPicker-cancel{
-        position: absolute;
-        top:0;
-        color:#333;
-        padding:0 20px;
-        display: block;
-        text-decoration: none;
-    }
-    .mPicker-cancel{
-        left: 5%;
-    }
-    .mPicker-confirm{
-        right:5%;
-    }
-    .mPicker-input-mask{
-        position: absolute;
-        top:0;
-        left:0;
-        z-index: 2;
-    }*/
     /*自定义样式*/
     body,html{
         margin: 0;
@@ -171,11 +60,6 @@
 
         </div>
     </div>
-    <script src="../src/jquery.js"></script>
-    <script src="./ext/json.js"></script>
-    <script src="./ext/jsonExchange.js"></script>
-    <script src="../dist/iui.js"></script>
-    <script src="../src/js/mpicker.js"></script>
     <script chartset="UTF-8">
     $(function() {
         /**
@@ -189,7 +73,7 @@
             rows:6,
             idDefault:true,
             splitStr:'-',
-            header:'<div class="mPicker-header">1这是真的<a href="javascript:;" class="mPicker-cancel">取消</a><a href="javascript:;" class="mPicker-confirm">确定</a></div>',
+            header:'<div class="mPicker-header">这是标题1</div>',
             confirm:function(){
                 //更新json
                 this.container.data('mPicker').updateData(level3);
@@ -217,6 +101,7 @@
             rows:5,
             Linkage:false,
             idDefault:true,
+            header:'<div class="mPicker-header">这是标题2</div>',
             confirm:function(){
                 //console.info($('.select-value2').data('id1')+'-'+$('.select-value2').data('id2')+'-'+$('.select-value2').data('id3'));
             }
@@ -231,7 +116,7 @@
             Linkage:false,
             rows:6,
             idDefault:true,
-            header:'<div class="mPicker-header">3这是真的<a href="javascript:;" class="mPicker-cancel">取消</a><a href="javascript:;" class="mPicker-confirm">确定</a></div>',
+            header:'<div class="mPicker-header">这是标题3</div>',
             confirm:function(){
                 //console.info($('.select-value3').data('id1'));
             },

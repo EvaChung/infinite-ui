@@ -1,102 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-	<title>tokenize</title>
-	<link rel="stylesheet" href="../dist/style-mobi.css">
-	<script src="../src/jquery.js"></script>
-	<script src="../src/js/loading.js"></script>
-	<style>
-
-		.loading{
-			position: relative;
-			width: 200px;
-			height: 200px;
-			background-color: #ddd;
-		}
-		pre{
-			padding: 20px;
-			background-color: #ddd;
-		}
-	</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>loading - iui</title>
+    <link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/pc.css">
+    <script src="../src/jquery.js"></script>
+    <script type="text/javascript" src="/iui.pc.js"></script>
+    <style type="text/css">
+    body {
+        margin: 15% 0 0;
+        text-align: center;
+    }
+    
+    a:hover,
+    a:active,
+    a:focus {
+        text-decoration: none;
+    }
+    </style>
 </head>
+
 <body>
-	<div>
-		<pre>
-	var defaults = {
-            display: false,
-            type: 'css',
-            animateHtml: '&lt;div class="ball-clip-rotate"&gt;&lt;div&gt;&lt;/div&gt;&lt;/div&gt;',
-            src: 'http://img.yi114.com/201571121314_382.gif',
-            shadow: true
-        };
-		</pre>
-	</div>
-	<h2>示例一(有阴影，css动画)</h2>
-    <pre>
-        $('.loading1').loading(true, 'css');
-        或者
-        $('.loading1').loading({
-            display: true,
-            type: 'css'
-        });
-    </pre>
-	<div class="loading1 loading">
+    <div class="text-info">打开控制台可以查看callback</div>
+    <br>
+    <div class="code-box-demo">
+        <a href="javascript:;" class="btn btn-default btn-md J-loading-css">显示 css3 loading</a>
+        <a href="javascript:;" class="btn btn-default btn-md J-loading-img">显示 gif loading</a>
+        <a href="javascript:;" class="btn btn-default btn-md J-loading-context">局部 loading</a>
+        <!-- <a href="javascript:;" class="btn btn-default btn-md J-loading">show loading to button</a> -->
+        <div class="memo J-memo" style="position: relative;width:200px;height: 200px;border:1px #ccc solid; margin: 0 auto;top:100px">
 
-	</div>
-
-
-	<h2>示例二（有阴影，img动画）</h2>
-    <pre>
-        $('.loading2').loading(true, 'css');
-        或者
-        $('.loading2').loading({
-            display: true,
-            type: 'img'
-        });
-    </pre>
-	<div class="loading2 loading">
-
-	</div>
-	<h2>示例三(无阴影，css动画)</h2>
-    <pre>
-        $('.loading3').loading({
-            display: true,
-            type: 'css',
-            shadow: false
-        });
-    </pre>
-	<div class="loading3 loading">
-
-	</div>
-
-
-	<h2>示例四（无阴影，css图片动画）</h2>
-    <pre>
-        $('.loading3').loading({
-            display: true,
-            type: 'css',
-            shadow: false
-        });
-    </pre>
-    <div class="loading4 loading" style="width: 50px;height: 50px;">
-        <button style="width: 50px;height: 50px;">确定</button>
+        </div>
     </div>
-	<script>
-        $('.loading1').loading(true, 'css');
-        $('.loading2').loading(true, 'img');
-		$('.loading3').loading({
-			display: true,
-			type: 'css',
-			shadow: false
-		});
-		$('.loading4').loading({
-            display: true,
-            type: 'css',
-            shadow: false
-        })
-       // $.loading(true, 'css');
-	</script>
+    <script type="text/javascript">
+    $('.J-loading-css').on('click', function(event) {
+        event.preventDefault();
+        $(this).blur();
+        console.log('弹出 css3 loading');
+        $.loading(true, true);
+        setTimeout(function() {
+            $.loading(false);
+            console.log('关闭 loading');
+        }, 2000);
+    });
+
+    $('.J-loading-img').on('click', function(event) {
+        event.preventDefault();
+        $(this).blur();
+        console.log('弹出 css3 loading');
+        $.loading(true, false);
+        setTimeout(function() {
+            $.loading(false);
+            console.log('关闭 loading');
+        }, 2000);
+    });
+
+
+    $('.J-loading-context').on('click', function(event) {
+        event.preventDefault();
+        var $this = $(this);
+        if ($this.data('lock')) {
+            return false;
+        }
+        $this.data('lock', 1).blur();
+        console.log('弹出 css3 loading');
+        $('.J-memo').loading(true, true);
+        setTimeout(function() {
+            $this.data('lock', 0);
+            $('.J-memo').loading(false);
+            console.log('关闭 loading');
+        }, 2000);
+    });
+
+    </script>
 </body>
+
 </html>

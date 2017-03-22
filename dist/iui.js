@@ -160,6 +160,7 @@
      * @param {Function}               callback            回调函数 - hide 时触发
      *
      */
+
     $.extend({
         alert: function(options) {
             var param = $.extend({
@@ -498,7 +499,7 @@
                 data: '',
                 method: 'GET',
                 content: '',
-                animateDisable: true,
+                animateDisable: false,
                 zIndex: 0,
                 showCall: function() {},
                 hideCall: function() {},
@@ -1124,7 +1125,7 @@
                 },
                 maxLength: function(params) {
                     //小于
-                    if (this.self[0].value.length < params.maxLength) {
+                    if (this.self[0].value.length > params.maxLength) {
                         return false;
                     }
                 },
@@ -1419,6 +1420,7 @@
                 var collections = glob.cache[$this.data('required')];
                 var matches = collections.matches;
                 var status = false;
+
                 /**
                  * @param {String}      name        验证函数名
                  * @param {Object}      params      验证字段（自定义字段）：errMsg、range
@@ -1431,13 +1433,10 @@
                     return status === 2 ? false : true;
                 });
 
-
-
                 $this.trigger('validate.' + eventName, collections);
 
                 return status;
             };
-
 
             /**
              * [message description]

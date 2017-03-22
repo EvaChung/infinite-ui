@@ -2,7 +2,21 @@
 utils：通用方法
 */
 
-var isIE = document.all && !window.atob;
+var ievs = (function getInternetExplorerVersion() {
+    var rv = null;
+    if (navigator.appName == 'Microsoft Internet Explorer') {
+        var ua = navigator.userAgent;
+        var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+        if (re.exec(ua) != null)
+            rv = parseFloat(RegExp.$1);
+    } else if (navigator.appName == 'Netscape') {
+        var ua = navigator.userAgent;
+        var re = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
+        if (re.exec(ua) != null)
+            rv = parseFloat(RegExp.$1);
+    }
+    return rv;
+})();
 window.IUI_UTILS = {
     animateEnd: 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend',
     transitionEnd: 'webkitTransitionEnd transitionend oTransitionEnd MSTransitionEnd msTransitionEnd',
@@ -79,32 +93,32 @@ window.IUI_UTILS = {
     },
     scrollBarWidth: (function() {
         var scrollbarWidth;
-            var $scrollDiv = $('<div/>');
-            $scrollDiv.css({
-                'width': 100,
-                'height': 100,
-                'overflow': 'scroll',
-                'position': 'absolute',
-                'top': -9999
-            });
-            $('html').append($scrollDiv);
-            scrollbarWidth = $scrollDiv[0].offsetWidth - $scrollDiv[0].clientWidth;
-            $scrollDiv.remove();
-            return scrollbarWidth;
+        var $scrollDiv = $('<div/>');
+        $scrollDiv.css({
+            'width': 100,
+            'height': 100,
+            'overflow': 'scroll',
+            'position': 'absolute',
+            'top': -9999
+        });
+        $('html').append($scrollDiv);
+        scrollbarWidth = $scrollDiv[0].offsetWidth - $scrollDiv[0].clientWidth;
+        $scrollDiv.remove();
+        return scrollbarWidth;
     }()),
-    animateEndShim:function(el, fn,animateDisable) {
-        if (isIE || animateDisable) {
+    animateEndShim: function(el, fn, animateDisable) {
+        if (ievs < 10 || animateDisable) {
             fn();
         } else {
             el.on(IUI_UTILS.animateEnd, fn);
         }
     },
-    transitionEndShim:function(el,fn,animateDisable){
-      if(isIE || animateDisable){
-        fn();
-      }else{
-        el.on(IUI_UTILS.transitionEnd,fn);
-      }
+    transitionEndShim: function(el, fn, animateDisable) {
+        if (ievs < 10 || animateDisable) {
+            fn();
+        } else {
+            el.on(IUI_UTILS.transitionEnd, fn);
+        }
     }
 };
 

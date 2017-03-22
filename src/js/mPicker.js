@@ -625,7 +625,7 @@ $.fn.IUI({
             if (obj[0].style.WebkitTransform) {
                 result = parseInt(transZRegex.exec(obj[0].style.WebkitTransform)[1]);
             } else if (obj[0].style.transform) {
-                result = parseInt(transZRegex.exec(obj[0].style.transforms)[1]);
+                result = parseInt(transZRegex.exec(obj[0].style.transform)[1]);
             }
             return result;
         }

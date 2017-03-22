@@ -2,85 +2,70 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <title>Document</title>
-  <link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
-  <link rel="stylesheet" type="text/css" href="/dist/style-pc.css">
-  <style type="text/css">
-  h1 {
-    padding: 20px;
-  }
-
-  p {
-    padding: 0 20px;
-  }
-
-  span {
-    color: gray;
-    opacity: 0.5;
-  }
-
-  .email-item-custom:hover,
-  .email-item-custom.checked {
-    background-color: #c3ec60;
-    border-radius: 0px;
-  }
-
-  .email-item-custom {
-    padding: 8px 10px;
-    border-bottom: 1px #bff51c solid;
-    cursor: pointer;
-    font-size: 16px;
-  }
-  </style>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/pc.css">
+    <script src="http://cdn.bootcss.com/jquery/1.8.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/iui.pc.js"></script>
+    <style type="text/css">
+    body {
+        margin: 15% 0 0;
+        text-align: center;
+    }
+    </style>
 </head>
 
 <body>
-  <h1>EmailSuffix</h1>
-  <p>This is an example of EmailSuffix plugin in iui library, which based on jquery.</p>
-  <p>It is mainly used for automatic completion of e-mail address.</p>
-  <p>You can find the iui library in github.</p>
-  <p>Please visit: <a href="https://github.com/Janking/infinite-ui" target="_blank">https://github.com/Janking/infinite-ui</a></p>
-  <hr/>
-  <form class="form-horizontal">
-    <div class="form-group">
-      <label for="" class="col-sm-1 control-label">邮箱1:</label>
-      <div class="col-sm-3">
-        <input type="email" id="email" class="form-control" placeholder="请输入您的邮箱地址">
-        <span>（默认配置）</span>
-      </div>
+    <div class="text-info">打开控制台可以查看callback</div>
+    <br>
+    <div>
+        <form class="form-horizontal">
+            <div style="vertical-align: top">
+                <label class="control-label">邮箱:</label>&nbsp;&nbsp;&nbsp;
+                <input type="email" id="email2" class="form-control" style="width:300px;display: inline-block;" placeholder="请输入您的邮箱地址"> &nbsp;&nbsp;
+                <button class="btn btn-default" style="vertical-align: top;">弹出层</button>
+            </div>
+        </form>
     </div>
-    <div class="form-group">
-      <label for="" class="col-sm-1 control-label">邮箱2:</label>
-      <div class="col-sm-3">
-        <input type="email" id="email2" class="form-control" placeholder="请输入您的邮箱地址">
-        <span>（自定义配置email-item-custom）</span>
-      </div>
-    </div>
-  </form>
-  <script src="//cdn.bootcss.com/jquery/1.8.1/jquery.min.js"></script>
-  <script type="text/javascript" src="../dist/iui.js"></script>
-  <script type="text/javascript">
-  $("#email").IUI('emailSuffix');
+    <script type="text/html" id="tpl-emailsuffix">
+        <div class="layer-header">
+            <div class="layer-title">弹层展示Emailsuffix</div>
+        </div>
+        <div class="layer-body" style="text-align:left">
+            <form role="form">
+                <div class="form-group">
+                    <input type="email" id="email" class="form-control" placeholder="请输入您的邮箱地址">
+                </div>
+            </form>
+        </div>
+    </script>
+    <script type="text/javascript">
+    $("#email2").IUI('emailSuffix', {
+        style: 'global',
+        current: 'checked',
+        emails: ['me.com', 'tom.com', 'aliyun.com', 'qq.com', 'gmail.com', 'sina.com', '163.com', '189.com', '189.com', 'sohu.com'],
+        checkedCall: function() {
+            //测试：报警输出选中
+            console.log('你选择了：' + $(this).val());
+        }
+    });
 
-  $("#email2").IUI('emailSuffix', {
-    container: '.form-group',
-    style: 'global',
-    item: 'email-item-custom',
-    current: 'checked',
-    emails: ['me.com', 'tom.com', 'aliyun.com', 'qq.com', 'gmail.com', 'sina.com', '163.com', '189.com', '189.com', 'sohu.com'],
-    delay: 300,
-    // 建议不修改以下注释的内容
-    // offsetLeft: $(this).offset().left,
-    // offsetTop: $(this).offset().top,
-    // offsetWidth: $(this).outerWidth(),
-    // offsetHeight: $(this).outerHeight(),
-    checkedCall: function() {
-      //测试：报警输出选中
-      alert($(this).val());
-    }
-  });
-  </script>
+    var layerStatic = $('#layer-emailsuffix').IUI('layer', {
+        offsetWidth: 650,
+        content: $('#tpl-emailsuffix').html()
+    });
+
+    $('.btn-default').on('click', function(event) {
+        event.preventDefault();
+        layerStatic.showLayer();
+        $("#email").IUI('emailSuffix', {
+            style: 'nested',
+            offsetLeft: 0,
+            offsetTop: 10,
+        });
+    });
+    </script>
 </body>
 
 </html>

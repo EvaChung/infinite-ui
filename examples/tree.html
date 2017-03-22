@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+   <!--  <link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/bootstrap/3.1.1/css/bootstrap.min.css"> -->
+    <link rel="stylesheet" type="text/css" href="/pc.css">
+    <script type="text/javascript" src="/src/jquery.js"></script>
+    
+</head>
+
+<body>
+    <div class="J-activeBox select-input"></div>
+    <div class="J-select" ><i class="fa fa-plus-square-o"></i></div>
+    <br>
+    <br>
+    <br>
+    <div class="J-select-2 select-input"></div>
+    
+    <script type="text/javascript" src="/iui.pc.js"></script>
+    <script type="text/javascript" chartset="UTF-8">
+         var treeExample=$('.J-select').IUI('tree',{
+            //isMulti:false,
+            // itemIcon:['fa-circle-o'],
+            // titleIcon:['fa-plus-square-o','fa-minus-square-o'],
+            activeBoxEle:'.J-activeBox',
+            afterRemove:function(val){
+                console.info(val)
+            },
+            afterSelected:function(val){
+                //获取完整路径
+                console.info(treeExample.getPath())
+            },
+        });   
+
+        var treeExample2=$('.J-select-2').IUI('tree',{
+            //isMulti:false,
+            itemIcon:['fa-circle-o'],
+            titleIcon:['fa-plus-square-o','fa-minus-square-o'],
+            afterRemove:function(val){
+                console.info(val)
+            },
+            afterSelected:function(val){
+                //获取完整路径
+                console.info(treeExample2.getPath())
+            },
+        });         
+    </script>
+
+</body>
+
+</html>

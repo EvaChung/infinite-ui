@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<title>intercept</title>
+	<link rel="stylesheet" type="text/css" href="/pc.css">
+    <script src="http://cdn.bootcss.com/jquery/1.8.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/iui.pc.js"></script>
+	<style>
+        html,body{
+            overflow: visible;
+        }
+		pre {
+		    overflow: auto;
+		    word-wrap: normal;
+		    margin: 0;
+		    padding: .85em 20px;
+            margin-top: 100px;
+		    margin-bottom: 10px;
+		    background: #f7f7f7;
+		    font-size: 14px;
+		    line-height: 24px;
+		}
+		.hide{
+			display: none;
+		}
+        .dib{
+            display: inline-block;
+            width: 365px;
+            vertical-align: top;
+            overflow: hidden;
+            margin-top: -26px;
+        }
+        .dib>div{
+            float: left;
+            width: 33.33%;
+            overflow: hidden;
+        }
+		.h-pre pre{
+			display: none;
+		}
+		.j-sp{
+			text-decoration: none;
+			color: #333;
+			line-height: 24px;
+		}
+		.j-sp:after{
+			display: inline-block;
+			content: '';
+			width: 10px;
+			height: 10px;
+			border-left: 1px solid #333;
+			border-bottom: 1px solid #333;
+			transform: rotate(135deg);
+			margin-left: 5px;
+			margin-bottom: -4px;
+		}
+		.h-pre .j-sp:after{
+			transform: rotate(-45deg);
+			margin-bottom: 2px;
+		}
+		body{
+			width: 80%;
+			margin: 0 auto;
+            padding-bottom: 200px;
+		}
+
+        .pr{
+            margin-left: 100px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .intercept{
+            display: inline-block;
+            width: 200px;
+            height: 200px;
+            border: 1px solid #ddd;
+        }
+
+        .intercept-type{
+            position: absolute;
+            right: 100%;
+            top: 0;
+        }
+
+        .intercept-type a{
+            color: #333;
+            text-decoration: none;
+            margin-right: 10px;
+            padding: 8px 10px;
+            display: inline-block;
+            width: 80px;
+            border-bottom: 1px solid #ddd;
+            background-color: #f2f2f2;
+        }
+
+        .intercept-type a.active{
+            color: #fff;
+            background-color: #0092FF;
+        }
+
+        .demo .pr{
+            width: 204px;
+        }
+        .demo input[type="text"]{
+            width: 80px;
+            margin-left: 10px;
+        }
+        .demo .dib{
+            text-align: right;
+        }
+	</style>
+</head>
+<body>
+    <h2>多个选框（只能固定选框）</h2>
+    <form action="" class="demo">
+        <div class="pr">
+            <div class="intercept intercept1">
+                <!-- <img class="intercept-target" src="http://placehold.it/300x200/09f/fff.png" alt=""> -->
+             <img class="intercept-target" src="http://img.yi114.com/2017025103917_icon2.png" alt="">
+            </div>
+            <div class="intercept-type">
+                <a size="40*40" href="javascript:;" class="active">40*40首页图片</a>
+                <a size="80*60" href="javascript:;" class="">80*60列表</a>
+                <a size="150*100" href="javascript:;">150*100大图</a>
+            </div>
+            <input type="file">
+        </div>
+        <div class="dib">
+            <div>
+                <p>80*20</p>
+                l<input type="text"><br>
+                t<input type="text"><br>
+                w<input type="text"><br>
+                h<input type="text">
+            </div>
+            <div>
+                <p>80*80</p>
+                l<input type="text"><br>
+                t<input type="text"><br>
+                w<input type="text"><br>
+                h<input type="text">
+            </div>
+            <div>
+                <p>150*100</p>
+                l<input type="text"><br>
+                t<input type="text"><br>
+                w<input type="text"><br>
+                h<input type="text">
+            </div>
+        </div>
+    </form>
+    <h2>不固定选择框</h2>
+    <form action="" class="demo">
+        <div class="pr">
+            <div class="intercept intercept2">
+                <img class="intercept-target" src="http://img.yi114.com/2017025103917_icon2.png" alt="">
+            <!--  <img class="intercept-target" src="http://img.yi114.com/hcs/company-zgtp/zgtp-banner.jpg" alt=""> -->
+            </div>
+            <input type="file">
+        </div>
+        <div class="dib" style="margin-top: 0">
+            <div class="intercept-preview" style="width: 120px; height: 120px;border: 1px solid #ddd">
+            </div>
+            <div class="intercept-preview" style="width: 80px; height: 80px;border: 1px solid #ddd;margin-left: 20px;">
+            </div>
+        </div>
+    </form>
+
+    <script>
+        $('.intercept1').intercept({
+            fixedWidth: true,
+            rangeHeight: 40,
+            rangeWidth: 40,
+            intercept: function(info){
+                var $inps = $('.demo input[type="text"]');
+                var data1 = info['4040'];
+                var data2 = info['8060'];
+                var data3 = info['150100'];
+
+                if (data1) {
+                    $inps.eq(0).val(data1.left);
+                    $inps.eq(1).val(data1.top);
+                    $inps.eq(2).val(data1.width);
+                    $inps.eq(3).val(data1.height);
+                }
+
+                if (data2) {
+                    $inps.eq(4).val(data2.left);
+                    $inps.eq(5).val(data2.top);
+                    $inps.eq(6).val(data2.width);
+                    $inps.eq(7).val(data2.height);
+                }
+
+                if (data3) {
+                    $inps.eq(8).val(data3.left);
+                    $inps.eq(9).val(data3.top);
+                    $inps.eq(10).val(data3.width);
+                    $inps.eq(11).val(data3.height);
+                }
+
+                if (!(data1 || data2 || data3)) {
+                    $inps.val('');
+                }
+            }
+        });
+        $('.intercept-type').on('click', 'a', function(event) {
+            var $this = $(this).siblings().removeClass('active').end().addClass('active');
+            var ranges = $(this).attr('size').split('*');
+            var intercept = $('.intercept').data('intercept');
+            var config = intercept.config;
+
+            config.rangeWidth = ranges[0]*1;
+            config.rangeHeight = ranges[1]*1;
+
+            intercept.reInit();
+        });
+
+        $('.intercept2').intercept({
+            maxRangeWidth: 150,
+            maxRangeHeight: 150,
+            $preview: $('.intercept-preview'),
+            intercept: function(info){
+                console.log(info);
+            }
+        });
+        $('input[type="file"]').change(function(event) {
+            var $this = $(this);
+            var file = $this[0].files[0];
+            if(URL && URL.createObjectURL){
+                var img = new Image();
+                var url = img.src = URL.createObjectURL(file);
+
+                img.onload = function(){
+                    $this.closest('form').find('img').attr('src', url);
+                    URL.revokeObjectURL(url);
+                };
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,22 +1,9 @@
-@mixin button-variant($color, $background, $border) {
-  color: $color;
-  background-color: $background;
-  border-color: $border;
+.dialog-opening{
+    @include animation(iui-fadeIn .2s ease-in forwards);
+}
 
-  &:focus,
-  &.focus {
-    color: darken($color,5%);
-    background-color: darken($background, 5%);
-        border-color: darken($border, 25%);
-        outline: none;
-    text-decoration: none;
-  }
-  &:hover {
-    color: darken($color,5%);
-    background-color: darken($background, 5%);
-        border-color: darken($border, 12%);
-    text-decoration: none;
-  }
+.dialog-closing{
+    @include animation(iui-fadeOut .2s ease-out forwards);
 }
 .IUI-dialog-backdrop {
     @extend %backdrop;
@@ -87,35 +74,18 @@
 
 .IUI-dialog-confirm,
 .IUI-dialog-cancel {
-    display: inline-block;
-    margin-bottom: 0;
-    font-weight: normal;
-    text-align: center;
-    vertical-align: middle;
-    touch-action: manipulation;
-    cursor: pointer;
-    background-image: none;
-    border: 1px solid transparent;
-    white-space: nowrap;
-    padding: 6px 12px;
-    font-size: 14px;
-    line-height: 1.42857;
-    border-radius: 4px;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    min-width:52px;
-    text-decoration: none;
+    @extend %button-init;
 }
 
 .IUI-dialog-confirm {
     margin-right:10px;
-    @include button-variant(#fff, #428bca, #428bca);
+    @include button-variant(#fff,#367AB7,#367AB7);
+    @include button-size(5px,10px,12px,1,3px);
 }
 
 .IUI-dialog-cancel {
-    @include button-variant(#333, #fff, #ccc);
+    @include button-variant(#fff,#C1BDC9,#C1BDC9);
+    @include button-size(5px,10px,12px,1,3px);
 }
 
 

@@ -2,106 +2,80 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Document</title>
-  <link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
-  <link rel="stylesheet" type="text/css" href="../dist/style-pc.css">
-  <style type="text/css">
-  /* css 可自由定制 */
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script type="text/javascript" src="/src/jquery.js"></script>
+    <script type="text/javascript" src="/iui.pc.js"></script>
+    <link rel="stylesheet" type="text/css" href="/pc.css">
+    <style type="text/css">
+    body {
+        margin: 25% 0 0;
+        text-align: center;
+    }
 
-  #message {
-    position: fixed;
-    margin-top: -30px;
-    top: 50%;
-    left: 0;
-    width: 100%;
-    text-align: center;
-    box-sizing: border-box;
-    z-index: 1110;
-  }
-
-  #message span {
-    background-color: rgba(0, 0, 0, 0.75);
-    padding: 15px;
-    color: #fff;
-    border-radius: 5px;
-  }
-
-  .alert-part{
-        position: absolute;
-        z-index: 10000;
-        border: 2px #222 solid;
-        background-color: #fff;
-        padding: 5px 20px;
-        font: 12px/normal "Microsoft Yahei";
-        color: #666;
-        text-align: left;
-  }
-  </style>
+    </style>
 </head>
 
 <body>
-  <div class="container">
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>First Name</th>
-          <th>Last Name</th>
-          <th>Username</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>1</td>
-          <td>Mark</td>
-          <td>Otto</td>
-          <td>@mdo</td>
-        </tr>
-        <tr>
-          <td>Mark</td>
-          <td>Otto</td>
-          <td>@TwBootstrap</td>
-          <td>@mdo</td>
-        </tr>
-        <tr>
-          <tr>
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>@TwBootstrap</td>
-            <td>@mdo</td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td id="alert-part"><a href="javascript:;" class="btn btn-primary" id="one">click me</a></td>
-            <td>Thornton</td>
-            <td>@fat</td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td colspan="2">Larry the Bird</td>
-            <td>@twitter</td>
-          </tr>
-      </tbody>
-    </table>
-    <a href="javascript:;" class="btn btn-primary" id="two">click me</a>
-    <script src="http://cdn.bootcss.com/jquery/1.8.1/jquery.min.js"></script>
-    <script type="text/javascript" src="../dist/iui.js"></script>
-    <script type="text/javascript" src="../src/js/alert.js"></script>
+    <div class="text-info">打开控制台可以查看callback</div><br>
+    <a href="javascript:;" class="btn btn-md btn-danger">显示 error</a>
+    <a href="javascript:;" class="btn btn-md btn-success">显示 success </a>
+    <a href="javascript:;" class="btn btn-md btn-info">显示 info</a>
+    <a href="javascript:;" class="btn btn-md btn-warning">显示 warnning</a>
     <script type="text/javascript">
-    $('#one').click(function(event) {
+    $('.btn-success').on('click', function(event) {
+        event.preventDefault();
+        $(this).blur();
         $.alert({
-            obj:'#alert-part',
-            text:'demo for part alert !',
-            offset:[5,5]
-        })
+            text: '<span style="margin-right:10px;font-size:20px;" class="glyphicon glyphicon-ok-sign"></span>This is a success message',
+            status: 1,
+            timeout: 1500,
+            callback: function() {
+                console.log('success - alert callback');
+            }
+        });
     });
-    $('#two').click(function(event) {
-      $.alert({
-        text: 'hello world!'
-      });
+
+    $('.btn-danger').on('click', function(event) {
+        event.preventDefault();
+        $(this).blur();
+        $.alert({
+            text: '<span style="margin-right:10px;font-size:20px;" class="glyphicon glyphicon-remove-sign"></span>This is a error message',
+            status: 0,
+            timeout: 1500,
+            callback: function() {
+                console.log('error - alert callback');
+            }
+        });
+    });
+
+    $('.btn-info').on('click', function(event) {
+        event.preventDefault();
+        $(this).blur();
+        $.alert({
+            text: '<span style="margin-right:10px;font-size:20px;" class="glyphicon glyphicon-info-sign"></span>This is a info message',
+            status: 2,
+            timeout: 1500,
+            callback: function() {
+                console.log('info - alert callback');
+            }
+        });
+    });
+
+    $('.btn-warning').on('click', function(event) {
+        event.preventDefault();
+        $(this).blur();
+        $.alert({
+            text: '<span style="margin-right:10px;font-size:20px;" class="glyphicon glyphicon-exclamation-sign"></span>This is a warning message',
+            status: 3,
+            timeout: 1500,
+            callback: function() {
+                console.log('warning - alert callback');
+            }
+        });
     });
     </script>
 </body>

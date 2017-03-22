@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+    <title>Document</title>
+     <link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/wap.css">
+    <script src="http://cdn.bootcss.com/jquery/1.8.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/iui.wap.js"></script>
+    <style type="text/css">
+
+    /*自定义样式*/
+    body,html{
+        margin: 0;
+        padding: 0;
+    }
+    .select-value,.select-value2{
+        width: 80%;
+        height: 30px;
+        border:1px solid #ccc;
+    }
+    p{
+        margin:0;
+        padding:0;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="slide-wapper">
+        <div class="slide-item">
+            <div class="console"></div>
+                <input type="text" class="select-value" value="" readonly="true" datePicker=''>
+                <br><br><br>
+                <input type="text" class="select-value2" value="0-2 1-4 2-11" readonly="true" datePicker='1'>
+
+
+                <br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br> 页面一<br>
+
+        </div>
+    </div>
+    <script chartset="UTF-8">
+        var json = [
+            {name: '0-1', value: '0-1', parentvalue: 0},
+                {name: '1-1', value: '1-1', parentvalue: '0-1'},
+                    {name: '2-1', value: '2-1', parentvalue: '1-1'},
+                    {name: '2-2', value: '2-2', parentvalue: '1-1'},
+                    {name: '2-3', value: '2-3', parentvalue: '1-1'},
+                {name: '1-2', value: '1-2', parentvalue: '0-1'},
+                    {name: '2-4', value: '2-4', parentvalue: '1-2'},
+                    {name: '2-5', value: '2-5', parentvalue: '1-2'},
+                    {name: '2-6', value: '2-6', parentvalue: '1-2'},
+            {name: '0-2', value: '0-2', parentvalue: 0},
+                {name: '1-3', value: '1-3', parentvalue: '0-2'},
+                    {name: '2-7', value: '2-7', parentvalue: '1-3'},
+                    {name: '2-8', value: '2-8', parentvalue: '1-3'},
+                    {name: '2-9', value: '2-9', parentvalue: '1-3'},
+                {name: '1-4', value: '1-4', parentvalue: '0-2'},
+                    {name: '2-10', value: '2-10', parentvalue: '1-4'},
+                    {name: '2-11', value: '2-11', parentvalue: '1-4'},
+                    {name: '2-12', value: '2-12', parentvalue: '1-4'},
+        ];
+
+        $(function() {
+            /**
+             * 联动的picker
+             * 两级
+             */
+            $('.select-value').IUI('datePicker',{
+                level: 3,
+                dataJson: json,
+                Linkage: false,
+                rows:3,
+                idDefault:true,
+                dateConfig: {
+                    open: true,
+                    dateLevel: 3,
+                    minTime: new Date('1981-1-1'),
+                    currentTime: '1991-1-1'
+                },
+                splitStr: /[-\s:]/g,
+                header:'<div class="datePicker-header">这是标题1</div>',
+                confirm:function(str){
+                    var splitStr = ' ';
+                    var level = this.options.dateConfig.dateLevel;
+                    var arr = str.split(this.options.splitStr);
+                    var tempStr = arr.splice(0, 3).join('-');
+                    this.container.val(tempStr + ' ' + arr.join(':'));
+                },
+                cancel:function(){
+                },
+                touchend: function($$, str){
+                    var splitStr = ' ';
+                    var level = this.options.dateConfig.dateLevel;
+                    var arr = str.split(this.options.splitStr);
+                    var tempStr = arr.splice(0, 3).join('-');
+                    $$.text(tempStr + ' ' + arr.join(':'));
+                }
+            });
+
+            $('.select-value2').IUI('datePicker',{
+                level:3,
+                dataJson: json,
+                Linkage:true,
+                rows:6,
+                idDefault:true,
+                //splitStr:'-',
+                header:'<div class="datePicker-header">这是标题1</div>',
+                confirm:function(){
+
+                },
+                cancel:function(){
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>

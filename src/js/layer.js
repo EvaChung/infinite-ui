@@ -60,7 +60,7 @@
                 data: '',
                 method: 'GET',
                 content: '',
-                animateDisable:true,
+                animateDisable:false,
                 zIndex:0,
                 showCall: function() {},
                 hideCall: function() {},

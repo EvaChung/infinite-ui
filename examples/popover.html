@@ -5,55 +5,65 @@
     <meta charset="UTF-8">
     <title>popover</title>
     <link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="/dist/style-pc.css">
+    <link rel="stylesheet" type="text/css" href="/pc.css">
+    <script src="../src/jquery.min.js"></script>
+    <script type="text/javascript" src="./ext/template.js"></script>
+    <script type="text/javascript" src="/iui.pc.js"></script>
     <style type="text/css">
-    	body{
-    		font:14px/1.5 'Microsoft Yahei';
-    	}
-    	.p20 {
-    		padding: 20px;
-    	}
-		.demo-1 {
-    		padding: 15px;
-		}
-		.demo-1 h4{
-			padding: 0;
-			margin: 0;
-			color: #333;
-			line-height: 1.5;
-
-		}
-    	.demo-1 ul {
-    		list-style: none;
-    		margin: 0;
-    		padding: 0;
-    		color: #666;
-    	}
-    	.demo-1 ul li{
-    		padding: 5px 0;
-    	}
+    body {
+        font: 14px/1.5 'Microsoft Yahei';
+    }
+    
+    .p20 {
+        padding: 20px;
+    }
+    
+    .demo-1 {
+        padding: 15px;
+    }
+    
+    .demo-1 h4 {
+        padding: 0;
+        margin: 0;
+        color: #333;
+        line-height: 1.5;
+    }
+    
+    .demo-1 ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        color: #666;
+    }
+    
+    .demo-1 ul li {
+        padding: 5px 0;
+    }
     </style>
+    <!-- 
+
+ -->
     <script type="text/html" id="tpl-one">
         <form role="form" class="p20">
-	      <div class="form-group">
-	        <label>Please enter your password !</label>
-	        <input type="password" class="form-control"  placeholder="password" required>
-	      </div>
-	      <div class="clearfix">
-	      	<div class="pull-right">
-	      	<button type="submit" class="btn btn-default btn-sm">Submit</button>
-	      </div>
-	      </div>
-	    </form>
+            <div class="form-group">
+                <label>Please enter your password !</label>
+                <input type="password" class="form-control" placeholder="password" required>
+            </div>
+            <div class="clearfix">
+                <div class="pull-right">
+                    <button type="submit" class="btn btn-default btn-sm">Submit</button>
+                </div>
+            </div>
+        </form>
     </script>
-    <script type="text/html" id="tpl-two" data-compiler="1">
+    <script type="text/html" id="tpl-two">
         <div class="demo-1">
-        	<h4>{{title}}</h4>
-	        <ul>
-	            {{each list as value i}}
-	            <li>索引 {{i + 1}} ：{{value}}</li>
-	            {{/each}}
-	        </ul>
+            <h4>{{title}}</h4>
+            <ul>
+                {{each list as value i}}
+                <li>索引 {{i + 1}} ：{{value}}</li>
+                {{/each}}
+            </ul>
         </div>
     </script>
 </head>
@@ -64,53 +74,61 @@
     <br>
     <br>
     <br>
-	<div id="wrapper" style="background-color: #dfdfdf;height: 750px;margin:0 50px;position: relative;">
-		
-	    <div style="text-align:center;position: absolute;top: 0;width: 100%">
-	        <a href="javascript:;" class="btn btn-sm btn-primary" data-popover="#tpl-one" >call  popover</a>
-	       	 <a href="javascript:;" class="btn btn-sm btn-primary pull-left" data-popover="##在原来的基础上增加了内容区域的渲染接口，支持各种模板引擎对界面的渲染及数据绑定，强制依赖 $.pub/sub 组件" data-ppHeader="Popover 简介">call  popover</a>      	 
-	       	 <a href="javascript:;" id="test" class="btn btn-sm btn-primary pull-right" data-popover="##与其他常见的Popover不一样的是：IUI Popover 不支持手动选择弹出方向，这个组件自动检测边界，完全没有手动的必要。" data-ppHeader="特别声明：">call  popover</a>
-	    </div>
-
-	    <div style="text-align:center;position: absolute;bottom: 0;width: 100%">
-	        <a href="javascript:;" class="btn btn-sm btn-primary" data-popover="#tpl-two" data-popoverid="1">call  popover</a>
-	       	 <a href="javascript:;" class="btn btn-sm btn-primary pull-left" data-popover="#tpl-two" data-popoverid="1">call  popover</a>      	 
-	       	 <a href="javascript:;" class="btn btn-sm btn-primary pull-right" data-popover="#tpl-two" data-popoverid="1">call  popover</a>
-	    </div>
-	</div>
     <br>
-    <script src="//cdn.bootcss.com/jquery/1.8.1/jquery.min.js"></script>
-    <script type="text/javascript" src="../dist/iui.js"></script>
-    <script type="text/javascript" src="./ext/template.js"></script>
-    <script type="text/javascript" src="../src/js/popover.js"></script>
+    <br>
+    <br>
+    <div id="wrapper" style="background-color: #dfdfdf;height: 550px;margin:0 400px;position: relative;">
+        <div style="text-align:center;position: absolute;top: 0;width: 100%">
+            <a href="javascript:;" class="btn btn-sm btn-primary" data-popover="#tpl-one" data-ppdirect="left-top">left-top</a>
+            <a href="javascript:;" class="btn btn-sm btn-primary pull-left" data-popover="##在原来的基础上增加了内容区域的渲染接口，支持各种模板引擎对界面的渲染及数据绑定，强制依赖 $.pub/sub 组件" data-ppheader="Popover 简介" data-ppdirect="left-middle">left-middle</a>
+            <a href="javascript:;" id="test" class="btn btn-sm btn-primary pull-right" data-popover="##本页例子用的是百度的artTemplate模板引擎，你也可以用其他的，目前主流的引擎都支持" data-ppheader="特别声明：" data-ppdirect="left-bottom">left-bottom</a>
+        </div>
+        <div style="text-align:center;position: absolute;top:30%;width: 100%">
+            <a href="javascript:;" class="btn btn-sm btn-primary" data-popover="#tpl-two" data-popoverid="1" data-ppdirect="up-left">up-left</a>
+            <a href="javascript:;" class="btn btn-sm btn-primary pull-left" data-popover="#tpl-two" data-popoverid="1" data-ppdirect="up-center">up-center</a>
+            <a href="javascript:;" class="btn btn-sm btn-primary pull-right" data-popover="#tpl-two" data-popoverid="1" data-ppdirect="up-right">up-right</a>
+        </div>
+        <div style="text-align:center;position: absolute;bottom:30%;width: 100%">
+            <a href="javascript:;" class="btn btn-sm btn-primary" data-popover="#tpl-two" data-popoverid="1" data-ppdirect="down-left">down-left</a>
+            <a href="javascript:;" class="btn btn-sm btn-primary pull-left" data-popover="#tpl-two" data-popoverid="1" data-ppdirect="down-center">down-center</a>
+            <a href="javascript:;" class="btn btn-sm btn-primary pull-right" data-popover="#tpl-two" data-popoverid="1" data-ppdirect="down-right">down-right</a>
+        </div>
+        <div style="text-align:center;position: absolute;bottom: 0;width: 100%">
+            <a href="javascript:;" class="btn btn-sm btn-primary" data-popover="#tpl-two" data-popoverid="1" data-ppdirect="right-middle">right-middle</a>
+            <a href="javascript:;" class="btn btn-sm btn-primary pull-left" data-popover="#tpl-two" data-popoverid="1" data-ppdirect="right-top">right-top</a>
+            <a href="javascript:;" class="btn btn-sm btn-primary pull-right" data-popover="#tpl-two" data-popoverid="1" data-ppdirect="right-bottom">right-bottom</a>
+        </div>
+    </div>
+    <br>
     <script type="text/javascript">
-    var data = {
-        title: '模板渲染实例',
-        list: ['文艺', '博客', '摄影', '电影', '民谣', '旅行', '吉他']
-    };
+var data = {
+    title: '模板渲染实例',
+    list: ['文艺', '博客', '摄影', '电影', '民谣', '旅行', '吉他']
+};
 
 
-    $.popover({
-    	container:'#wrapper',
-    	compiler:function(html,emitter){
-    		var compiler = template.compile(html);
-    		return compiler(emitter.data('data'));
-    	}
+$.popover({
+    container: '#wrapper',
+    compiler: function(html, emitter) {
+        var compiler = template.compile(html);
+        return compiler(emitter.data('data'));
+    }
+});
+
+$.sub('before.popover-1', function(event, popover, emitter) {
+    emitter.data('data', data);
+});
+
+
+$('body').on('submit', '[role="form"]', function(event) {
+    event.preventDefault();
+    $.dialog({
+        title: 'Tips:',
+        content: 'trigger submit event',
+        type: 'alert'
     });
-
-    $.sub('before.popover-1', function(event, popover, emitter) {
-        emitter.data('data',data);
-    });
-
-
-	$('body').on('submit','[role="form"]',function(event) {
-		event.preventDefault();
-		$.dialog({
-			title:'Tips:',
-			content:'trigger submit event',
-			type:'alert'
-		});
-	});
+});
+    // $('.btn-primary').trigger('click')
     </script>
 </body>
 
