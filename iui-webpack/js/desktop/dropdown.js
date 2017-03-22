@@ -7,11 +7,11 @@
   */
  let utils = require('../utils');
  let isSafari = (function(){
-                    var ua = navigator.userAgent.toLowerCase(); 
-                    if (ua.indexOf('safari') != -1) { 
-                      return ua.indexOf('chrome') > -1 ? false : true;
-                    }
-                })();
+        var ua = navigator.userAgent.toLowerCase(); 
+        if (ua.indexOf('safari') != -1) { 
+          return ua.indexOf('chrome') > -1 ? false : true;
+        }
+    })();
  let settings = {
      readOnly       : false,
      limitCount     : Infinity,
@@ -52,9 +52,10 @@
 
 // object-data 转 select-option
  function objectToSelect(data) {
-     let map    = {};
-     let result = '';
-     let name   = [];
+     let map          = {};
+     let result       = '';
+     let name         = [];
+     let selectAmount = 0;
 
      if (!data || !data.length) {
          return false;
@@ -69,6 +70,7 @@
 
          if(selected){
             name.push(`<span>${val.name}</span>`);
+            selectAmount++;
          }
 
          // 判断是否有分组
@@ -96,7 +98,7 @@
          }
 
      });
-     return [result,name];
+     return [result,name,selectAmount];
  }
 
 // select-option 转 object-data
@@ -202,15 +204,29 @@
         let _config     = _dropdown.config;
         let $el         = _dropdown.$el;
         let $select     = _dropdown.$select;
+        let $ul         = $el.find('ul');
         let $target     = $(event.target);
         let value       = $target.data('value');
         let hasSelected = $target.hasClass('dropdown-chose');
+
+
+        if(hasSelected){
+            $target.removeClass('dropdown-chose');
+            _dropdown.selectAmount--;
+        }else{
+            if(_dropdown.selectAmount < _config.limitCount){
+                $target.addClass('dropdown-chose');
+                _dropdown.selectAmount++;
+            }else{
+                
+                return false;
+            }
+            
+        }
+        
+        
         _dropdown.name  = [];
 
-        console.time('testing');
-
-        $target.toggleClass('dropdown-chose');
-        
         $.each(_config.data,function(key,item){
             if(item.id == value){
                 item.selected = hasSelected ? false : true;
@@ -220,9 +236,6 @@
             }
         });
 
-        // let processResult = objectToSelect(_config.data);
-
-        // $select[0].innerHTML=processResult[0];
 
         $select.find('option[value="'+value+'"]').prop('selected',hasSelected ? false : true);
 
@@ -230,7 +243,6 @@
 
         _dropdown.$choseList.html(_dropdown.name.join(''));
 
-        console.timeEnd('testing');
 
      },
      singleChoose:function(event){
@@ -242,7 +254,6 @@
         let value       = $target.data('value');
         let hasSelected = $target.hasClass('dropdown-chose');
         _dropdown.name      = [];
-        console.time('testing');
 
         $el.find('.dropdown-main').addClass('hide');
 
@@ -259,15 +270,12 @@
             }
         });
 
-        // let processResult = objectToSelect(_config.data);
-
         $select.find('option[value="'+value+'"]').prop('selected',true);
 
         _dropdown.name.push(`<span class="placeholder">${_dropdown.placeholder}</span>`);
 
         _dropdown.$choseList.html(_dropdown.name.join(''));
 
-        console.timeEnd('testing');
         
      }
  };
@@ -276,14 +284,15 @@
 
 
  function Dropdown(options, el) {
-     this.$el         = $(el);
-     this.$select     = this.$el.find('select');
-     this.placeholder = this.$select.attr('placeholder');
-     this.config      = options;
-     this.name        = [];
-     this.iss         = !this.$select.prop('multiple');
+     this.$el          = $(el);
+     this.$select      = this.$el.find('select');
+     this.placeholder  = this.$select.attr('placeholder');
+     this.config       = options;
+     this.name         = [];
+     this.iss          = !this.$select.prop('multiple');
+     this.selectAmount = 0;
      this.init();
- };
+ }
 
  Dropdown.prototype = {
      init: function() {
@@ -297,10 +306,11 @@
             _config.data   = selectToObject(_this.$select);
          }
 
-         let processResult = objectToSelect(_config.data);
-         _this.name        = processResult[1];
-         _this.$select.html(processResult[0]);
 
+         let processResult  = objectToSelect(_config.data);
+         _this.name         = processResult[1];
+         _this.selectAmount = processResult[2];
+         _this.$select.html(processResult[0]);
          _this.renderSelect();
 
          _this.$el.find('ul').removeAttr('id').removeAttr('name');
@@ -333,7 +343,6 @@
      // 渲染 select 为 dropdown
      renderSelect: function() {
          let _this   = this;
-         let _config = _this.config;
          let $el     = _this.$el;
          let $select = _this.$select;
          let htmlStr = '<div class="dropdown-main hide">' + selectToDiv($select.prop('outerHTML')) + '</div>';
@@ -355,7 +364,7 @@
  };
 
 
- $(document).on('click.dropdown', function(event) {
+ $(document).on('click.dropdown', function() {
      $('.dropdown-main').addClass('hide');
  });
 

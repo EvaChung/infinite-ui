@@ -1,0 +1,11 @@
+{
+    "browser"       : true,     // 支持浏览器宿主变量 (window, document, etc)
+    "esnext"        : true,     // true: 允许 ES.next (ES6) 语法 (例如: `const`)
+    "undef"         : true,     // true: 要求非全局变量需要先声明
+    "unused"        : true,     // true: 要求所有声明的变量都要用上
+    "camelcase"     : false,    // true: 变量名必须是驼峰风格
+    "node"          : true,
+    "jquery"        : true,
+    "maxparams"     : 5,
+    "quotmark"      : true
+}
